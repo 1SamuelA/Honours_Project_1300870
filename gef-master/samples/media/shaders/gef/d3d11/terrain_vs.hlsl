@@ -1,3 +1,6 @@
+// texture vertex shader
+// Basic shader for rendering textured geometry
+
 cbuffer MatrixBuffer
 {
 	matrix wvp;
@@ -7,23 +10,36 @@ cbuffer MatrixBuffer
 
 struct VertexInput
 {
-    float4 position : POSITION;
-    float3 normal : NORMAL;
-    float2 uv : TEXCOORD;
+	float4 position : POSITION;
+	float3 normal : NORMAL;
+	float2 uv : TEXCOORD;
 };
 
-struct PixelInput
+struct OutputType
 {
 	float4 position : SV_POSITION;
-	float4 depth_position : TEXTURE0;
-	float4 colour : COLOR;
+	float2 tex : TEXCOORD0;
+	float3 normal : NORMAL;
+	float4 colour: COLOR;
 };
 
-void VS( in VertexInput input,
-         out PixelInput output )
+OutputType main(InputType input)
 {
-    output.position = mul(input.position, wvp);
-    output.depth_position = output.position;
+	OutputType output;
+
+
+	// Change the position vector to be 4 units for proper matrix calculations.
+	input.position.w = 1.0f;
+
+	// Calculate the position of the vertex against the world, view, and projection matrices.
+	output.position = mul(input.position, wvp);
+	
+
+	// Calculate the normal vector against the world matrix only.
+	output.normal = mul(invworld,input.normal );
+
+	// Normalize the normal vector.
+	output.normal = normalize(output.normal);
 
 	float4 colour;
 
@@ -55,6 +71,7 @@ void VS( in VertexInput input,
 	{
 		colour = float4(1, 1, 1, 1);
 	}
+	
 	output.colour = colour;
-
+	return output;
 }

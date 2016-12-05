@@ -9,6 +9,8 @@ TerrainShader::TerrainShader(const gef::Platform& platform)
 		:gef::Shader(platform)
 		, wvp_matrix_variable_index_(-1)
 		, time_float_variable_index_(-1)
+		, invworld_matrix_variable_index_(-1)
+		, world_matrix_variable_index_(-1)
 	{
 		bool success = true;
 
@@ -33,6 +35,8 @@ TerrainShader::TerrainShader(const gef::Platform& platform)
 
 
 		wvp_matrix_variable_index_ = device_interface_->AddVertexShaderVariable("wvp", gef::ShaderInterface::kMatrix44);
+		world_matrix_variable_index_ = device_interface_->AddVertexShaderVariable("world", gef::ShaderInterface::kMatrix44);
+		invworld_matrix_variable_index_ = device_interface_->AddVertexShaderVariable("invworld", gef::ShaderInterface::kMatrix44);
 
 		// pixel shader variables
 		time_float_variable_index_ = device_interface_->AddPixelShaderVariable("time", gef::ShaderInterface::kVector4);
@@ -57,11 +61,7 @@ TerrainShader::~TerrainShader()
 
 	void TerrainShader::SetVertexShaderData(const gef::Matrix44& world_matrix, const gef::Matrix44& view_matrix, const gef::Matrix44& projection_matrix, float time, float total_time)
 	{
-		gef::Matrix44 wvp = world_matrix * view_matrix * projection_matrix;
-		gef::Matrix44 wvpT;
-
-		wvpT.Transpose(wvp);
-
+		
 		gef::Vector4 time_;
 
 		time_.set_x(time);
@@ -69,7 +69,31 @@ TerrainShader::~TerrainShader()
 		time_.set_z(5);
 		time_.set_w(1);
 		
-		device_interface_->SetVertexShaderVariable(wvp_matrix_variable_index_, &wvpT);
 		device_interface_->SetPixelShaderVariable(time_float_variable_index_, &time_);
+	}
+
+	void TerrainShader::SetMeshData(const gef::MeshInstance& mesh_instance ,const gef::Matrix44& view_matrix, const gef::Matrix44& projection_matrix)
+	{
+		gef::Matrix44 view_projection_matrix_ = view_matrix*projection_matrix;
+
+		// calculate world view projection matrix
+		gef::Matrix44 wvp = mesh_instance.transform() * view_projection_matrix_;
+
+		// calculate the transpose of inverse world matrix to transform normals in shader
+		gef::Matrix44 inv_world;
+		inv_world.Inverse(mesh_instance.transform());
+		//inv_world_transpose_matrix.Transpose(inv_world);
+
+		// take transpose of matrices for the shaders
+		gef::Matrix44 wvpT, worldT;
+
+		wvpT.Transpose(wvp);
+		worldT.Transpose(mesh_instance.transform());
+		// taking the transpose of the inverse world transpose matrix, just give use the inverse world matrix
+		// no need to waste calculating that here
+
+		device_interface_->SetVertexShaderVariable(wvp_matrix_variable_index_, &wvpT);
+		device_interface_->SetVertexShaderVariable(world_matrix_variable_index_, &worldT);
+		device_interface_->SetVertexShaderVariable(invworld_matrix_variable_index_, &inv_world);
 	}
 

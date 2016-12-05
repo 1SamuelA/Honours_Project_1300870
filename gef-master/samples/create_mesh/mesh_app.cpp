@@ -157,6 +157,8 @@ void MeshApp::Render()
 
 	renderer_3d_->End();
 
+	RenderTerrain();
+
 	// setup the sprite renderer, but don't clear the frame buffer
 	// draw 2D sprites here
 	sprite_renderer_->Begin(false);
@@ -510,6 +512,14 @@ void MeshApp::RenderTerrain()
 	platform_.set_render_target_clear_colour(gef::Colour(0.0f, 0.0f, 0.0f, 1.0f));
 	renderer_3d_->Begin();
 
+	float currentTime, TotalTime;
+	currentTime = TotalTime = 0;
+
+	if (renderer_3d_->shader() == terrain_shader_)
+	{
+		terrain_shader_->SetMeshData(cube_player_, view_matrix, projection_matrix);
+		terrain_shader_->SetVertexShaderData(cube_player_.transform(), view_matrix, projection_matrix, currentTime, TotalTime);
+	}
 	renderer_3d_->DrawMesh(cube_player_);
 
 	renderer_3d_->End();
@@ -523,5 +533,13 @@ void MeshApp::RenderTerrain()
 	// reset clear colour
 	platform_.set_render_target_clear_colour(gef::Colour(0.0f, 0.0f, 1.0f, 1.0f));
 
+
+}
+
+void MeshApp::SetupShader(const gef::MeshInstance& mesh_instance)
+{
+	// depending on the shader being used
+	// pass the data to the appropriate shader
+	
 
 }
