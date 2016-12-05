@@ -26,6 +26,7 @@ namespace gef
 	class PNGLoader;
 }
 
+class TerrainShader;
 
 
 class MeshApp : public gef::Application
@@ -42,6 +43,8 @@ private:
 	void DrawHUD();
 	void SetupLights();
 	void SetupCamera();
+
+	void RenderTerrain();
 
 	void ProcessKeyboardInput();
 	void ProcessTouchInput();
@@ -81,6 +84,9 @@ private:
 	std::vector<int> terrain_index;
 
 	float pitch, yaw, roll;
+
+
+	TerrainShader* terrain_shader_;
 
 };
 

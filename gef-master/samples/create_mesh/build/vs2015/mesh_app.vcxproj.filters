@@ -30,10 +30,7 @@
     <ClCompile Include="..\..\terrain_mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Shaders\depth_shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Shaders\shadow_shader.cpp">
+    <ClCompile Include="..\..\Shaders\terrain_shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,10 +47,7 @@
     <ClInclude Include="..\..\terrain_mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Shaders\depth_shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Shaders\shadow_shader.h">
+    <ClInclude Include="..\..\Shaders\terrain_shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -23,6 +23,8 @@
 
 #include <terrain_mesh.h>
 
+#include <shaders\terrain_shader.h>
+
 
 MeshApp::MeshApp(gef::Platform& platform) :
 	Application(platform),
@@ -30,7 +32,8 @@ MeshApp::MeshApp(gef::Platform& platform) :
 	font_(NULL),
 	renderer_3d_(NULL),
 	input_manager_(NULL),
-	active_touch_id_(-1)
+	active_touch_id_(-1),
+	terrain_shader_(NULL)
 {
 }
 
@@ -67,7 +70,10 @@ void MeshApp::Init()
 	terrain_mesh_->GenerateVertices();
 	terrain_mesh_->GenerateIndex();
 
-	
+	terrain_shader_ = new TerrainShader(platform_);
+	platform_.AddShader(terrain_shader_);
+
+
 
 	mesh_ = CreateCubeMesh();
 	cube_player_.set_mesh(mesh_);
@@ -101,6 +107,10 @@ void MeshApp::CleanUp()
 
 	delete renderer_3d_;
 	renderer_3d_ = NULL;
+
+	platform_.RemoveShader(terrain_shader_);
+	delete terrain_shader_;
+	terrain_shader_ = NULL;
 }
 
 bool MeshApp::Update(float frame_time)
@@ -109,13 +119,15 @@ bool MeshApp::Update(float frame_time)
 
 	fps_ = 1.0f / frame_time;
 	time_ += frame_time;
+
+	//Upadtes Camera Infomation.
 	camera_0->SetFrameTime(frame_time);
 	camera_0->update();
 
 	gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) mesh_->vertex_buffer()->vertex_data();
 
-	//vertices_[0].py = sin(time_)/2;
-	//vertices_[0].px = cos(time_)/2;
+	vertices_[0].py = sin(time_)/2;
+
 	ProcessKeyboardInput();
 	mesh_->vertex_buffer()->Update(platform_);
 
@@ -165,7 +177,7 @@ void MeshApp::CleanUpFont()
 
 void MeshApp::DrawHUD()
 {
-	if(font_)
+	if (font_)
 	{
 		// display frame rate
 		font_->RenderText(sprite_renderer_, gef::Vector4(850.0f, 510.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "FPS: %.1f", fps_);
@@ -178,8 +190,6 @@ void MeshApp::DrawHUD()
 	}
 }
 
-
-
 void MeshApp::ProcessKeyboardInput()
 {
 	const gef::Keyboard* keyboard = input_manager_->keyboard();
@@ -189,7 +199,7 @@ void MeshApp::ProcessKeyboardInput()
 		
 		
 
-
+		// Translation
 		if (keyboard->IsKeyDown(gef::Keyboard::KC_W))
 		{
 			camera_0->MoveForward();
@@ -208,14 +218,16 @@ void MeshApp::ProcessKeyboardInput()
 			camera_0->StrafeRight();
 		}
 
+		// Rotation
 		if (keyboard->IsKeyDown(gef::Keyboard::KC_NUMPAD4 ))
-		{
-			camera_0->TurnRight();
-		}
-		if (keyboard->IsKeyDown(gef::Keyboard::KC_NUMPAD6))
 		{
 			camera_0->TurnLeft();
 		}
+		if (keyboard->IsKeyDown(gef::Keyboard::KC_NUMPAD6))
+		{
+			camera_0->TurnRight();
+		}
+
 		if (keyboard->IsKeyDown(gef::Keyboard::KC_NUMPAD8))
 		{
 			camera_0->TurnUp();
@@ -224,15 +236,6 @@ void MeshApp::ProcessKeyboardInput()
 		{
 			camera_0->TurnDown();
 		}
-
-			
-		//if (keyboard->IsKeyPressed(gef::Keyboard::KC_D))
-		//	camera_0->StrafeRight();
-		//if (keyboard->IsKeyPressed(gef::Keyboard::KC_W))
-		//	camera_0->MoveForward();
-		//if (keyboard->IsKeyPressed(gef::Keyboard::KC_S))
-		//	camera_0->MoveBackward();
-		
 	}
 }
 
@@ -485,4 +488,40 @@ void MeshApp::SetupCamera()
 	camera_fov = gef::DegToRad(45.0f);
 	near_plane = 0.01f;
 	far_plane = 1000.f;
+}
+
+
+void MeshApp::RenderTerrain()
+{
+
+	gef::Shader* previous_shader = renderer_3d_->shader();
+
+	gef::Matrix44 projection_matrix;
+	gef::Matrix44 view_matrix;
+
+	projection_matrix = platform_.PerspectiveProjectionFov(camera_fov, (float)platform_.width() / (float)platform_.height(), near_plane, far_plane);
+
+	view_matrix.LookAt(camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp());
+
+	// use the shader for renderering the depth values to the shadow buffer
+	renderer_3d_->SetShader(terrain_shader_);
+
+	// render target needs to be cleared to zero [black]
+	platform_.set_render_target_clear_colour(gef::Colour(0.0f, 0.0f, 0.0f, 1.0f));
+	renderer_3d_->Begin();
+
+	renderer_3d_->DrawMesh(cube_player_);
+
+	renderer_3d_->End();
+
+	// restore previous shader
+	renderer_3d_->SetShader(previous_shader);
+
+	// set render target to the the default [the back buffer]
+	platform_.set_render_target(NULL);
+
+	// reset clear colour
+	platform_.set_render_target_clear_colour(gef::Colour(0.0f, 0.0f, 1.0f, 1.0f));
+
+
 }

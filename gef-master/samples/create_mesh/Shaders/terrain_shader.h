@@ -1,5 +1,5 @@
-#ifndef _DEPTH_SHADER_H
-#define _DEPTH_SHADER_H
+#ifndef _TERRAIN_SHADER_H
+#define _TERRAIN_SHADER_H
 
 #include <graphics/shader.h>
 #include <maths/matrix44.h>
@@ -11,7 +11,7 @@ namespace gef
 	class Platform;
 }
 
-class DepthShader : public gef::Shader
+class TerrainShader : public gef::Shader
 {
 public:
 	struct VertexShaderData
@@ -19,8 +19,8 @@ public:
 		gef::Matrix44 wvp;
 	};
 
-	DepthShader(const gef::Platform& platform);
-	virtual ~DepthShader();
+	TerrainShader(const gef::Platform& platform);
+	virtual ~TerrainShader();
 
 	void SetVertexShaderData(const gef::Matrix44& world_matrix, const gef::Matrix44& view_matrix, const gef::Matrix44& projection_matrix, float time_, float total_time);
 protected:
