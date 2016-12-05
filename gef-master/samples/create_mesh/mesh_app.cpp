@@ -25,6 +25,8 @@
 
 #include <shaders\terrain_shader.h>
 
+#include "PerlinNoise.h"
+
 
 MeshApp::MeshApp(gef::Platform& platform) :
 	Application(platform),
@@ -238,7 +240,22 @@ void MeshApp::ProcessKeyboardInput()
 		{
 			camera_0->TurnDown();
 		}
+
+		if (keyboard->IsKeyDown(gef::Keyboard::KC_Q))
+		{
+			camera_0->MoveUp();
+		}
+		if (keyboard->IsKeyDown(gef::Keyboard::KC_E))
+		{
+			camera_0->MoveDown();
+		}
+		
+	
+		
+	
 	}
+
+	
 }
 
 void MeshApp::ProcessTouchInput()
@@ -473,8 +490,8 @@ gef::Mesh* MeshApp::CreateCubeMesh()
 void MeshApp::SetupLights()
 {
 	gef::PointLight default_point_light;
-	default_point_light.set_colour(gef::Colour(0.7f, 0.7f, 1.0f, 1.0f));
-	default_point_light.set_position(gef::Vector4(30.0f, 4.0f, 30.0f));
+	default_point_light.set_colour(gef::Colour(0.1f, 0.1f, 1.0f, 1.0f));
+	default_point_light.set_position(gef::Vector4(30.0f, 30.0f, 30.0f));
 
 	gef::Default3DShaderData& default_shader_data = renderer_3d_->default_shader_data();
 	default_shader_data.set_ambient_light_colour(gef::Colour(0.5f, 0.5f, 0.5f, 1.0f));

@@ -162,6 +162,7 @@
     <ClCompile Include="..\..\game_object.cpp" />
     <ClCompile Include="..\..\main_d3d11.cpp" />
     <ClCompile Include="..\..\mesh_app.cpp" />
+    <ClCompile Include="..\..\PerlinNoise.cpp" />
     <ClCompile Include="..\..\Shaders\terrain_shader.cpp" />
     <ClCompile Include="..\..\terrain_mesh.cpp" />
   </ItemGroup>
@@ -169,6 +170,7 @@
     <ClInclude Include="..\..\camera_object.h" />
     <ClInclude Include="..\..\game_object.h" />
     <ClInclude Include="..\..\mesh_app.h" />
+    <ClInclude Include="..\..\PerlinNoise.h" />
     <ClInclude Include="..\..\Shaders\terrain_shader.h" />
     <ClInclude Include="..\..\terrain_mesh.h" />
   </ItemGroup>

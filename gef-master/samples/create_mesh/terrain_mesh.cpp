@@ -2,14 +2,18 @@
 #include <time.h>
 
 #include <system/debug_log.h>
+#include <PerlinNoise.h>
 
 TerrainMesh::TerrainMesh()
 {
 	terrain_verticies.clear();
 	terrain_verticies.clear();
 
-	x_length = 30;
-	z_length = 30;
+
+	perlin_noise_ = new PerlinNoise(2, 0.5, 4, 1, 1);
+
+	x_length = 100;
+	z_length = 100;
 }
 
 void TerrainMesh::GenerateVertices()
@@ -46,8 +50,8 @@ void TerrainMesh::GenerateRandomHeights()
 	srand(time(NULL));
 	for (int vertexCount = 0; vertexCount < terrain_verticies.size(); vertexCount++)
 	{
-		float r = std::rand() / (float)RAND_MAX;
-		terrain_verticies[vertexCount].py = r;
+		
+		terrain_verticies[vertexCount].py = perlin_noise_->GetHeight(terrain_verticies[vertexCount].px, terrain_verticies[vertexCount].pz);
 
 	}
 
