@@ -24,7 +24,10 @@
     <ClCompile Include="..\..\game_object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="camera_object.cpp">
+    <ClCompile Include="..\..\camera_object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\terrain_mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,7 +38,10 @@
     <ClInclude Include="..\..\game_object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="camera_object.h">
+    <ClInclude Include="..\..\camera_object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\terrain_mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -8,7 +8,11 @@
 #include <vector>
 #include <graphics/mesh_instance.h>
 #include <graphics\mesh.h>
+#include <graphics\image_data.h>
 
+#include <camera_object.h>
+
+class TerrainMesh;
 
 // FRAMEWORK FORWARD DECLARATIONS
 namespace gef
@@ -18,7 +22,11 @@ namespace gef
 	class Font;
 	class Renderer3D;
 	class Mesh;
+	class InputManager;
+	class PNGLoader;
 }
+
+
 
 class MeshApp : public gef::Application
 {
@@ -35,7 +43,22 @@ private:
 	void SetupLights();
 	void SetupCamera();
 
+	void ProcessKeyboardInput();
+	void ProcessTouchInput();
+
+	gef::InputManager* input_manager_;
+
+	Int32 active_touch_id_;
+	gef::Vector2 touch_position_;
+
+	gef::PNGLoader* png_loader_;
+	gef::ImageData hieghtmapData;
+
+	CameraObject* camera_0;
+
 	gef::Mesh* CreateCubeMesh();
+
+	TerrainMesh* terrain_mesh_;
 
 	gef::SpriteRenderer* sprite_renderer_;
 	gef::Font* font_;
@@ -56,6 +79,9 @@ private:
 
 	std::vector<gef::Mesh::Vertex> terrain_verticies;
 	std::vector<int> terrain_index;
+
+	float pitch, yaw, roll;
+
 };
 
 #endif // _MESH_APP_H

@@ -8,31 +8,79 @@
 #include <graphics/image_data.h>
 #include <graphics/font.h>
 #include <input/touch_input_manager.h>
+#include <input/keyboard.h>
+#include <input\input_manager.h>
 #include <maths/vector2.h>
-#include <input/sony_controller_input_manager.h>
 #include <maths/math_utils.h>
 #include <graphics/renderer_3d.h>
 
+
+#include <system/debug_log.h>
+
 #include <graphics\mesh.h>
 #include <graphics\vertex_buffer.h>
+#include <assets\png_loader.h>
+
+#include <terrain_mesh.h>
+
 
 MeshApp::MeshApp(gef::Platform& platform) :
 	Application(platform),
 	sprite_renderer_(NULL),
 	font_(NULL),
-	renderer_3d_(NULL)
+	renderer_3d_(NULL),
+	input_manager_(NULL),
+	active_touch_id_(-1)
 {
 }
 
 void MeshApp::Init()
 {
+
+	
+	pitch = yaw = roll=  0.0f;
+
 	sprite_renderer_ = gef::SpriteRenderer::Create(platform_);
 	renderer_3d_ = gef::Renderer3D::Create(platform_);
+	input_manager_ = gef::InputManager::Create(platform_);
+
+	//png_loader_ = new gef::PNGLoader();
+	//
+	//png_loader_->Load("heightmap.png", platform_, hieghtmapData);
+	//if (hieghtmapData.image() == NULL)
+	//{
+	//	exit(-1);
+	//}
+	//
+	//
+
+	// make sure if there is a panel to detect touch input, then activate it
+	if (input_manager_ && input_manager_->touch_manager() && (input_manager_->touch_manager()->max_num_panels() > 0))
+		input_manager_->touch_manager()->EnablePanel(0);
 
 	InitFont();
 
+	terrain_mesh_ = new TerrainMesh();
+
+	terrain_mesh_->GenerateVertices();
+	terrain_mesh_->GenerateIndex();
+
+	
+
 	mesh_ = CreateCubeMesh();
 	cube_player_.set_mesh(mesh_);
+
+	
+	
+
+	gef::Vector4 camera_eye = gef::Vector4(5.0f, 5.0f, 0.0f);
+	gef::Vector4 camera_forward = gef::Vector4(-1.0f, -1.0f, 0.0f);
+	gef::Vector4 camera_up = gef::Vector4(0.0f, 1.0f, 0.0f);
+	float camera_fov = gef::DegToRad(45.0f);
+	float near_plane = 0.01f;
+	float far_plane = 1000.f;
+
+	camera_0 = new CameraObject(camera_eye, camera_forward, camera_up, camera_fov, near_plane, far_plane);
 
 	SetupCamera();
 	SetupLights();
@@ -55,13 +103,17 @@ void MeshApp::CleanUp()
 
 bool MeshApp::Update(float frame_time)
 {
+	input_manager_->Update();
+
 	fps_ = 1.0f / frame_time;
 	time_ += frame_time;
+	camera_0->update();
 
 	gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) mesh_->vertex_buffer()->vertex_data();
 
-	//vertices_[0].py = sin(time_);
-	
+	//vertices_[0].py = sin(time_)/2;
+	//vertices_[0].px = cos(time_)/2;
+	ProcessKeyboardInput();
 	mesh_->vertex_buffer()->Update(platform_);
 
 
@@ -74,13 +126,17 @@ void MeshApp::Render()
 	gef::Matrix44 view_matrix;
 
 	projection_matrix = platform_.PerspectiveProjectionFov(camera_fov, (float)platform_.width() / (float)platform_.height(), near_plane, far_plane);
-	view_matrix.LookAt(camera_eye, camera_lookat, camera_up);
+
+	view_matrix.LookAt(camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp());
+	//view_matrix.LookAt(camera_eye, camera_lookat, camera_up);
+
 	renderer_3d_->set_projection_matrix(projection_matrix);
 	renderer_3d_->set_view_matrix(view_matrix);
 
 	// draw meshes here
 	renderer_3d_->Begin();
 	renderer_3d_->DrawMesh(cube_player_);
+
 	renderer_3d_->End();
 
 	// setup the sprite renderer, but don't clear the frame buffer
@@ -107,6 +163,98 @@ void MeshApp::DrawHUD()
 	{
 		// display frame rate
 		font_->RenderText(sprite_renderer_, gef::Vector4(850.0f, 510.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "FPS: %.1f", fps_);
+
+		font_->RenderText(sprite_renderer_, gef::Vector4(000.0f, 000.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "pitch: %.1f", camera_0->GetPitch());
+		font_->RenderText(sprite_renderer_, gef::Vector4(000.0f, 030.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "yaw: %.1f", camera_0->GetYaw());
+		font_->RenderText(sprite_renderer_, gef::Vector4(000.0f, 060.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "roll: %.1f", camera_0->GetRoll());
+
+		font_->RenderText(sprite_renderer_, gef::Vector4(000.0f, 090.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "Pos: %.1f %.1f %.1f", camera_0->GetPos().x(), camera_0->GetPos().y(), camera_0->GetPos().z());
+	}
+}
+
+
+
+void MeshApp::ProcessKeyboardInput()
+{
+	const gef::Keyboard* keyboard = input_manager_->keyboard();
+	if (keyboard)
+	{
+		// go through all the keys and print out some debug text when a key is pressed or released
+		
+		
+
+
+		if (keyboard->IsKeyDown(gef::Keyboard::KC_W))
+		{
+			camera_0->SetPitch(camera_0->GetPitch() + 1);
+		}
+		if (keyboard->IsKeyDown(gef::Keyboard::KC_S))
+		{
+			camera_0->SetPitch(camera_0->GetPitch() - 1);
+		}
+
+		if (keyboard->IsKeyDown(gef::Keyboard::KC_A))
+		{
+			camera_0->SetYaw(camera_0->GetYaw() - 1);
+		}
+		if (keyboard->IsKeyDown(gef::Keyboard::KC_D))
+		{
+			camera_0->SetYaw(camera_0->GetYaw() + 1);
+		}
+
+			
+		//if (keyboard->IsKeyPressed(gef::Keyboard::KC_D))
+		//	camera_0->StrafeRight();
+		//if (keyboard->IsKeyPressed(gef::Keyboard::KC_W))
+		//	camera_0->MoveForward();
+		//if (keyboard->IsKeyPressed(gef::Keyboard::KC_S))
+		//	camera_0->MoveBackward();
+		
+	}
+}
+
+void MeshApp::ProcessTouchInput()
+{
+	const gef::TouchInputManager* touch_input = input_manager_->touch_manager();
+	if (touch_input && (touch_input->max_num_panels() > 0))
+	{
+		// get the active touches for this panel
+		const gef::TouchContainer& panel_touches = touch_input->touches(0);
+
+		// go through the touches
+		for (gef::ConstTouchIterator touch = panel_touches.begin(); touch != panel_touches.end(); ++touch)
+		{
+			// if active touch id is -1, then we are currently processing a touch
+			if (active_touch_id_ == -1)
+			{
+				// check for the start of a new touch
+				if (touch->type == gef::TT_NEW)
+				{
+					active_touch_id_ = touch->id;
+
+					// do any processing for a new touch here
+					// we're just going to record the position of the touch
+					touch_position_ = touch->position;
+				}
+			}
+			else if (active_touch_id_ == touch->id)
+			{
+				// we are processing touch data with a matching id to the one we are looking for
+				if (touch->type == gef::TT_ACTIVE)
+				{
+					// update an active touch here
+					// we're just going to record the position of the touch
+					touch_position_ = touch->position;
+				}
+				else if (touch->type == gef::TT_RELEASED)
+				{
+					// the touch we are tracking has been released
+					// perform any actions that need to happen when a touch is released here
+					// we're not doing anything here apart from resetting the active touch id
+					active_touch_id_ = -1;
+				}
+			}
+		}
 	}
 }
 
@@ -117,44 +265,47 @@ gef::Mesh* MeshApp::CreateCubeMesh()
 	// initialise the vertex data to create a 1, 1, 1 cube
 	const float half_size = 0.5f;
 
-	float x_length = 2;
-	float y_length = 2;
+	//float x_length = 4;
+	//float y_length = 4;
+	//
+	//
+	//
+	//for (int y_axis = 0; y_axis < y_length; y_axis++)
+	//{
+	//	for (int x_axis = 0; x_axis < x_length; x_axis++)
+	//	{
+	//		int pos = (y_axis * x_length) + x_axis;
+	//		
+	//		gef::Mesh::Vertex vertex;
+	//
+	//		vertex.px = x_axis;
+	//		vertex.py = 0.5f;// y_axis;
+	//		vertex.pz = y_axis;
+	//			
+	//		vertex.nx = x_axis;
+	//		vertex.ny = y_axis;
+	//		vertex.nz = x_axis;
+	//			
+	//		vertex.u = 0;
+	//		vertex.v = 0;
+	//		
+	//		terrain_verticies.push_back(vertex);
+	//
+	//	}
+	//}
 
-	
+	terrain_verticies = terrain_mesh_->GetTerrainVerticies();
 
-	for (int y_axis = 0; y_axis < y_length; y_axis++)
-	{
-		for (int x_axis = 0; x_axis < x_length; x_axis++)
-		{
-			int pos = (y_axis * x_length) + x_axis;
-			
-			gef::Mesh::Vertex vertex;
-
-			vertex.px = x_axis;
-			vertex.py = 0.5f;// y_axis;
-			vertex.pz = y_axis;
-				
-			vertex.nx = x_axis;
-			vertex.ny = y_axis;
-			vertex.nz = x_axis;
-				
-			vertex.u = 0;
-			vertex.v = 0;
-			
-			terrain_verticies.push_back(vertex);
-
-		}
-	}
-
-
-	gef::Mesh::Vertex* temp_vertices = new gef::Mesh::Vertex[terrain_verticies.size()];
+	gef::Mesh::Vertex* vertices = new gef::Mesh::Vertex[terrain_verticies.size()];
 
 	for (int i = 0; i < terrain_verticies.size(); i++)
 	{
-		temp_vertices[i] = terrain_verticies[i];
+		vertices[i] = terrain_verticies[i];
 	}
 
-	const gef::Mesh::Vertex vertices[] = { temp_vertices[0],temp_vertices[1],temp_vertices[2],temp_vertices[3] };
+	//gef::Mesh::Vertex vertices[] = { temp_vertices[0],temp_vertices[1],temp_vertices[2],temp_vertices[3] };
+
+
 
 	//{
 	//	{ half_size, -half_size, -half_size,  0.577f, -0.577f, -0.577f, 0.0f, 0.0f },
@@ -169,7 +320,7 @@ gef::Mesh* MeshApp::CreateCubeMesh()
 	
 	 
 
-	mesh->InitVertexBuffer(platform_, static_cast<const void*>(vertices), sizeof(vertices)/sizeof(gef::Mesh::Vertex), sizeof(gef::Mesh::Vertex),false);
+	mesh->InitVertexBuffer(platform_, vertices, terrain_verticies.size(), sizeof(gef::Mesh::Vertex),false);
 
 	// we will create a single triangle list primitive to draw the triangles that make up the cube
 	mesh->AllocatePrimitives(1);
@@ -182,80 +333,74 @@ gef::Mesh* MeshApp::CreateCubeMesh()
 	//int index = 0;
 	//
 
-	for (int y_axis = 0; y_axis < y_length -1; y_axis++)
-	{
-		for (int x_axis = 0; x_axis < x_length -1; x_axis++)
-		{
-	
-			/*
- 	
-			y+1	A-----B
-				|    /|
-				| 1 / |
-				|  /  |
-				| /	  |
-				|/	2 |
-			y	C-----D
-				
-				x    x+1
-			*/
-			
-			float a = ( x_length * ( y_axis + 1 ) ) + x_axis;
-			float b = (x_length * (y_axis + 1)) + x_axis + 1;
-			float c = (x_length * (y_axis)) + x_axis;
-			float d = (x_length * (y_axis)) + x_axis + 1;
-	
-	
-			//// Face 1
-			
-			// Upper left.
-			terrain_index.push_back(c);
-			
-			// Upper right.
-			terrain_index.push_back(b);
-	
-			// lower left
-			terrain_index.push_back(a);
-	
-				
-			//// Face 2
-	
-			// Bottom right
-			terrain_index.push_back(c);
-	
-			// Upper right
-			terrain_index.push_back(d);
-	
-			// Lower left.
-			terrain_index.push_back(b);
-	
-		}
-	
-	}
+	//for (int y_axis = 0; y_axis < y_length -1; y_axis++)
+	//{
+	//	for (int x_axis = 0; x_axis < x_length -1; x_axis++)
+	//	{
+	//
+	//		/*
+ 	//
+	//		y+1	A-----B
+	//			|    /|
+	//			| 1 / |
+	//			|  /  |
+	//			| /	  |
+	//			|/	2 |
+	//		y	C-----D
+	//			
+	//			x    x+1
+	//		*/
+	//		
+	//		float a = ( x_length * ( y_axis + 1 ) ) + x_axis;
+	//		float b = (x_length * (y_axis + 1)) + x_axis + 1;
+	//		float c = (x_length * (y_axis)) + x_axis;
+	//		float d = (x_length * (y_axis)) + x_axis + 1;
+	//
+	//
+	//		//// Face 1
+	//		
+	//		// Upper left.
+	//		terrain_index.push_back(c);
+	//		
+	//		// Upper right.
+	//		terrain_index.push_back(b);
+	//
+	//		// lower left
+	//		terrain_index.push_back(a);
+	//
+	//			
+	//		//// Face 2
+	//
+	//		// Bottom right
+	//		terrain_index.push_back(c);
+	//
+	//		// Upper right
+	//		terrain_index.push_back(d);
+	//
+	//		// Lower left.
+	//		terrain_index.push_back(b);
+	//
+	//	}
+	//
+	//}
 
 
-	UInt32* temp_indices = new UInt32[terrain_index.size()];
+	terrain_index = terrain_mesh_->GetTerrainIndices();
 
+	UInt32* indices; 
+	indices = new UInt32[terrain_index.size()];
+	
 	for (int i = 0; i < terrain_index.size(); i++)
 	{
-		temp_indices[i] = terrain_index[i];
+		indices[i] = terrain_index[i];
 	}
-
-
-
-	//UInt32* indices; 
-	//indices = new UInt32[6];
 	
-	//for (int i = 0; i < terrain_index.size(); i++)
-	//{
-	//	indices[0] = terrain_index[i];
-	//}
-	
-	UInt32 indices[] = { temp_indices[0],temp_indices[1],temp_indices[2],temp_indices[3],temp_indices[4],temp_indices[5] };
+
+	//UInt32 indicesa[] = { temp_indices[0],temp_indices[1],temp_indices[2],temp_indices[3],temp_indices[4],temp_indices[5] };
 	
 	
 	//indices = indices_;
-	UInt32* index = indices;
+	//UInt32* index = indicesa;
 
 	//const UInt32 indices[] = {
 	//	// Back
@@ -278,13 +423,14 @@ gef::Mesh* MeshApp::CreateCubeMesh()
 	//	0, 7, 4
 	//};
    
+	primitive->InitIndexBuffer(platform_, static_cast<const void*>(indices), terrain_index.size(), sizeof(UInt32));
 
-	primitive->InitIndexBuffer(platform_, static_cast<const void*>(indices), sizeof(indices)/sizeof(UInt32),sizeof(UInt32));
+	//primitive->InitIndexBuffer(platform_, static_cast<const void*>(indices), sizeof(indices)/sizeof(UInt32),sizeof(UInt32));
 	primitive->set_type(gef::TRIANGLE_LIST);
 
 
-//	delete [] indices;
-//	indices = NULL;
+	delete indices;
+	indices = NULL;
 
 	// set size of bounds, we need this for collision detection routines
 	gef::Aabb aabb(gef::Vector4(-half_size, -half_size, -half_size), gef::Vector4(half_size, half_size, half_size));
@@ -310,8 +456,8 @@ void MeshApp::SetupLights()
 void MeshApp::SetupCamera()
 {
 	// initialise the camera settings
-	camera_eye = gef::Vector4(5.0f, 5.0f, 5.0f);
-	camera_lookat = gef::Vector4(0.0f, 0.0f, 0.0f);
+	camera_eye = gef::Vector4(5.0f, 5.0f, 0.0f);
+	camera_lookat = gef::Vector4(4.0f, 4.0f, 0.0f);
 	camera_up = gef::Vector4(0.0f, 1.0f, 0.0f);
 	camera_fov = gef::DegToRad(45.0f);
 	near_plane = 0.01f;
