@@ -65,6 +65,9 @@ void CameraObject::update()
 
 	camera_up_.Normalise();
 
+
+	camera_right_ = camera_forward_.CrossProduct(camera_up_);
+
 	/*
 	void Camera::Update()
 	{
@@ -193,9 +196,9 @@ gef::Vector4 Camera::GetRotation()
 	return rot;
 }
 
+*/
 
-
-void Camera::MoveForward()
+void CameraObject::MoveForward()
 {
 	float radians;
 
@@ -203,159 +206,155 @@ void Camera::MoveForward()
 	m_speed = m_frameTime * 5.f;
 
 	// Convert degrees to radians.
-	radians = m_rotationY * 0.0174532925f;
+	//radians = camera_pos_.y() * FRAMEWORK_DEG_TO_RAD;
 
 	// Update the position.
-	m_positionX += sinf(radians) * m_speed;
-	m_positionZ += cosf(radians) * m_speed;
 
-	camera_position_.set_x(m_positionX);
-	camera_position_.set_z(m_positionZ);
+	//camera_pos_.set_x(camera_pos_.x() + sinf(radians) * m_speed);
+	//camera_pos_.set_z(camera_pos_.x() + cosf(radians) * m_speed);
+
+	gef::Vector4 Move;
+
+	Move = camera_forward_ * m_speed;
+
+	camera_pos_ += Move;
+	
+
 }
 
 
-void Camera::MoveBackward()
+void CameraObject::MoveBackward()
 {
 	float radians;
 
 	// Update the backward movement based on the frame time
 	m_speed = m_frameTime * 5.f;// *0.5f;
 
-								// Convert degrees to radians.
-	radians = m_rotationY * 0.0174532925f;
+	gef::Vector4 Move;
 
-	// Update the position.
-	m_positionX -= sinf(radians) * m_speed;
-	m_positionZ -= cosf(radians) * m_speed;
+	Move = camera_forward_ * m_speed;
 
-	camera_position_.set_x(m_positionX);
-	camera_position_.set_z(m_positionZ);
+	camera_pos_ -= Move;
 }
 
 
-void Camera::MoveUpward()
+void CameraObject::MoveUp()
 {
 	// Update the upward movement based on the frame time
 	m_speed = m_frameTime * 5.f;// *0.5f;
 
-								// Update the height position.
-	m_positionY += m_speed;
+	gef::Vector4 Move;
 
-	camera_position_.set_y(m_positionY);
+	Move = camera_up_ * m_speed;
+
+	camera_pos_ += Move;
+
 }
 
 
-void Camera::MoveDownward()
+void CameraObject::MoveDown()
 {
 	// Update the downward movement based on the frame time
 	m_speed = m_frameTime * 5.f;// *0.5f;
 
-								// Update the height position.
-	m_positionY -= m_speed;
+	gef::Vector4 Move;
 
-	camera_position_.set_y(m_positionY);
+	Move = camera_up_ * m_speed;
+
+	camera_pos_ += Move;
+
 }
 
 
-void Camera::TurnLeft()
+void CameraObject::TurnLeft()
 {
 	// Update the left turn movement based on the frame time 
 	m_speed = m_frameTime * 25.0f;
 
 	// Update the rotation.
-	m_rotationY -= m_speed;
+	camera_rotation_.set_y(camera_rotation_ .y()- m_speed);
 
 	// Keep the rotation in the 0 to 360 range.
-	if (m_rotationY < 0.0f)
+	if (camera_rotation_.y() > 0.0f)
 	{
-		m_rotationY += 360.0f;
+		camera_rotation_.set_y(360.0f);
 	}
 }
 
 
-void Camera::TurnRight()
+void CameraObject::TurnRight()
 {
 	// Update the right turn movement based on the frame time
 	m_speed = m_frameTime * 25.0f;
 
 	// Update the rotation.
-	m_rotationY += m_speed;
+	camera_rotation_.set_y(camera_rotation_ .y()+ m_speed);
 
 	// Keep the rotation in the 0 to 360 range.
-	if (m_rotationY > 360.0f)
+	if (camera_rotation_.y() > 360.0f)
 	{
-		m_rotationY -= 360.0f;
+		camera_rotation_.set_y(0.0f);
 	}
 
 }
 
 
-void Camera::TurnUp()
+void CameraObject::TurnUp()
 {
 	// Update the upward rotation movement based on the frame time
 	m_speed = m_frameTime * 25.0f;
 
 	// Update the rotation.
-	m_rotationX -= m_speed;
+	camera_rotation_.set_x(camera_rotation_.x() - m_speed);
 
 	// Keep the rotation maximum 90 degrees.
-	if (m_rotationX > 90.0f)
+	if (camera_rotation_.x() > 90.0f)
 	{
-		m_rotationX = 90.0f;
+		camera_rotation_.set_x(90.0f);
 	}
 }
 
 
-void Camera::TurnDown()
+void CameraObject::TurnDown()
 {
 	// Update the downward rotation movement based on the frame time
 	m_speed = m_frameTime * 25.0f;
 
 	// Update the rotation.
-	m_rotationX += m_speed;
+	camera_rotation_.set_x(camera_rotation_.x() + m_speed);
 
 	// Keep the rotation maximum 90 degrees.
-	if (m_rotationX < -90.0f)
+	if (camera_rotation_.x() < -90.0f)
 	{
-		m_rotationX = -90.0f;
+		camera_rotation_.set_x(-90.0f);
 	}
 }
 
-void Camera::StrafeRight()
+void CameraObject::StrafeRight()
+{
+	float radians;
+
+	// Update the forward movement based on the frame time
+	m_speed = m_frameTime * 5.f;
+	gef::Vector4 Move;
+
+	Move = camera_right_ * m_speed;
+
+	camera_pos_ += Move;
+
+}
+
+void CameraObject::StrafeLeft()
 {
 	float radians;
 
 	// Update the forward movement based on the frame time
 	m_speed = m_frameTime * 5.f;
 
-	// Convert degrees to radians.
-	radians = m_rotationY * 0.0174532925f;
+	gef::Vector4 Move;
 
-	// Update the position.
-	m_positionZ -= sinf(radians) * m_speed;
-	m_positionX += cosf(radians) * m_speed;
+	Move = camera_right_ * m_speed;
 
-	camera_position_.set_x(m_positionX);
-	camera_position_.set_z(m_positionZ);
-
+	camera_pos_ -= Move;
 }
 
-void Camera::StrafeLeft()
-{
-	float radians;
-
-	// Update the forward movement based on the frame time
-	m_speed = m_frameTime * 5.f;
-
-	// Convert degrees to radians.
-	radians = m_rotationY * 0.0174532925f;
-
-	// Update the position.
-	m_positionZ += sinf(radians) * m_speed;
-	m_positionX -= cosf(radians) * m_speed;
-
-	camera_position_.set_x(m_positionX);
-	camera_position_.set_z(m_positionZ);
-}
-
-*/

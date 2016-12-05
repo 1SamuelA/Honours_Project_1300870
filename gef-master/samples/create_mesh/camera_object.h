@@ -40,11 +40,28 @@ public:
 	void inline SetYaw(float yaw) { camera_rotation_.set_y(yaw); }
 	void inline SetRoll(float roll) { camera_rotation_.set_z(roll); }
 
+	void inline SetFrameTime(float frame_time) { m_frameTime = frame_time; }
+
+	void MoveForward();
+	void MoveBackward();
+	void MoveUp();
+	void MoveDown();
+
+	void StrafeRight();
+	void StrafeLeft();
+
+	void TurnLeft();
+	void TurnRight();
+	void TurnUp();
+	void TurnDown();
+
+
 private:
 	//	Vars
 	gef::Vector4 camera_pos_;
 	gef::Vector4 camera_lookat_;
 	gef::Vector4 camera_up_;
+	gef::Vector4 camera_right_;
 
 	// Pitch, Yaw, Roll
 	gef::Vector4 camera_rotation_;
@@ -57,6 +74,9 @@ private:
 	float far_plane_;
 
 	bool static_look_at_;
+
+	float m_speed;
+	float m_frameTime;
 
 };
 

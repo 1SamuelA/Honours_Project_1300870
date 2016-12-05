@@ -44,6 +44,8 @@ void MeshApp::Init()
 	renderer_3d_ = gef::Renderer3D::Create(platform_);
 	input_manager_ = gef::InputManager::Create(platform_);
 
+	renderer_3d_->SetFillMode(renderer_3d_->kWireframe);
+	
 	//png_loader_ = new gef::PNGLoader();
 	//
 	//png_loader_->Load("heightmap.png", platform_, hieghtmapData);
@@ -107,6 +109,7 @@ bool MeshApp::Update(float frame_time)
 
 	fps_ = 1.0f / frame_time;
 	time_ += frame_time;
+	camera_0->SetFrameTime(frame_time);
 	camera_0->update();
 
 	gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) mesh_->vertex_buffer()->vertex_data();
@@ -133,9 +136,12 @@ void MeshApp::Render()
 	renderer_3d_->set_projection_matrix(projection_matrix);
 	renderer_3d_->set_view_matrix(view_matrix);
 
+	
 	// draw meshes here
 	renderer_3d_->Begin();
 	renderer_3d_->DrawMesh(cube_player_);
+
+	//renderer_3d_->SetFillMode(gef::Renderer3D::FillMode::kSolid);
 
 	renderer_3d_->End();
 
@@ -186,20 +192,37 @@ void MeshApp::ProcessKeyboardInput()
 
 		if (keyboard->IsKeyDown(gef::Keyboard::KC_W))
 		{
-			camera_0->SetPitch(camera_0->GetPitch() + 1);
+			camera_0->MoveForward();
 		}
 		if (keyboard->IsKeyDown(gef::Keyboard::KC_S))
 		{
-			camera_0->SetPitch(camera_0->GetPitch() - 1);
+			camera_0->MoveBackward();
 		}
 
 		if (keyboard->IsKeyDown(gef::Keyboard::KC_A))
 		{
-			camera_0->SetYaw(camera_0->GetYaw() - 1);
+			camera_0->StrafeLeft();
 		}
 		if (keyboard->IsKeyDown(gef::Keyboard::KC_D))
 		{
-			camera_0->SetYaw(camera_0->GetYaw() + 1);
+			camera_0->StrafeRight();
+		}
+
+		if (keyboard->IsKeyDown(gef::Keyboard::KC_NUMPAD4 ))
+		{
+			camera_0->TurnRight();
+		}
+		if (keyboard->IsKeyDown(gef::Keyboard::KC_NUMPAD6))
+		{
+			camera_0->TurnLeft();
+		}
+		if (keyboard->IsKeyDown(gef::Keyboard::KC_NUMPAD8))
+		{
+			camera_0->TurnUp();
+		}
+		if (keyboard->IsKeyDown(gef::Keyboard::KC_NUMPAD5))
+		{
+			camera_0->TurnDown();
 		}
 
 			
@@ -446,7 +469,7 @@ void MeshApp::SetupLights()
 {
 	gef::PointLight default_point_light;
 	default_point_light.set_colour(gef::Colour(0.7f, 0.7f, 1.0f, 1.0f));
-	default_point_light.set_position(gef::Vector4(-500.0f, 400.0f, 700.0f));
+	default_point_light.set_position(gef::Vector4(30.0f, 4.0f, 30.0f));
 
 	gef::Default3DShaderData& default_shader_data = renderer_3d_->default_shader_data();
 	default_shader_data.set_ambient_light_colour(gef::Colour(0.5f, 0.5f, 0.5f, 1.0f));

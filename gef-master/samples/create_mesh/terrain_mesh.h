@@ -12,7 +12,7 @@ public:
 	void GenerateVertices();
 	void GenerateRandomHeights();
 	void GenerateIndex();
-
+	void CalculateNormals();
 
 
 	inline std::vector<gef::Mesh::Vertex> GetTerrainVerticies() { return terrain_verticies; }
