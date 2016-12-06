@@ -248,10 +248,7 @@ void MeshApp::ProcessKeyboardInput()
 		if (keyboard->IsKeyDown(gef::Keyboard::KC_E))
 		{
 			camera_0->MoveDown();
-		}
-		
-	
-		
+		}		
 	
 	}
 

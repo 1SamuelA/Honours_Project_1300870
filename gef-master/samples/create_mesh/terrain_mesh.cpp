@@ -10,7 +10,7 @@ TerrainMesh::TerrainMesh()
 	terrain_verticies.clear();
 
 
-	perlin_noise_ = new PerlinNoise(2, 0.5, 4, 1, 1);
+	perlin_noise_ = new PerlinNoise(2, 0.25, 4, 1, 1);
 
 	x_length = 100;
 	z_length = 100;

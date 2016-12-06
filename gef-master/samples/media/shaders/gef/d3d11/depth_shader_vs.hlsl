@@ -27,29 +27,35 @@ void VS( in VertexInput input,
 
 	float4 colour;
 
-	if (input.position.y < -0.7)
+	if (input.position.y < -1.0)
 	{
 		colour = float4(0.1, 1, 1, 1);
 	}
-	else if (input.position.y < -0.3)
+	else if (input.position.y < -0.5)
 	{
 		float blendAmount = input.position.y*0.1;
-		colour = lerp(float4(1, 0, 1, 1), float4(0.1, 1, 1, 1), blendAmount);
+		colour = lerp(float4(0, 1, 1, 1), float4(0.1, 1, 1, 1), blendAmount);
 	}
 	else if (input.position.y < 0.0)
 	{
-		float blendAmount = (input.position.y*0.1);
-		colour = lerp(float4(1, 1, 0, 1), float4(1, 0, 1, 1), blendAmount);
-	}
-	else if (input.position.y < 0.3)
-	{
-		float blendAmount = 0.1;
+		
 		colour = float4(1, 1, 0, 1);
 	}
-	else if (input.position.y < 0.7)
+	
+	else if (input.position.y < 0.3)
+	{
+		float blendAmount = (input.position.y*0.1);
+		colour = lerp(float4(0, 00.5,0, 1), float4(1, 1, 0, 1), blendAmount);
+	}
+	else if (input.position.y < 1.3)
 	{
 		float blendAmount = 0.1;
-		colour = lerp(float4(1, 1, 1, 1), float4(0, 1, 1, 1), blendAmount);
+		colour = float4(00, 0.5, 0, 1);
+	}
+	else if (input.position.y < 1.7)
+	{
+		float blendAmount = 0.1;
+		colour = lerp(float4(1, 1, 1, 1), float4(0, 0.5, 0, 1), blendAmount);
 	}
 	else
 	{
