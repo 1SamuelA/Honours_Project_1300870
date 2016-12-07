@@ -28,6 +28,9 @@
 #include "PerlinNoise.h"
 
 
+#include <random>
+#include <time.h>
+
 MeshApp::MeshApp(gef::Platform& platform) :
 	Application(platform),
 	sprite_renderer_(NULL),

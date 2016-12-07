@@ -1,4 +1,5 @@
 #include "terrain_mesh.h"
+#include <random>
 #include <time.h>
 
 #include <system/debug_log.h>
@@ -9,8 +10,10 @@ TerrainMesh::TerrainMesh()
 	terrain_verticies.clear();
 	terrain_verticies.clear();
 
+	std::srand((int)time);
+float x = std::rand();
 
-	perlin_noise_ = new PerlinNoise(2, 0.25, 4, 1, 1);
+	perlin_noise_ = new PerlinNoise(2, 0.25, 4, 1, x);
 
 	x_length = 100;
 	z_length = 100;
