@@ -200,8 +200,7 @@ gef::Vector4 Camera::GetRotation()
 
 void CameraObject::MoveForward()
 {
-	float radians;
-
+	
 	// Update the forward movement based on the frame time
 	m_speed = m_frameTime * 5.f;
 
@@ -225,8 +224,7 @@ void CameraObject::MoveForward()
 
 void CameraObject::MoveBackward()
 {
-	float radians;
-
+	
 	// Update the backward movement based on the frame time
 	m_speed = m_frameTime * 5.f;// *0.5f;
 
@@ -332,8 +330,7 @@ void CameraObject::TurnDown()
 
 void CameraObject::StrafeRight()
 {
-	float radians;
-
+	
 	// Update the forward movement based on the frame time
 	m_speed = m_frameTime * 5.f;
 	gef::Vector4 Move;
@@ -346,8 +343,7 @@ void CameraObject::StrafeRight()
 
 void CameraObject::StrafeLeft()
 {
-	float radians;
-
+	
 	// Update the forward movement based on the frame time
 	m_speed = m_frameTime * 5.f;
 

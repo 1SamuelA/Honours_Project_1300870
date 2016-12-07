@@ -45,18 +45,19 @@ void TerrainMesh::GenerateVertices()
 		}
 	}
 	GenerateRandomHeights();
-	CalculateNormals();
+	
 }
 
 void TerrainMesh::GenerateRandomHeights()
 {
-	srand(time(NULL));
+	srand((int)time(NULL));
 	for (int vertexCount = 0; vertexCount < terrain_verticies.size(); vertexCount++)
 	{
 		
 		terrain_verticies[vertexCount].py = perlin_noise_->GetHeight(terrain_verticies[vertexCount].px, terrain_verticies[vertexCount].pz);
 
 	}
+	CalculateNormals();
 
 }
 
@@ -81,10 +82,10 @@ void TerrainMesh::GenerateIndex()
 			x    x+1
 			*/
 
-			float a = (x_length * (y_axis + 1)) + x_axis;
-			float b = (x_length * (y_axis + 1)) + x_axis + 1;
-			float c = (x_length * (y_axis)) + x_axis;
-			float d = (x_length * (y_axis)) + x_axis + 1;
+			int a = (x_length * (y_axis + 1)) + x_axis;
+			int b = (x_length * (y_axis + 1)) + x_axis + 1;
+			int c = (x_length * (y_axis)) + x_axis;
+			int d = (x_length * (y_axis)) + x_axis + 1;
 
 
 			//// Face 1
@@ -209,16 +210,16 @@ void TerrainMesh::CalculateNormals()
 			terrain_verticies[(z*x_length + z)].ny = normal.y();
 			terrain_verticies[(z*x_length + z)].nz = normal.z();
 
-			if ( (normal.y() < 0) )
-			{
-				gef::DebugOut("Normal Less then 0");
-				gef::DebugOut("Normal Less then 0", normal);
-			}
-
-			if (x == z)
-			{
-				gef::DebugOut("Normal ", normal);
-			}
+			//if ( (normal.y() < 0) )
+			//{
+			//	gef::DebugOut("Normal Less then 0");
+			//	gef::DebugOut("Normal Less then 0", normal);
+			//}
+			//
+			//if (x == z)
+			//{
+			//	gef::DebugOut("Normal ", normal);
+			//}
 
 		}
 	}

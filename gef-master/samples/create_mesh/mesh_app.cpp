@@ -78,6 +78,7 @@ void MeshApp::Init()
 	terrain_shader_ = new TerrainShader(platform_);
 	platform_.AddShader(terrain_shader_);
 
+	terrain_changed_ = false;
 
 
 	mesh_ = CreateCubeMesh();
@@ -129,12 +130,26 @@ bool MeshApp::Update(float frame_time)
 	camera_0->SetFrameTime(frame_time);
 	camera_0->update();
 
-	gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) mesh_->vertex_buffer()->vertex_data();
+	if (terrain_changed_)
+	{
+		gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) mesh_->vertex_buffer()->vertex_data();
 
-	vertices_[0].py = sin(time_)/2;
+		std::vector<gef::Mesh::Vertex> temp = terrain_mesh_->GetTerrainVerticies();
+
+		for (int vertex_counter_ = 0; vertex_counter_ < terrain_mesh_->GetTerrainVerticies().size(); vertex_counter_++)
+		{
+			vertices_[vertex_counter_].py = temp[vertex_counter_].py;
+		}
+
+		//vertices_[0].py = sin(time_)/2;
+
+		
+		mesh_->vertex_buffer()->Update(platform_);
+
+		terrain_changed_ = false;
+	}
 
 	ProcessKeyboardInput();
-	mesh_->vertex_buffer()->Update(platform_);
 
 
 	return true;
@@ -251,7 +266,13 @@ void MeshApp::ProcessKeyboardInput()
 		if (keyboard->IsKeyDown(gef::Keyboard::KC_E))
 		{
 			camera_0->MoveDown();
-		}		
+		}
+
+		if (keyboard->IsKeyDown(gef::Keyboard::KC_X))
+		{
+			terrain_mesh_->perlin_noise_->RandomSeed();
+			terrain_changed_ = true;
+		}
 	
 	}
 

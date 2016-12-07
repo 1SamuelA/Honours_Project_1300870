@@ -52,6 +52,9 @@ private:
 	void ProcessKeyboardInput();
 	void ProcessTouchInput();
 
+	bool terrain_changed_;
+
+
 	gef::InputManager* input_manager_;
 
 	Int32 active_touch_id_;
