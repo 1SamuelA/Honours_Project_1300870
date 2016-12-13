@@ -76,6 +76,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(KINECTSDK20_DIR)\inc;$(IncludePath);$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>$(KINECTSDK20_DIR)\lib\x64;$(LibraryPath);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -113,7 +115,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>gef.lib;libpng.lib;zlib.lib;gef_d3d11.lib;gef_win32.lib;d3d11.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kinect20.lib;gef.lib;libpng.lib;zlib.lib;gef_d3d11.lib;gef_win32.lib;d3d11.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib;dinput8.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>../../build/vs2015/$(Platform)/$(Configuration)/</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -160,6 +162,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\camera_object.cpp" />
     <ClCompile Include="..\..\game_object.cpp" />
+    <ClCompile Include="..\..\kinect_v2.cpp" />
     <ClCompile Include="..\..\main_d3d11.cpp" />
     <ClCompile Include="..\..\mesh_app.cpp" />
     <ClCompile Include="..\..\PerlinNoise.cpp" />
@@ -169,6 +172,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\camera_object.h" />
     <ClInclude Include="..\..\game_object.h" />
+    <ClInclude Include="..\..\kinect_v2.h" />
     <ClInclude Include="..\..\mesh_app.h" />
     <ClInclude Include="..\..\PerlinNoise.h" />
     <ClInclude Include="..\..\Shaders\terrain_shader.h" />

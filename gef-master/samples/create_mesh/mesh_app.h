@@ -11,6 +11,8 @@
 #include <graphics\image_data.h>
 
 #include <camera_object.h>
+#include <kinect_v2.h>
+
 
 class TerrainMesh;
 
@@ -56,6 +58,7 @@ private:
 
 
 	gef::InputManager* input_manager_;
+	Kinect_v2* KinectSensor_;
 
 	Int32 active_touch_id_;
 	gef::Vector2 touch_position_;

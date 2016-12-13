@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Kinect">
+      <UniqueIdentifier>{a3ef5b0b-f2f9-410f-9376-d5863dca3665}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Kinect">
+      <UniqueIdentifier>{9ec2686c-a80d-4af0-812f-ff175d96b13f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\main_d3d11.cpp">
@@ -36,6 +42,9 @@
     <ClCompile Include="..\..\PerlinNoise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\kinect_v2.cpp">
+      <Filter>Source Files\Kinect</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\mesh_app.h">
@@ -55,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="..\..\PerlinNoise.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kinect_v2.h">
+      <Filter>Header Files\Kinect</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

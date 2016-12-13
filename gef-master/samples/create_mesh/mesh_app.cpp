@@ -51,6 +51,9 @@ void MeshApp::Init()
 	sprite_renderer_ = gef::SpriteRenderer::Create(platform_);
 	renderer_3d_ = gef::Renderer3D::Create(platform_);
 	input_manager_ = gef::InputManager::Create(platform_);
+	KinectSensor_ = new Kinect_v2;
+
+	KinectSensor_->Init();
 
 	renderer_3d_->SetFillMode(renderer_3d_->kWireframe);
 	
@@ -270,7 +273,8 @@ void MeshApp::ProcessKeyboardInput()
 
 		if (keyboard->IsKeyDown(gef::Keyboard::KC_X))
 		{
-			terrain_mesh_->perlin_noise_->RandomSeed();
+			KinectSensor_->UpdateIRFeed();
+
 			terrain_changed_ = true;
 		}
 	
