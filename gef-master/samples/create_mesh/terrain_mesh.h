@@ -17,6 +17,8 @@ public:
 	void GenerateIndex();
 	void CalculateNormals();
 
+	inline float GetWidth()		{ return x_length; }
+	inline float GetHeight()	{ return z_length; }
 
 	inline std::vector<gef::Mesh::Vertex> GetTerrainVerticies() { return terrain_verticies; }
 	inline std::vector<int> GetTerrainIndices() { return terrain_index; }
@@ -28,13 +30,8 @@ private:
 
 	char* filename;
 
-	
-
-
 	float x_length;
 	float z_length;
-
-
 
 
 };

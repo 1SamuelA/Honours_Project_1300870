@@ -43,6 +43,7 @@ public:
 	void UpdateIRFeed();
 	
 	float** ir_data_2darray;
+	int ir_streams_width, ir_streams_height;
 
 private:
 	IKinectSensor* Sensor;
@@ -54,7 +55,7 @@ private:
 
 	BOOLEAN sensor_connected_;
 
-	int ir_streams_width, ir_streams_height;
+	
 	
 
 	INT64 start_time_;

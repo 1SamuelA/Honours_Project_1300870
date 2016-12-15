@@ -137,13 +137,26 @@ bool MeshApp::Update(float frame_time)
 	{
 		gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) mesh_->vertex_buffer()->vertex_data();
 
-		std::vector<gef::Mesh::Vertex> temp = terrain_mesh_->GetTerrainVerticies();
+		std::vector<gef::Mesh::Vertex> temp_terrain = terrain_mesh_->GetTerrainVerticies();
 
-		for (int vertex_counter_ = 0; vertex_counter_ < terrain_mesh_->GetTerrainVerticies().size(); vertex_counter_++)
+		
+		float increment_x, increment_y;
+		increment_x = KinectSensor_->ir_streams_width / terrain_mesh_->GetWidth();
+		increment_y = KinectSensor_->ir_streams_height / terrain_mesh_->GetHeight();
+
+		for (int y = 0; y < terrain_mesh_->GetHeight(); y++)
 		{
-			vertices_[vertex_counter_].py = temp[vertex_counter_].py;
+			for (int x = 0; x < terrain_mesh_->GetWidth(); x++)
+			{
+				//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
+				float height = KinectSensor_->ir_data_2darray[(int)increment_y * y][(int)increment_x * x] / 100;
+
+				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = height;
+
+			}
 		}
 
+			
 		//vertices_[0].py = sin(time_)/2;
 
 		

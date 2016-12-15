@@ -128,7 +128,7 @@ void Kinect_v2::UpdateIRFeed()
 		for (int x = 0; x < ir_streams_width; x++)
 		{
 			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
-			ir_data_2darray[x][y] = m_pInfraredRGBX[(y*ir_streams_width) + x].rgbBlue;
+			ir_data_2darray[y][x] = m_pInfraredRGBX[(y*ir_streams_width) + x].rgbBlue;
 			
 		}
 	}
