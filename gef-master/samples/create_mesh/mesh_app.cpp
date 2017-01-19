@@ -141,15 +141,15 @@ bool MeshApp::Update(float frame_time)
 
 		
 		float increment_x, increment_y;
-		increment_x = KinectSensor_->ir_streams_width / terrain_mesh_->GetWidth();
-		increment_y = KinectSensor_->ir_streams_height / terrain_mesh_->GetHeight();
+		increment_x = KinectSensor_->de_streams_width / terrain_mesh_->GetWidth();
+		increment_y = KinectSensor_->de_streams_height / terrain_mesh_->GetHeight();
 
 		for (int y = 0; y < terrain_mesh_->GetHeight(); y++)
 		{
 			for (int x = 0; x < terrain_mesh_->GetWidth(); x++)
 			{
 				//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
-				float height = KinectSensor_->ir_data_2darray[(int)increment_y * y][(int)increment_x * x] / 100;
+				float height = KinectSensor_->de_data_2darray[(int)increment_y * y][(int)increment_x * x] / 50;
 
 				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = height;
 
@@ -286,7 +286,7 @@ void MeshApp::ProcessKeyboardInput()
 
 		if (keyboard->IsKeyDown(gef::Keyboard::KC_X))
 		{
-			KinectSensor_->UpdateIRFeed();
+			KinectSensor_->UpdateDEFeed();
 
 			terrain_changed_ = true;
 		}

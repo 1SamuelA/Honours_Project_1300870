@@ -2,6 +2,7 @@
 #define KINECT_V2_H
 
 #include <Kinect.h>
+#include <vector>
 
 // InfraredSourceValueMaximum is the highest value that can be returned in the InfraredFrame.
 // It is cast to a float for readability in the visualization code.
@@ -35,27 +36,48 @@ class Kinect_v2
 	static const int        cInfraredWidth = 512;
 	static const int        cInfraredHeight = 424;
 
+	static const int        cDepthWidth = 512;
+	static const int        cDepthHeight = 424;
+
+	//static const int        cInfraredWidth = 512;
+	//static const int        cInfraredHeight = 424;
+	//
 public:
 	Kinect_v2();
 	~Kinect_v2();
 
 	void Init();
 	void UpdateIRFeed();
+	void UpdateDEFeed();
 	
 	float** ir_data_2darray;
 	int ir_streams_width, ir_streams_height;
 
+	float** de_data_2darray;
+	int de_streams_width, de_streams_height;
+
 private:
 	IKinectSensor* Sensor;
+	// Infrared 
 	IInfraredFrameReader* ir_reader_;
 	IInfraredFrameSource* ir_frame_source_;
 
 	UINT16* irData;
 	byte* irDataConverted;
+	RGBQUAD* m_pInfraredRGBX;
+
+	// Depth
+	IDepthFrameReader* de_reader_;
+	IDepthFrameSource* de_frame_source_;
+
+	UINT16* deData;
+	byte* deDataConverted;
+	RGBQUAD* m_pDepthRGBX;
+	
 
 	BOOLEAN sensor_connected_;
 
-	
+	std::vector<float> *depthValues;
 	
 
 	INT64 start_time_;
@@ -65,9 +87,11 @@ private:
 	INT64 last_counter_;
 	INT64 m_nNextStatusTime;
 
-	RGBQUAD* m_pInfraredRGBX;
+	
+	
 
 	void ProcessInfrared(INT64 nTime, const UINT16* pBuffer, int nWidth, int nHeight);
+	void ProcessDepth(INT64 nTime, const UINT16* pBuffer, int nWidth, int nHeight, USHORT nMinDepth, USHORT nMaxDepth);
 	bool SetStatusMessage(_In_z_ WCHAR* szMessage, DWORD nShowTimeMsec, bool bForce);
 
 
