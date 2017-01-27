@@ -178,6 +178,20 @@
     <ClInclude Include="..\..\Shaders\terrain_shader.h" />
     <ClInclude Include="..\..\terrain_mesh.h" />
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\..\media\shaders\gef\d3d11\depth_shader_ps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\..\..\media\shaders\gef\d3d11\depth_shader_vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\..\..\media\shaders\gef\d3d11\terrain_ps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\..\..\media\shaders\gef\d3d11\terrain_vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

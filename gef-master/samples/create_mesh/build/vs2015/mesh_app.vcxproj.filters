@@ -69,4 +69,18 @@
       <Filter>Header Files\Kinect</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\..\..\media\shaders\gef\d3d11\terrain_ps.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\..\media\shaders\gef\d3d11\terrain_vs.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\..\media\shaders\gef\d3d11\depth_shader_ps.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\..\media\shaders\gef\d3d11\depth_shader_vs.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+  </ItemGroup>
 </Project>

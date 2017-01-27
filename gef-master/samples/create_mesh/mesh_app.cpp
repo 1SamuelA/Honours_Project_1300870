@@ -149,7 +149,7 @@ bool MeshApp::Update(float frame_time)
 			for (int x = 0; x < terrain_mesh_->GetWidth(); x++)
 			{
 				//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
-				float height = KinectSensor_->de_data_2darray[(int)increment_y * y][(int)increment_x * x] / 50;
+				float height = KinectSensor_->de_data_2darray[(int)increment_y * y][(int)increment_x * x] / 4.f;
 
 				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = height;
 

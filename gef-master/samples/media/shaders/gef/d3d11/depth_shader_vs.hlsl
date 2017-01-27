@@ -65,7 +65,9 @@ void VS( in VertexInput input,
 	float depth = input.position.y / 256.f;
 
 	//colour = float4(depth, depth, depth, 1);
-	
+
+	colour = float4(depth, depth, depth, 1);
+
 	output.colour = colour;
 
 }
