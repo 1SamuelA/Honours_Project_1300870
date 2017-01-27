@@ -24,9 +24,9 @@ void VS( in VertexInput input,
 {
     output.position = mul(input.position, wvp);
     output.depth_position = output.position;
-
+	//
 	float4 colour;
-
+	//
 	if (input.position.y < -1.0)
 	{
 		colour = float4(0.1, 1, 1, 1);
@@ -61,6 +61,11 @@ void VS( in VertexInput input,
 	{
 		colour = float4(1, 1, 1, 1);
 	}
+	
+	float depth = input.position.y / 256.f;
+
+	//colour = float4(depth, depth, depth, 1);
+	
 	output.colour = colour;
 
 }

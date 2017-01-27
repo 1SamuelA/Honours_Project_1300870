@@ -17,5 +17,5 @@ float4 PS( PixelInput input ) : SV_Target
 	
     
 
-	return input.colour;
+	return depth_value;
 }

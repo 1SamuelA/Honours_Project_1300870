@@ -51,6 +51,9 @@ void MeshApp::Init()
 	sprite_renderer_ = gef::SpriteRenderer::Create(platform_);
 	renderer_3d_ = gef::Renderer3D::Create(platform_);
 	input_manager_ = gef::InputManager::Create(platform_);
+	KinectSensor_ = new Kinect_v2;
+
+	KinectSensor_->Init();
 
 	renderer_3d_->SetFillMode(renderer_3d_->kWireframe);
 	
@@ -134,13 +137,26 @@ bool MeshApp::Update(float frame_time)
 	{
 		gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) mesh_->vertex_buffer()->vertex_data();
 
-		std::vector<gef::Mesh::Vertex> temp = terrain_mesh_->GetTerrainVerticies();
+		std::vector<gef::Mesh::Vertex> temp_terrain = terrain_mesh_->GetTerrainVerticies();
 
-		for (int vertex_counter_ = 0; vertex_counter_ < terrain_mesh_->GetTerrainVerticies().size(); vertex_counter_++)
+		
+		float increment_x, increment_y;
+		increment_x = KinectSensor_->de_streams_width / terrain_mesh_->GetWidth();
+		increment_y = KinectSensor_->de_streams_height / terrain_mesh_->GetHeight();
+
+		for (int y = 0; y < terrain_mesh_->GetHeight(); y++)
 		{
-			vertices_[vertex_counter_].py = temp[vertex_counter_].py;
+			for (int x = 0; x < terrain_mesh_->GetWidth(); x++)
+			{
+				//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
+				float height = KinectSensor_->de_data_2darray[(int)increment_y * y][(int)increment_x * x] / 50;
+
+				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = height;
+
+			}
 		}
 
+			
 		//vertices_[0].py = sin(time_)/2;
 
 		
@@ -270,7 +286,8 @@ void MeshApp::ProcessKeyboardInput()
 
 		if (keyboard->IsKeyDown(gef::Keyboard::KC_X))
 		{
-			terrain_mesh_->perlin_noise_->RandomSeed();
+			KinectSensor_->UpdateDEFeed();
+
 			terrain_changed_ = true;
 		}
 	
