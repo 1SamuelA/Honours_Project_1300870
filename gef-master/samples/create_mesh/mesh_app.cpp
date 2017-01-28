@@ -87,7 +87,7 @@ void MeshApp::Init()
 	mesh_ = CreateCubeMesh();
 	cube_player_.set_mesh(mesh_);
 
-	
+	terrain_shader_active_ = false;
 	
 
 	gef::Vector4 camera_eye = gef::Vector4(5.0f, 5.0f, 0.0f);
@@ -283,6 +283,14 @@ void MeshApp::ProcessKeyboardInput()
 		{
 			camera_0->MoveDown();
 		}
+
+		if( keyboard->IsKeyPressed( gef::Keyboard::KC_C ) )
+		{
+
+			terrain_shader_active_ = !terrain_shader_active_;
+			terrain_changed_ = false;
+		}
+
 
 		if (keyboard->IsKeyDown(gef::Keyboard::KC_X))
 		{
@@ -550,45 +558,46 @@ void MeshApp::SetupCamera()
 
 void MeshApp::RenderTerrain()
 {
-
-	gef::Shader* previous_shader = renderer_3d_->shader();
-
-	gef::Matrix44 projection_matrix;
-	gef::Matrix44 view_matrix;
-
-	projection_matrix = platform_.PerspectiveProjectionFov(camera_fov, (float)platform_.width() / (float)platform_.height(), near_plane, far_plane);
-
-	view_matrix.LookAt(camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp());
-
-	// use the shader for renderering the depth values to the shadow buffer
-	renderer_3d_->SetShader(terrain_shader_);
-
-	// render target needs to be cleared to zero [black]
-	platform_.set_render_target_clear_colour(gef::Colour(0.0f, 0.0f, 0.0f, 1.0f));
-	renderer_3d_->Begin();
-
-	float currentTime, TotalTime;
-	currentTime = TotalTime = 0;
-
-	if (renderer_3d_->shader() == terrain_shader_)
+	if( terrain_shader_active_ )
 	{
-		terrain_shader_->SetMeshData(cube_player_, view_matrix, projection_matrix);
-		terrain_shader_->SetVertexShaderData(cube_player_.transform(), view_matrix, projection_matrix, currentTime, TotalTime);
+		gef::Shader* previous_shader = renderer_3d_->shader();
+
+		gef::Matrix44 projection_matrix;
+		gef::Matrix44 view_matrix;
+
+		projection_matrix = platform_.PerspectiveProjectionFov( camera_fov, (float)platform_.width() / (float)platform_.height(), near_plane, far_plane );
+
+		view_matrix.LookAt( camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp() );
+
+		// use the shader for renderering the depth values to the shadow buffer
+		renderer_3d_->SetShader( terrain_shader_ );
+
+		// render target needs to be cleared to zero [black]
+		platform_.set_render_target_clear_colour( gef::Colour( 0.0f, 0.0f, 0.0f, 1.0f ) );
+		renderer_3d_->Begin();
+
+		float currentTime, TotalTime;
+		currentTime = TotalTime = 0;
+
+		if( renderer_3d_->shader() == terrain_shader_ )
+		{
+			terrain_shader_->SetMeshData( cube_player_, view_matrix, projection_matrix );
+			terrain_shader_->SetVertexShaderData( cube_player_.transform(), view_matrix, projection_matrix, currentTime, TotalTime );
+		}
+		renderer_3d_->DrawMesh( cube_player_ );
+
+		renderer_3d_->End();
+
+		// restore previous shader
+		renderer_3d_->SetShader( previous_shader );
+
+		// set render target to the the default [the back buffer]
+		platform_.set_render_target( NULL );
+
+		// reset clear colour
+		platform_.set_render_target_clear_colour( gef::Colour( 0.0f, 0.0f, 1.0f, 1.0f ) );
+
 	}
-	renderer_3d_->DrawMesh(cube_player_);
-
-	renderer_3d_->End();
-
-	// restore previous shader
-	renderer_3d_->SetShader(previous_shader);
-
-	// set render target to the the default [the back buffer]
-	platform_.set_render_target(NULL);
-
-	// reset clear colour
-	platform_.set_render_target_clear_colour(gef::Colour(0.0f, 0.0f, 1.0f, 1.0f));
-
-
 }
 
 void MeshApp::SetupShader(const gef::MeshInstance& mesh_instance)

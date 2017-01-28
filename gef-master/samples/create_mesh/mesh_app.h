@@ -55,6 +55,7 @@ private:
 	void ProcessTouchInput();
 
 	bool terrain_changed_;
+	bool terrain_shader_active_;
 
 
 	gef::InputManager* input_manager_;

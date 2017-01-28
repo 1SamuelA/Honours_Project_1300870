@@ -168,6 +168,7 @@
     <ClCompile Include="..\..\PerlinNoise.cpp" />
     <ClCompile Include="..\..\Shaders\terrain_shader.cpp" />
     <ClCompile Include="..\..\terrain_mesh.cpp" />
+    <ClCompile Include="..\..\terrrain_shader_data.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\camera_object.h" />
@@ -177,6 +178,7 @@
     <ClInclude Include="..\..\PerlinNoise.h" />
     <ClInclude Include="..\..\Shaders\terrain_shader.h" />
     <ClInclude Include="..\..\terrain_mesh.h" />
+    <ClInclude Include="..\..\terrrain_shader_data.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\..\..\media\shaders\gef\d3d11\depth_shader_ps.hlsl">

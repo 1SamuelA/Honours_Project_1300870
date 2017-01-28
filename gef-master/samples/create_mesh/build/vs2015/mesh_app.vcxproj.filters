@@ -19,6 +19,12 @@
     <Filter Include="Source Files\Kinect">
       <UniqueIdentifier>{9ec2686c-a80d-4af0-812f-ff175d96b13f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Shader">
+      <UniqueIdentifier>{ccde8a2d-fef7-4f71-ba4a-b6a38b9cd5db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader">
+      <UniqueIdentifier>{2e592cd1-685a-4521-b1ea-07b2f9a6e2b0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\main_d3d11.cpp">
@@ -36,14 +42,17 @@
     <ClCompile Include="..\..\terrain_mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Shaders\terrain_shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\PerlinNoise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\kinect_v2.cpp">
       <Filter>Source Files\Kinect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Shaders\terrain_shader.cpp">
+      <Filter>Source Files\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\terrrain_shader_data.cpp">
+      <Filter>Source Files\Shader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -59,14 +68,17 @@
     <ClInclude Include="..\..\terrain_mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Shaders\terrain_shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\PerlinNoise.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\kinect_v2.h">
       <Filter>Header Files\Kinect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Shaders\terrain_shader.h">
+      <Filter>Header Files\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\terrrain_shader_data.h">
+      <Filter>Header Files\Shader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
