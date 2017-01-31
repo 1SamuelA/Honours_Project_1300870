@@ -135,40 +135,50 @@ bool MeshApp::Update(float frame_time)
 
 	if (terrain_changed_)
 	{
-		gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) mesh_->vertex_buffer()->vertex_data();
-
-		std::vector<gef::Mesh::Vertex> temp_terrain = terrain_mesh_->GetTerrainVerticies();
-
-		
-		float increment_x, increment_y;
-		increment_x = KinectSensor_->de_streams_width / terrain_mesh_->GetWidth();
-		increment_y = KinectSensor_->de_streams_height / terrain_mesh_->GetHeight();
-
-		for (int y = 0; y < terrain_mesh_->GetHeight(); y++)
-		{
-			for (int x = 0; x < terrain_mesh_->GetWidth(); x++)
-			{
-				//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
-				float height = KinectSensor_->de_data_2darray[(int)increment_y * y][(int)increment_x * x] / 4.f;
-
-				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = height;
-
-			}
-		}
-
-			
-		//vertices_[0].py = sin(time_)/2;
-
-		
-		mesh_->vertex_buffer()->Update(platform_);
-
-		terrain_changed_ = false;
+		UpdateTerrain();
 	}
 
 	ProcessKeyboardInput();
 
 
 	return true;
+}
+
+void MeshApp::UpdateTerrain()
+{
+	gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) mesh_->vertex_buffer()->vertex_data();
+
+	std::vector<gef::Mesh::Vertex> temp_terrain = terrain_mesh_->GetTerrainVerticies();
+	
+
+	float increment_x, increment_y;
+	increment_x = KinectSensor_->de_streams_width / terrain_mesh_->GetWidth();
+	increment_y = KinectSensor_->de_streams_height / terrain_mesh_->GetHeight();
+
+	for( int y = 0; y < terrain_mesh_->GetHeight(); y++ )
+	{
+		for( int x = 0; x < terrain_mesh_->GetWidth(); x++ )
+		{
+			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
+			float height = KinectSensor_->de_data_2darray[(int)increment_y * y][(int)increment_x * x] / 16.f;
+			
+
+
+			vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = height;
+
+		}
+	}
+
+	
+
+
+	//vertices_[0].py = sin(time_)/2;
+
+
+	mesh_->vertex_buffer()->Update( platform_ );
+
+	terrain_changed_ = false;
+
 }
 
 void MeshApp::Render()
@@ -542,6 +552,10 @@ void MeshApp::SetupLights()
 	gef::Default3DShaderData& default_shader_data = renderer_3d_->default_shader_data();
 	default_shader_data.set_ambient_light_colour(gef::Colour(0.5f, 0.5f, 0.5f, 1.0f));
 	default_shader_data.AddPointLight(default_point_light);
+
+	terrain_shader_->shader_data.set_ambient_light_colour( gef::Colour( 0.5f, 0.5f, 0.5f, 1.0f ) );
+	terrain_shader_->shader_data.AddPointLight( default_point_light );
+
 }
 
 void MeshApp::SetupCamera()
@@ -579,8 +593,13 @@ void MeshApp::RenderTerrain()
 		float currentTime, TotalTime;
 		currentTime = TotalTime = 0;
 
+		
+		
+
+
 		if( renderer_3d_->shader() == terrain_shader_ )
 		{
+			terrain_shader_->SetSceneData( terrain_shader_->shader_data, view_matrix, projection_matrix );
 			terrain_shader_->SetMeshData( cube_player_, view_matrix, projection_matrix );
 			terrain_shader_->SetVertexShaderData( cube_player_.transform(), view_matrix, projection_matrix, currentTime, TotalTime );
 		}

@@ -1,73 +1,54 @@
+#define NUM_LIGHTS 4
+
 cbuffer MatrixBuffer
 {
 	matrix wvp;
 	matrix world;
 	matrix invworld;
+	float4 light_position[NUM_LIGHTS];
 };
 
 struct VertexInput
 {
-    float4 position : POSITION;
-    float3 normal : NORMAL;
-    float2 uv : TEXCOORD;
+	float4 position : POSITION;
+	float3 normal : NORMAL;
+	float2 uv : TEXCOORD;
+	//	float4 blendweights : BLENDWEIGHT;
+	//	int blendindices : BLENDINDICES;
 };
 
 struct PixelInput
 {
 	float4 position : SV_POSITION;
-	float4 depth_position : TEXTURE0;
-	float4 colour : COLOR;
+	float3 normal: NORMAL;
+	float2 uv : TEXCOORD0;
+	float3 light_vector1 : TEXCOORD1;
+	float3 light_vector2 : TEXCOORD2;
+	float3 light_vector3 : TEXCOORD3;
+	float3 light_vector4 : TEXCOORD4;
+	float height : FLOAT0;
 };
 
 void VS( in VertexInput input,
-         out PixelInput output )
+	out PixelInput output )
 {
-    output.position = mul(input.position, wvp);
-    output.depth_position = output.position;
-	//
-	float4 colour;
-	//
-	if (input.position.y < -1.0)
-	{
-		colour = float4(0.1, 1, 1, 1);
-	}
-	else if (input.position.y < -0.5)
-	{
-		float blendAmount = input.position.y*0.1;
-		colour = lerp(float4(0, 1, 1, 1), float4(0.1, 1, 1, 1), blendAmount);
-	}
-	else if (input.position.y < 0.0)
-	{
-		
-		colour = float4(1, 1, 0, 1);
-	}
-	
-	else if (input.position.y < 0.3)
-	{
-		float blendAmount = (input.position.y*0.1);
-		colour = lerp(float4(0, 00.5,0, 1), float4(1, 1, 0, 1), blendAmount);
-	}
-	else if (input.position.y < 1.3)
-	{
-		float blendAmount = 0.1;
-		colour = float4(00, 0.5, 0, 1);
-	}
-	else if (input.position.y < 1.7)
-	{
-		float blendAmount = 0.1;
-		colour = lerp(float4(1, 1, 1, 1), float4(0, 0.5, 0, 1), blendAmount);
-	}
-	else
-	{
-		colour = float4(1, 1, 1, 1);
-	}
-	
-	float depth = input.position.y / 256.f;
+	output.position = mul( input.position, wvp );
+	output.uv = input.uv;
 
-	//colour = float4(depth, depth, depth, 1);
+	float4 normal = float4(input.normal, 0);
+	normal = mul( normal, invworld );
+	output.normal = normalize( normal.xyz );
 
-	colour = float4(depth, depth, depth, 1);
+	float4 world_position = mul( input.position, world );
+	output.light_vector1 = light_position[0].xyz - world_position.xyz;
+	output.light_vector1 = normalize( output.light_vector1 );
+	output.light_vector2 = light_position[1].xyz - world_position.xyz;
+	output.light_vector2 = normalize( output.light_vector2 );
+	output.light_vector3 = light_position[2].xyz - world_position.xyz;
+	output.light_vector3 = normalize( output.light_vector3 );
+	output.light_vector4 = light_position[3].xyz - world_position.xyz;
+	output.light_vector4 = normalize( output.light_vector4 );
 
-	output.colour = colour;
-
+	output.height = input.position.y;
 }
+

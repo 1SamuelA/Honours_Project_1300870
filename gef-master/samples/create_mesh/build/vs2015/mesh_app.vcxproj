@@ -181,6 +181,12 @@
     <ClInclude Include="..\..\terrrain_shader_data.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="..\..\..\media\shaders\gef\d3d11\default_3d_shader_ps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\..\..\media\shaders\gef\d3d11\default_3d_shader_vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="..\..\..\media\shaders\gef\d3d11\depth_shader_ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>

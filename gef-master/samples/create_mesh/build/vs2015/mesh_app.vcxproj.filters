@@ -94,5 +94,11 @@
     <FxCompile Include="..\..\..\media\shaders\gef\d3d11\depth_shader_vs.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
+    <FxCompile Include="..\..\..\media\shaders\gef\d3d11\default_3d_shader_ps.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\..\media\shaders\gef\d3d11\default_3d_shader_vs.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
