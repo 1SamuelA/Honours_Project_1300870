@@ -266,6 +266,8 @@ void Kinect_v2::UpdateDEFeed()
 
 			// Note:  If you wish to filter by reliable depth distance, uncomment the following line.
 			hr = de_frame_->get_DepthMaxReliableDistance(&nDepthMaxDistance);
+
+			nDepthMaxDistance = 1000;
 		}
 
 		if (SUCCEEDED(hr))
@@ -317,7 +319,16 @@ void Kinect_v2::UpdateDEFeed()
 		for (int x = 0; x < de_streams_width; x++)
 		{
 			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
-			int slot = (y*de_streams_width) + x;
+			int slot = int((y*de_streams_width) + x);
+			if( depthValues->at( slot ) > 0.5 )
+			{
+				depthValues->operator[]( slot ) = depthValues->at( slot ) - 20;
+
+			}
+			else
+			{
+
+			}
 			de_data_2darray[y][x] = depthValues->at(slot);
 			
 		}

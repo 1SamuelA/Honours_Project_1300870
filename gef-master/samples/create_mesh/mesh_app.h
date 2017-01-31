@@ -49,6 +49,7 @@ private:
 	void RenderTerrain();
 	void SetupShader(const gef::MeshInstance& mesh_instance);
 	void UpdateTerrain();
+	//
 	void ComputeNormals();
 
 

@@ -49,8 +49,6 @@ void CameraObject::update()
 	camera_forward_ = gef::Vector4(forwardx, forwardy, forwardz);
 	camera_forward_.Normalise();
 
-	
-
 
 	camera_lookat_ = camera_forward_ + camera_pos_;
 	// Setup Up
@@ -259,7 +257,7 @@ void CameraObject::MoveDown()
 
 	Move = camera_up_ * m_speed;
 
-	camera_pos_ += Move;
+	camera_pos_ -= Move;
 
 }
 
