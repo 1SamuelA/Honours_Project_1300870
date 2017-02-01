@@ -228,7 +228,8 @@ void MeshApp::DrawHUD()
 	if (font_)
 	{
 		// display frame rate
-		font_->RenderText(sprite_renderer_, gef::Vector4(850.0f, 510.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "FPS: %.1f", fps_);
+		
+		font_->RenderText(sprite_renderer_, gef::Vector4( this->platform_.width() - 150.f, this->platform_.height() - 80.f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "FPS: %.1f", fps_);
 
 		font_->RenderText(sprite_renderer_, gef::Vector4(000.0f, 000.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "pitch: %.1f", camera_0->GetPitch());
 		font_->RenderText(sprite_renderer_, gef::Vector4(000.0f, 030.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "yaw: %.1f", camera_0->GetYaw());
@@ -244,7 +245,10 @@ void MeshApp::ProcessKeyboardInput()
 	if (keyboard)
 	{
 		// go through all the keys and print out some debug text when a key is pressed or released
-		
+		if( keyboard->IsKeyDown( gef::Keyboard::KC_ESCAPE ) )
+		{
+			exit(10);
+		}
 		
 
 		// Translation
@@ -401,7 +405,9 @@ gef::Mesh* MeshApp::CreateCubeMesh()
 
 	for (int i = 0; i < terrain_verticies.size(); i++)
 	{
-		vertices[i] = terrain_verticies[i];
+		vertices[i] = (terrain_verticies[i]);
+		vertices[i].py *= 10;
+		vertices[i].py += 10;
 	}
 
 	//gef::Mesh::Vertex vertices[] = { temp_vertices[0],temp_vertices[1],temp_vertices[2],temp_vertices[3] };

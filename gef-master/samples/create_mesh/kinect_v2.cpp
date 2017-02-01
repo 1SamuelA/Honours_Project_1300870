@@ -255,6 +255,8 @@ void Kinect_v2::UpdateDEFeed()
 		if (SUCCEEDED(hr))
 		{
 			hr = de_frame_->get_DepthMinReliableDistance(&nDepthMinReliableDistance);
+
+			nDepthMinReliableDistance = 250;
 		}
 
 		

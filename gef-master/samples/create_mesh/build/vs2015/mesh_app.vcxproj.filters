@@ -25,6 +25,12 @@
     <Filter Include="Source Files\Shader">
       <UniqueIdentifier>{2e592cd1-685a-4521-b1ea-07b2f9a6e2b0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\States">
+      <UniqueIdentifier>{e00e0268-de15-44a2-8a1c-850f88ef26c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\States">
+      <UniqueIdentifier>{a652430b-9877-49d3-b287-a2ed704610f8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\main_d3d11.cpp">
@@ -54,6 +60,9 @@
     <ClCompile Include="..\..\terrrain_shader_data.cpp">
       <Filter>Source Files\Shader</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\MAINMENU_state.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\mesh_app.h">
@@ -79,6 +88,18 @@
     </ClInclude>
     <ClInclude Include="..\..\terrrain_shader_data.h">
       <Filter>Header Files\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\StateManager.h">
+      <Filter>Header Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\State.h">
+      <Filter>Header Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ARS_calibration_data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\MAINMENU_state.h">
+      <Filter>Header Files\States</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

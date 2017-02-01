@@ -29,6 +29,8 @@ SamplerState Sampler0
 };
 float4 PS( PixelInput input ) : SV_Target
 {
+	
+
 	float diffuse_light1 = saturate( dot( input.normal, input.light_vector1 ) );
 	float diffuse_light2 = saturate( dot( input.normal, input.light_vector2 ) );
 	float diffuse_light3 = saturate( dot( input.normal, input.light_vector3 ) );
@@ -39,23 +41,45 @@ float4 PS( PixelInput input ) : SV_Target
 	float4 diffuse_colour3 = diffuse_light3*light_colour[2];
 	float4 diffuse_colour4 = diffuse_light4*light_colour[3];
 
+
+	float4 WHITE = float4(1.0, 1.0, 1.0, 1.0);
+	float4 RED = float4(1.0, 0.0, 0.0, 1.0);
+	float4 GREEN = float4(0.0, 1.0, 0.0, 1.0);
+	float4 SAND = float4(76.f/256.f, 70.f/256.f, 50.f/256.f,1.0);
+	float4 BLUE = float4(0.0, 0.0, 1.0, 1.0);
+
+
 	float h = input.height;
 
-	float4 colour = float4(0.0, 0.0, 0.0, 1.0);
+	float4 colour = BLUE;
 
 	if (h < 0)
 	{
-		colour = float4(0.0, 0.0, 0.0, 1.0);
+		colour = BLUE;
 
 	}
-	else if( (h > 0) &&(h < 20.0) )
+	else if( (h >= 0.0f) &&(h < 5.f) )
 	{
-		colour = clamp( h / 20.0, float4(0.0, 0.0, 0.0, 1.0), float4(1.0, 1.0, 1.0, 1.0) );
+		colour = lerp( BLUE, GREEN, h / 5.0 );
 
 	}
-	else if ( h >= 20.0 )
+	else if( (h >= 5.f) && (h < 10.f) )
 	{
-		colour = float4(1.0, 1.0, 1.0, 1.0);
+		colour = lerp( GREEN, SAND,(h - 5.0) / 5.0 );
+
+	}
+	else if( (h >= 10.f) && (h < 15.f) )
+	{
+		colour = lerp( SAND, RED,(h - 10.f) / 5.f );
+
+	}
+	else if( (h >= 15.f) && (h < 20.f) )
+	{
+		colour = lerp( RED, WHITE, (h - 15.f) / 5.f ); ;
+	}
+	else if (h >= 20.f)
+	{
+		colour = WHITE;
 	}
 		
 	return colour;

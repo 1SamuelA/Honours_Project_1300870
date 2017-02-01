@@ -243,6 +243,9 @@ void CameraObject::MoveUp()
 
 	Move = camera_up_ * m_speed;
 
+	camera_forward_ += Move;
+	camera_right_ += Move;
+	camera_lookat_ += Move;
 	camera_pos_ += Move;
 
 }
@@ -257,6 +260,9 @@ void CameraObject::MoveDown()
 
 	Move = camera_up_ * m_speed;
 
+	camera_forward_ -= Move;
+	camera_right_ -= Move;
+	camera_lookat_ -= Move;
 	camera_pos_ -= Move;
 
 }
@@ -335,6 +341,9 @@ void CameraObject::StrafeRight()
 
 	Move = camera_right_ * m_speed;
 
+	camera_forward_ += Move;
+	camera_right_ += Move;
+	camera_lookat_ += Move;
 	camera_pos_ += Move;
 
 }
@@ -349,6 +358,9 @@ void CameraObject::StrafeLeft()
 
 	Move = camera_right_ * m_speed;
 
+	camera_forward_ -= Move;
+	camera_right_ -= Move;
+	camera_lookat_ -= Move;
 	camera_pos_ -= Move;
 }
 

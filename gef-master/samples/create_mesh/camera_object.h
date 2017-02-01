@@ -2,6 +2,7 @@
 
 #include <maths\vector4.h>
 #include <maths\math_utils.h>
+#include <maths/matrix44.h>
 
 class CameraObject
 {
@@ -24,7 +25,7 @@ public:
 	float inline GetYaw() {return camera_rotation_.y();}
 	float inline GetRoll() {return camera_rotation_.z();}
 
-
+	
 
 	//	Setter
 	void inline SetPos(gef::Vector4 camera_pos) { camera_pos_ = camera_pos; }
@@ -77,6 +78,10 @@ private:
 
 	float m_speed;
 	float m_frameTime;
+
+	gef::Matrix44 idenity_matrix;
+	gef::Matrix44 projection_matrix;
+	gef::Matrix44 view_matrix;
 
 };
 
