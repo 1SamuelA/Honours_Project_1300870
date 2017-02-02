@@ -308,9 +308,10 @@ void MeshApp::ProcessKeyboardInput()
 
 		if (keyboard->IsKeyDown(gef::Keyboard::KC_X))
 		{
-			KinectSensor_->UpdateDEFeed();
+			bool Pass;
+			KinectSensor_->UpdateDEFeed(Pass);
 
-			terrain_changed_ = true;
+			terrain_changed_ = Pass;
 		}
 	
 	}

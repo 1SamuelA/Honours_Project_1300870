@@ -16,7 +16,7 @@ struct PixelInput
 	float3 light_vector2 : TEXCOORD2;
 	float3 light_vector3 : TEXCOORD3;
 	float3 light_vector4 : TEXCOORD4;
-	float height : FLOAT0;
+	float3 vertex_position : FLOAT0;
 };
 
 Texture2D diffuse_texture;
@@ -49,7 +49,7 @@ float4 PS( PixelInput input ) : SV_Target
 	float4 BLUE = float4(0.0, 0.0, 1.0, 1.0);
 
 
-	float h = input.height;
+	float h = input.vertex_position.y;
 
 	float4 colour = BLUE;
 
@@ -82,8 +82,16 @@ float4 PS( PixelInput input ) : SV_Target
 		colour = WHITE;
 	}
 		
-	return colour;
 
+	float3 f = abs(frac(input.vertex_position.y * 1.0) - 0.5);
+	float3 df = fwidth(input.vertex_position.y * 1.0);
+	float mi = max(0.0, 1.0 - 1.0), ma = max(1.0, 1.0);//should be uniforms
+	float3 g = clamp((f - df*mi) / (df*(ma - mi)), max(0.0, 1.0 - 1.0), 1.0);//max(0.0,1.0-gwidth) should also be sent as uniform
+	float c = g.x * g.y * g.z;
+	float4 gl_FragColor = float4(c, c, c, 1.0);
+	gl_FragColor = gl_FragColor * colour;
+
+	return gl_FragColor;
 
 	//return saturate( ambient_light_colour + diffuse_colour1 + diffuse_colour2 + diffuse_colour3 + diffuse_colour4 )*diffuse_texture_colour*material_colour;
 }

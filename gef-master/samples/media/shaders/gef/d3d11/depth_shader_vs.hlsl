@@ -26,8 +26,11 @@ struct PixelInput
 	float3 light_vector2 : TEXCOORD2;
 	float3 light_vector3 : TEXCOORD3;
 	float3 light_vector4 : TEXCOORD4;
-	float height : FLOAT0;
+	float3 vertex_position : FLOAT0;
+	
 };
+
+
 
 void VS( in VertexInput input,
 	out PixelInput output )
@@ -49,6 +52,6 @@ void VS( in VertexInput input,
 	output.light_vector4 = light_position[3].xyz - world_position.xyz;
 	output.light_vector4 = normalize( output.light_vector4 );
 
-	output.height = input.position.y;
+	output.vertex_position = input.position.xyz;
 }
 

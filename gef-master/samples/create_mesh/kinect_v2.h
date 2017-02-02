@@ -48,7 +48,7 @@ public:
 
 	void Init();
 	void UpdateIRFeed();
-	void UpdateDEFeed();
+	void UpdateDEFeed(bool &Pass);
 	
 	float** ir_data_2darray;
 	int ir_streams_width, ir_streams_height;

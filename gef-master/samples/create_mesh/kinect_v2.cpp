@@ -37,6 +37,9 @@ void Kinect_v2::Init()
 	depthValues = NULL;
 	
 
+	Sensor->get_IsAvailable(&sensor_connected_);
+	
+
 	if (sensor_connected_)
 	{
 		Sensor->Open();
@@ -215,125 +218,137 @@ void Kinect_v2::ProcessInfrared(INT64 nTime, const UINT16 * pBuffer, int nWidth,
 
 }
 
-void Kinect_v2::UpdateDEFeed()
+void Kinect_v2::UpdateDEFeed(bool &Pass)
 {
-	if (!ir_reader_)
+	if (sensor_connected_)
 	{
+		if (!de_reader_)
+		{
+			Pass = false;
+			return;
+		}
+
+		IDepthFrame*  de_frame_;
+
+		HRESULT hr = de_reader_->AcquireLatestFrame(&de_frame_);
+
+		if (SUCCEEDED(hr))
+		{
+			INT64 nTime = 0;
+			IFrameDescription* pFrameDescription = NULL;
+			UINT nBufferSize = 0;
+			USHORT nDepthMinReliableDistance = 0;
+			USHORT nDepthMaxDistance = 0;
+			UINT16 *pBuffer = NULL;
+
+			hr = de_frame_->get_RelativeTime(&nTime);
+
+			if (SUCCEEDED(hr))
+			{
+				hr = de_frame_->get_FrameDescription(&pFrameDescription);
+			}
+
+			if (SUCCEEDED(hr))
+			{
+				hr = pFrameDescription->get_Width(&de_streams_width);
+			}
+
+			if (SUCCEEDED(hr))
+			{
+				hr = pFrameDescription->get_Height(&de_streams_height);
+			}
+
+			if (SUCCEEDED(hr))
+			{
+				hr = de_frame_->get_DepthMinReliableDistance(&nDepthMinReliableDistance);
+
+				nDepthMinReliableDistance = 250;
+			}
+
+
+			if (SUCCEEDED(hr))
+			{
+				// In order to see the full range of depth (including the less reliable far field depth)
+				// we are setting nDepthMaxDistance to the extreme potential depth threshold
+				nDepthMaxDistance = USHRT_MAX;
+
+				// Note:  If you wish to filter by reliable depth distance, uncomment the following line.
+				hr = de_frame_->get_DepthMaxReliableDistance(&nDepthMaxDistance);
+
+				nDepthMaxDistance = 1000;
+			}
+
+			if (SUCCEEDED(hr))
+			{
+				hr = de_frame_->AccessUnderlyingBuffer(&nBufferSize, &pBuffer);
+			}
+
+			if (SUCCEEDED(hr))
+			{
+				ProcessDepth(nTime, pBuffer, de_streams_width, de_streams_height, nDepthMinReliableDistance, nDepthMaxDistance);
+			}
+			if (pFrameDescription != NULL)
+			{
+				pFrameDescription->Release();
+				pFrameDescription = NULL;
+			}
+
+
+		}
+
+		if (de_frame_ != NULL)
+		{
+			de_frame_->Release();
+			de_frame_ = NULL;
+		}
+
+		unsigned int length;
+
+		//fd->get_LengthInPixels(&length);
+		//irData = new UINT16[length];
+		//irDataConverted = new byte[length * 4];
+		//
+		//fd->get_Width(&ir_streams_width);
+		//fd->get_Height(&ir_streams_height);
+
+		de_data_2darray = new float*[de_streams_height];
+		for (int i = 0; i < de_streams_height; i++)
+		{
+			de_data_2darray[i] = new float[de_streams_width];
+		}
+
+		Sensor->get_IsAvailable(&sensor_connected_);
+
+
+		for (int y = 0; y < de_streams_height; y++)
+		{
+			for (int x = 0; x < de_streams_width; x++)
+			{
+				//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
+				int slot = int((y*de_streams_width) + x);
+				if (depthValues->at(slot) > 0.5)
+				{
+					depthValues->operator[](slot) = depthValues->at(slot) - 20;
+
+				}
+				else
+				{
+
+				}
+				de_data_2darray[y][x] = depthValues->at(slot);
+
+			}
+		}
+
+		Pass = true;
 		return;
+
 	}
-	
-	IDepthFrame*  de_frame_;
-
-	HRESULT hr = de_reader_->AcquireLatestFrame(&de_frame_);
-
-	if (SUCCEEDED(hr))
+	else
 	{
-		INT64 nTime = 0;
-		IFrameDescription* pFrameDescription = NULL;
-		UINT nBufferSize = 0;
-		USHORT nDepthMinReliableDistance = 0;
-		USHORT nDepthMaxDistance = 0;
-		UINT16 *pBuffer = NULL;
+		Pass = false;
+		return;
 
-		hr = de_frame_->get_RelativeTime(&nTime);
-
-		if (SUCCEEDED(hr))
-		{
-			hr = de_frame_->get_FrameDescription(&pFrameDescription);
-		}
-
-		if (SUCCEEDED(hr))
-		{
-			hr = pFrameDescription->get_Width(&de_streams_width);
-		}
-
-		if (SUCCEEDED(hr))
-		{
-			hr = pFrameDescription->get_Height(&de_streams_height);
-		}
-
-		if (SUCCEEDED(hr))
-		{
-			hr = de_frame_->get_DepthMinReliableDistance(&nDepthMinReliableDistance);
-
-			nDepthMinReliableDistance = 250;
-		}
-
-		
-		if (SUCCEEDED(hr))
-		{
-			// In order to see the full range of depth (including the less reliable far field depth)
-			// we are setting nDepthMaxDistance to the extreme potential depth threshold
-			nDepthMaxDistance = USHRT_MAX;
-
-			// Note:  If you wish to filter by reliable depth distance, uncomment the following line.
-			hr = de_frame_->get_DepthMaxReliableDistance(&nDepthMaxDistance);
-
-			nDepthMaxDistance = 1000;
-		}
-
-		if (SUCCEEDED(hr))
-		{
-			hr = de_frame_->AccessUnderlyingBuffer(&nBufferSize, &pBuffer);
-		}
-
-		if (SUCCEEDED(hr))
-		{
-			ProcessDepth(nTime, pBuffer, de_streams_width, de_streams_height, nDepthMinReliableDistance, nDepthMaxDistance);
-		}
-		if (pFrameDescription != NULL)
-		{
-			pFrameDescription->Release();
-			pFrameDescription = NULL;
-		}
-
-		
-	}
-
-	if (de_frame_ != NULL)
-	{
-		de_frame_->Release();
-		de_frame_ = NULL;
-	}
-
-	unsigned int length;
-
-	//fd->get_LengthInPixels(&length);
-	//irData = new UINT16[length];
-	//irDataConverted = new byte[length * 4];
-	//
-	//fd->get_Width(&ir_streams_width);
-	//fd->get_Height(&ir_streams_height);
-
-	de_data_2darray = new float*[de_streams_height];
-	for (int i = 0; i < de_streams_height; i++)
-	{
-		de_data_2darray[i] = new float[de_streams_width];
-	}
-
-	Sensor->get_IsAvailable(&sensor_connected_);
-
-
-
-
-	for (int y = 0; y < de_streams_height; y++)
-	{
-		for (int x = 0; x < de_streams_width; x++)
-		{
-			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
-			int slot = int((y*de_streams_width) + x);
-			if( depthValues->at( slot ) > 0.5 )
-			{
-				depthValues->operator[]( slot ) = depthValues->at( slot ) - 20;
-
-			}
-			else
-			{
-
-			}
-			de_data_2darray[y][x] = depthValues->at(slot);
-			
-		}
 	}
 
 }
