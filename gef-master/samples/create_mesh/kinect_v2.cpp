@@ -37,7 +37,7 @@ void Kinect_v2::Init()
 	depthValues = NULL;
 	
 
-	Sensor->get_IsAvailable(&sensor_connected_);
+	//Sensor->get_IsAvailable(&sensor_connected_);
 	
 
 	if (sensor_connected_)
@@ -220,7 +220,9 @@ void Kinect_v2::ProcessInfrared(INT64 nTime, const UINT16 * pBuffer, int nWidth,
 
 void Kinect_v2::UpdateDEFeed(bool &Pass)
 {
-	if (sensor_connected_)
+	Sensor->get_IsOpen( &sensor_connected_ );
+
+	if ( sensor_connected_ )
 	{
 		if (!de_reader_)
 		{
@@ -399,6 +401,8 @@ void Kinect_v2::ProcessDepth(INT64 nTime, const UINT16 * pBuffer, int nWidth, in
 
 		depthValues = new std::vector<float>;
 
+		float lowestValue = 500;
+
 		while (pBuffer < pBufferEnd)
 		{
 			USHORT depth = *pBuffer;
@@ -413,7 +417,36 @@ void Kinect_v2::ProcessDepth(INT64 nTime, const UINT16 * pBuffer, int nWidth, in
 			// Note: Using conditionals in this loop could degrade performance.
 			// Consider using a lookup table instead when writing production code.
 
-			float depthValue = static_cast<FLOAT>((depth >= nMinDepth) && (depth <= nMaxDepth) ? (((float)depth / (float)nMaxDepth) * 256.f) : 0);
+			float top = (float)nMaxDepth  - ((float)depth - (float)nMinDepth + 166.f) ;
+			float bottom = (float)nMaxDepth - (float)nMinDepth;
+
+			float depthValue = static_cast<FLOAT>((depth >= nMinDepth) && (depth <= nMaxDepth) ? (top / bottom)*500.f : 0);
+			
+			if(( lowestValue > depthValue ) && (depthValue != 0))
+			{
+				lowestValue = depthValue;
+			}
+
+
+			//float depthValue2 =
+
+			//float depthValue = static_cast<FLOAT>(depth);
+			//
+			//depthValue = (nMaxDepth - depthValue)/ nMaxDepth;
+			//
+			//if( depth < nMinDepth )
+			//{
+			//	depthValue = 1;
+			//}
+			//else if( (depth >= nMinDepth) && (depth <= nMaxDepth) )
+			//{
+			//	depthValue = ( nMaxDepth)/
+			//
+			//}
+
+			
+			//if( depthValue !=0 )
+				//depthValue = 1 - depthValue;
 
 			byte intensity = static_cast<BYTE>((depth >= nMinDepth) && (depth <= nMaxDepth) ? (((float)depth / (float)nMaxDepth) * 256.f) : 0);
 			
@@ -429,6 +462,7 @@ void Kinect_v2::ProcessDepth(INT64 nTime, const UINT16 * pBuffer, int nWidth, in
 			++pBuffer;
 		}
 
+		float finallowest = lowestValue;
 
 	}
 

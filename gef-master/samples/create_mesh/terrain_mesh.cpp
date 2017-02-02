@@ -13,7 +13,7 @@ TerrainMesh::TerrainMesh()
 	std::srand((int)time);
 float x = std::rand();
 
-	perlin_noise_ = new PerlinNoise(2, 0.25, 4, 1, x);
+	perlin_noise_ = new PerlinNoise(2, 0.25, 3, 1, x);
 
 	x_length = 100;
 	z_length = 100;
@@ -29,9 +29,9 @@ void TerrainMesh::GenerateVertices()
 
 			gef::Mesh::Vertex vertex;
 
-			vertex.px = x_axis;
+			vertex.px = x_axis - (x_length / 2);
 			vertex.py = 0.5f;// y_axis;
-			vertex.pz = y_axis;
+			vertex.pz = y_axis - (z_length/2);
 
 			vertex.nx = x_axis;
 			vertex.ny = y_axis;

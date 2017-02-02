@@ -90,14 +90,16 @@ void MeshApp::Init()
 	terrain_shader_active_ = false;
 	
 
-	gef::Vector4 camera_eye = gef::Vector4(5.0f, 5.0f, 0.0f);
-	gef::Vector4 camera_forward = gef::Vector4(-1.0f, -1.0f, 0.0f);
-	gef::Vector4 camera_up = gef::Vector4(0.0f, 1.0f, 0.0f);
+	gef::Vector4 camera_eye = gef::Vector4(0.0f, 150.0f, 0.0f);
+	gef::Vector4 camera_forward = gef::Vector4(0.0f, 149.0f, 0.0f);
+	gef::Vector4 camera_up = gef::Vector4(01.0f, 150.0f, 0.0f);
 	float camera_fov = gef::DegToRad(45.0f);
 	float near_plane = 0.01f;
 	float far_plane = 1000.f;
 
 	camera_0 = new CameraObject(camera_eye, camera_forward, camera_up, camera_fov, near_plane, far_plane);
+	camera_0->SetYaw( 0.0f );
+	camera_0->SetPitch( -90.0f );
 
 	SetupCamera();
 	SetupLights();

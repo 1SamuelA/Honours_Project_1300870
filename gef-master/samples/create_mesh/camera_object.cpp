@@ -277,7 +277,7 @@ void CameraObject::TurnLeft()
 	camera_rotation_.set_y(camera_rotation_ .y()- m_speed);
 
 	// Keep the rotation in the 0 to 360 range.
-	if (camera_rotation_.y() > 0.0f)
+	if (camera_rotation_.y() < 0.0f)
 	{
 		camera_rotation_.set_y(360.0f);
 	}

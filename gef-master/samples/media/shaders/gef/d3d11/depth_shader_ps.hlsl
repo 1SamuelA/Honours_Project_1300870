@@ -45,9 +45,11 @@ float4 PS( PixelInput input ) : SV_Target
 	float4 WHITE = float4(1.0, 1.0, 1.0, 1.0);
 	float4 RED = float4(1.0, 0.0, 0.0, 1.0);
 	float4 GREEN = float4(0.0, 1.0, 0.0, 1.0);
-	float4 SAND = float4(76.f/256.f, 70.f/256.f, 50.f/256.f,1.0);
+	float4 LIGHT_GREEN = float4(0.50, 1.0, 0.50, 1.0);
+	float4 SAND = float4(76.f/255.f, 70.f/255.f, 50.f/255.f,1.0);
 	float4 BLUE = float4(0.0, 0.0, 1.0, 1.0);
-
+	float4 LIGHT_BLUE = float4(0.50, 0.50, 1.0, 1.0);
+	float4 ORANGE = float4(255.f / 255.f, 127.f / 255.f, 80.f / 255.f, 1.0);
 
 	float h = input.vertex_position.y;
 
@@ -58,19 +60,24 @@ float4 PS( PixelInput input ) : SV_Target
 		colour = BLUE;
 
 	}
-	else if( (h >= 0.0f) &&(h < 5.f) )
+	else if( (h >= 0.0f) && (h < 4.f) )
 	{
-		colour = lerp( BLUE, GREEN, h / 5.0 );
+		colour = lerp( BLUE, LIGHT_BLUE, h / 4.0 );
+
+	}
+	else if( (h >= 4.0f) &&(h < 5.f) )
+	{
+		colour = lerp( SAND, LIGHT_GREEN, (h-4.f) / 1.0 );
 
 	}
 	else if( (h >= 5.f) && (h < 10.f) )
 	{
-		colour = lerp( GREEN, SAND,(h - 5.0) / 5.0 );
+		colour = lerp( LIGHT_GREEN, GREEN,(h - 5.0) / 5.0 );
 
 	}
 	else if( (h >= 10.f) && (h < 15.f) )
 	{
-		colour = lerp( SAND, RED,(h - 10.f) / 5.f );
+		colour = lerp( GREEN, RED,(h - 10.f) / 5.f );
 
 	}
 	else if( (h >= 15.f) && (h < 20.f) )

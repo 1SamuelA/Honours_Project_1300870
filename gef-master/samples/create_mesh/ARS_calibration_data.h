@@ -3,8 +3,9 @@
 
 struct ARSCalibrationData
 {
-	int a;
-
+	int MinDepth;
+	int maxDepth;
+	int flatDepth;
 };
 
 
