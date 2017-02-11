@@ -12,6 +12,8 @@ namespace gef
 	class InputManager;
 }
 
+class Kinect_v2;
+
 class State
 {
 public:
@@ -19,7 +21,7 @@ public:
 
 	virtual ~State() {};
 
-	virtual void init(gef::Platform* platform, ARSCalibrationData ARS_calibration_data ) = 0;
+	virtual void init( gef::Platform* platform, ARSCalibrationData* ARS_calibration_data, Kinect_v2* kinect_sensor_ ) = 0;
 	virtual void cleanup() = 0;
 	virtual void Update(StateManager* state_manchine,float delta_time, gef::InputManager* input_manager_) = 0;
 	virtual void Render(gef::Renderer3D* renderer_3d_, gef::SpriteRenderer* sprite_renderer_, gef::Font* font) = 0;

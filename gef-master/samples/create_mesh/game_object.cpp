@@ -1,5 +1,9 @@
 #include "game_object.h"
 
+GameObject::GameObject()
+{
+}
+
 void GameObject::gameObjectInit()
 {
 

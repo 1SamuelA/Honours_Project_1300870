@@ -27,9 +27,16 @@
 
 #include "PerlinNoise.h"
 
+#include "StateManager.h"
+#include "MAINMENU_state.h"
+#include "NORMAL_TERRAIN_GEN_state.h"
 
 #include <random>
 #include <time.h>
+
+
+#define DEGBUG_O false
+
 
 MeshApp::MeshApp(gef::Platform& platform) :
 	Application(platform),
@@ -38,112 +45,220 @@ MeshApp::MeshApp(gef::Platform& platform) :
 	renderer_3d_(NULL),
 	input_manager_(NULL),
 	active_touch_id_(-1),
-	terrain_shader_(NULL)
+	terrain_shader_(NULL),
+	mesh_(NULL)
 {
 }
 
 void MeshApp::Init()
 {
 
+	if( DEGBUG_O == true )
+	{
+		// Starts all the managers and Renders.
+		sprite_renderer_ = gef::SpriteRenderer::Create( platform_ );
+		renderer_3d_ = gef::Renderer3D::Create( platform_ );
+		input_manager_ = gef::InputManager::Create( platform_ );
+		KinectSensor_ = new Kinect_v2;
+
+		state_manager_ = new StateManager;
+
+		KinectSensor_->Init();
+
+		InitFont();
+
+		terrain_mesh_ = new TerrainMesh();
+
+		terrain_mesh_->GenerateVertices();
+		terrain_mesh_->GenerateIndex();
+
+		terrain_shader_ = new TerrainShader(platform_);
+		platform_.AddShader(terrain_shader_);
+
+		terrain_changed_ = false;
+
+
+		mesh_ = CreateCubeMesh();
+		cube_player_.set_mesh(mesh_);
+
+		terrain_shader_active_ = false;
+
+
+		gef::Vector4 camera_eye = gef::Vector4(0.0f, 150.0f, 0.0f);
+		gef::Vector4 camera_forward = gef::Vector4(0.0f, 149.0f, 0.0f);
+		gef::Vector4 camera_up = gef::Vector4(01.0f, 150.0f, 0.0f);
+		float camera_fov = gef::DegToRad(45.0f);
+		float near_plane = 0.01f;
+		float far_plane = 1000.f;
+
+		camera_0 = new CameraObject(camera_eye, camera_forward, camera_up, camera_fov, near_plane, far_plane);
+		camera_0->SetYaw( 0.0f );
+		camera_0->SetPitch( -90.0f );
+
+		SetupCamera();
+		
+		SetupLights();
+
+		state_manager_->AddState( new MAINMENUstate );
+		state_manager_->GetCurrentState()->init( &platform_, ARS_calibration_data_, KinectSensor_ );
+
+		previous_state = state_manager_->GetCurrentState();
+
+		time_ = 0;
+	}
+	else
+	{
+		// Starts all the managers and Renders.
+		sprite_renderer_ = gef::SpriteRenderer::Create( platform_ );
+		renderer_3d_ = gef::Renderer3D::Create( platform_ );
+		input_manager_ = gef::InputManager::Create( platform_ );
+		KinectSensor_ = new Kinect_v2;
+
+		state_manager_ = new StateManager;
+
+		KinectSensor_->Init();
+
+		InitFont();
+
+		/*terrain_mesh_ = new TerrainMesh();
+
+		terrain_mesh_->GenerateVertices();
+		terrain_mesh_->GenerateIndex();
+
+		terrain_shader_ = new TerrainShader(platform_);
+		platform_.AddShader(terrain_shader_);
+
+		terrain_changed_ = false;
+
+
+		mesh_ = CreateCubeMesh();
+		cube_player_.set_mesh(mesh_);
+
+		terrain_shader_active_ = false;
+
+
+		gef::Vector4 camera_eye = gef::Vector4(0.0f, 150.0f, 0.0f);
+		gef::Vector4 camera_forward = gef::Vector4(0.0f, 149.0f, 0.0f);
+		gef::Vector4 camera_up = gef::Vector4(01.0f, 150.0f, 0.0f);
+		float camera_fov = gef::DegToRad(45.0f);
+		float near_plane = 0.01f;
+		float far_plane = 1000.f;
+
+		camera_0 = new CameraObject(camera_eye, camera_forward, camera_up, camera_fov, near_plane, far_plane);
+		camera_0->SetYaw( 0.0f );
+		camera_0->SetPitch( -90.0f );
+
+		SetupCamera();
+		*/
+		SetupLights();
+
+		state_manager_->AddState( new MAINMENUstate );
+		state_manager_->GetCurrentState()->init( &platform_, ARS_calibration_data_, KinectSensor_ );
+
+		previous_state = state_manager_->GetCurrentState();
+
+		time_ = 0;
+	}
+
 	
-	pitch = yaw = roll=  0.0f;
-
-	sprite_renderer_ = gef::SpriteRenderer::Create(platform_);
-	renderer_3d_ = gef::Renderer3D::Create(platform_);
-	input_manager_ = gef::InputManager::Create(platform_);
-	KinectSensor_ = new Kinect_v2;
-
-	KinectSensor_->Init();
-
-	renderer_3d_->SetFillMode(renderer_3d_->kWireframe);
-	
-	//png_loader_ = new gef::PNGLoader();
-	//
-	//png_loader_->Load("heightmap.png", platform_, hieghtmapData);
-	//if (hieghtmapData.image() == NULL)
-	//{
-	//	exit(-1);
-	//}
-	//
-	//
-
-	// make sure if there is a panel to detect touch input, then activate it
-	if (input_manager_ && input_manager_->touch_manager() && (input_manager_->touch_manager()->max_num_panels() > 0))
-		input_manager_->touch_manager()->EnablePanel(0);
-
-	InitFont();
-
-	terrain_mesh_ = new TerrainMesh();
-
-	terrain_mesh_->GenerateVertices();
-	terrain_mesh_->GenerateIndex();
-
-	terrain_shader_ = new TerrainShader(platform_);
-	platform_.AddShader(terrain_shader_);
-
-	terrain_changed_ = false;
-
-
-	mesh_ = CreateCubeMesh();
-	cube_player_.set_mesh(mesh_);
-
-	terrain_shader_active_ = false;
-	
-
-	gef::Vector4 camera_eye = gef::Vector4(0.0f, 150.0f, 0.0f);
-	gef::Vector4 camera_forward = gef::Vector4(0.0f, 149.0f, 0.0f);
-	gef::Vector4 camera_up = gef::Vector4(01.0f, 150.0f, 0.0f);
-	float camera_fov = gef::DegToRad(45.0f);
-	float near_plane = 0.01f;
-	float far_plane = 1000.f;
-
-	camera_0 = new CameraObject(camera_eye, camera_forward, camera_up, camera_fov, near_plane, far_plane);
-	camera_0->SetYaw( 0.0f );
-	camera_0->SetPitch( -90.0f );
-
-	SetupCamera();
-	SetupLights();
-
-	time_ = 0;
 }
 
 void MeshApp::CleanUp()
 {
-	delete mesh_;
-	mesh_ = NULL;
+	if( mesh_ != NULL )
+	{
+		delete mesh_;
+		mesh_ = NULL;
+	}
 
 	CleanUpFont();
-	delete sprite_renderer_;
-	sprite_renderer_ = NULL;
+	if( sprite_renderer_ != NULL )
+	{
+		delete sprite_renderer_;
+		sprite_renderer_ = NULL;
+	}
 
-	delete renderer_3d_;
-	renderer_3d_ = NULL;
+	if( renderer_3d_ != NULL )
+	{
+		delete renderer_3d_;
+		renderer_3d_ = NULL;
+	}
 
-	platform_.RemoveShader(terrain_shader_);
-	delete terrain_shader_;
-	terrain_shader_ = NULL;
+	if( terrain_shader_ != NULL )
+	{
+		platform_.RemoveShader( terrain_shader_ );
+		delete terrain_shader_;
+		terrain_shader_ = NULL;
+	}
 }
 
 bool MeshApp::Update(float frame_time)
 {
-	input_manager_->Update();
-
-	fps_ = 1.0f / frame_time;
-	time_ += frame_time;
-
-	//Upadtes Camera Infomation.
-	camera_0->SetFrameTime(frame_time);
-	camera_0->update();
-
-	if (terrain_changed_)
+	if( DEGBUG_O )
 	{
-		UpdateTerrain();
+		input_manager_->Update();
+
+		if( state_manager_->GetNumStates() != 0 )
+		{
+
+			if( state_manager_->GetCurrentState() == previous_state )
+			{
+				state_manager_->GetCurrentState()->Update( state_manager_, frame_time, input_manager_ );
+			}
+
+			if( state_manager_->GetCurrentState() != previous_state )
+			{
+				state_manager_->GetCurrentState()->init( &platform_, ARS_calibration_data_, KinectSensor_ );
+				previous_state = state_manager_->GetCurrentState();
+			}
+
+
+		}
+		fps_ = 1.0f / frame_time;
+		time_ += frame_time;
+
+		//Upadtes Camera Infomation.
+		camera_0->SetFrameTime(frame_time);
+		camera_0->update();
+
+		if (terrain_changed_)
+		{
+			UpdateTerrain();
+		}
+
+		ProcessKeyboardInput();
+
+		return true;
+
+	}
+	else
+	{
+		input_manager_->Update();
+
+		if( state_manager_->GetNumStates() != 0 )
+		{
+
+			if( state_manager_->GetCurrentState() == previous_state )
+			{
+				state_manager_->GetCurrentState()->Update( state_manager_, frame_time, input_manager_ );
+			}
+
+			if( state_manager_->GetCurrentState() != previous_state )
+			{
+				state_manager_->GetCurrentState()->init( &platform_, ARS_calibration_data_, KinectSensor_ );
+				previous_state = state_manager_->GetCurrentState();
+			}
+
+
+		}
+
+		return true;
 	}
 
-	ProcessKeyboardInput();
+	
 
 
-	return true;
+	
 }
 
 void MeshApp::UpdateTerrain()
@@ -185,34 +300,43 @@ void MeshApp::UpdateTerrain()
 
 void MeshApp::Render()
 {
-	gef::Matrix44 projection_matrix;
-	gef::Matrix44 view_matrix;
+	if( DEGBUG_O == true )
+	{
+		gef::Matrix44 projection_matrix;
+		gef::Matrix44 view_matrix;
 
-	projection_matrix = platform_.PerspectiveProjectionFov(camera_fov, (float)platform_.width() / (float)platform_.height(), near_plane, far_plane);
+		projection_matrix = platform_.PerspectiveProjectionFov( camera_fov, (float)platform_.width() / (float)platform_.height(), near_plane, far_plane );
+		//projection_matrix = platform_.OrthographicFrustum( 0.0, platform_.width(), 0.0, platform_.height(), camera_0->GetNear(), camera_0->GetFar() );
+		view_matrix.LookAt( camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp() );
+		//view_matrix.LookAt(camera_eye, camera_lookat, camera_up);
 
-	view_matrix.LookAt(camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp());
-	//view_matrix.LookAt(camera_eye, camera_lookat, camera_up);
+		renderer_3d_->set_projection_matrix( projection_matrix );
+		renderer_3d_->set_view_matrix( view_matrix );
 
-	renderer_3d_->set_projection_matrix(projection_matrix);
-	renderer_3d_->set_view_matrix(view_matrix);
 
-	
-	// draw meshes here
-	renderer_3d_->Begin();
-	renderer_3d_->DrawMesh(cube_player_);
+		// draw meshes here
+		renderer_3d_->Begin();
+		renderer_3d_->DrawMesh( cube_player_ );
 
-	//renderer_3d_->SetFillMode(gef::Renderer3D::FillMode::kSolid);
+		//renderer_3d_->SetFillMode(gef::Renderer3D::FillMode::kSolid);
 
-	renderer_3d_->End();
+		renderer_3d_->End();
 
-	RenderTerrain();
+		RenderTerrain();
 
-	// setup the sprite renderer, but don't clear the frame buffer
-	// draw 2D sprites here
-	sprite_renderer_->Begin(false);
-	DrawHUD();
-	sprite_renderer_->End();
+		// setup the sprite renderer, but don't clear the frame buffer
+		// draw 2D sprites here
+		sprite_renderer_->Begin( false );
+		DrawHUD();
+		sprite_renderer_->End();
+	}
+	else
+	{
+		state_manager_->GetCurrentState()->Render( renderer_3d_, sprite_renderer_, font_ );
+	}
+
 }
+
 void MeshApp::InitFont()
 {
 	font_ = new gef::Font(platform_);
@@ -321,51 +445,6 @@ void MeshApp::ProcessKeyboardInput()
 	
 }
 
-void MeshApp::ProcessTouchInput()
-{
-	const gef::TouchInputManager* touch_input = input_manager_->touch_manager();
-	if (touch_input && (touch_input->max_num_panels() > 0))
-	{
-		// get the active touches for this panel
-		const gef::TouchContainer& panel_touches = touch_input->touches(0);
-
-		// go through the touches
-		for (gef::ConstTouchIterator touch = panel_touches.begin(); touch != panel_touches.end(); ++touch)
-		{
-			// if active touch id is -1, then we are currently processing a touch
-			if (active_touch_id_ == -1)
-			{
-				// check for the start of a new touch
-				if (touch->type == gef::TT_NEW)
-				{
-					active_touch_id_ = touch->id;
-
-					// do any processing for a new touch here
-					// we're just going to record the position of the touch
-					touch_position_ = touch->position;
-				}
-			}
-			else if (active_touch_id_ == touch->id)
-			{
-				// we are processing touch data with a matching id to the one we are looking for
-				if (touch->type == gef::TT_ACTIVE)
-				{
-					// update an active touch here
-					// we're just going to record the position of the touch
-					touch_position_ = touch->position;
-				}
-				else if (touch->type == gef::TT_RELEASED)
-				{
-					// the touch we are tracking has been released
-					// perform any actions that need to happen when a touch is released here
-					// we're not doing anything here apart from resetting the active touch id
-					active_touch_id_ = -1;
-				}
-			}
-		}
-	}
-}
-
 gef::Mesh* MeshApp::CreateCubeMesh()
 {
 	gef::Mesh* mesh = new gef::Mesh(platform_);
@@ -415,8 +494,6 @@ gef::Mesh* MeshApp::CreateCubeMesh()
 
 	//gef::Mesh::Vertex vertices[] = { temp_vertices[0],temp_vertices[1],temp_vertices[2],temp_vertices[3] };
 
-
-
 	//{
 	//	{ half_size, -half_size, -half_size,  0.577f, -0.577f, -0.577f, 0.0f, 0.0f },
 	//	{ half_size,  half_size, -half_size,  0.577f,  0.577f, -0.577f, 0.0f, 0.0f },
@@ -427,8 +504,6 @@ gef::Mesh* MeshApp::CreateCubeMesh()
 	//	{ -half_size,  half_size,  half_size, -0.577f,  0.577f,  0.577f, 0.0f, 0.0f },
 	//	{ -half_size, -half_size,  half_size, -0.577f, -0.577f,  0.577f, 0.0f, 0.0f }
 	//};//new gef::Mesh::Vertex[8];
-	
-	 
 
 	mesh->InitVertexBuffer(platform_, vertices, terrain_verticies.size(), sizeof(gef::Mesh::Vertex),false);
 
@@ -494,7 +569,6 @@ gef::Mesh* MeshApp::CreateCubeMesh()
 	//
 	//}
 
-
 	terrain_index = terrain_mesh_->GetTerrainIndices();
 
 	UInt32* indices; 
@@ -505,9 +579,7 @@ gef::Mesh* MeshApp::CreateCubeMesh()
 		indices[i] = terrain_index[i];
 	}
 	
-
 	//UInt32 indicesa[] = { temp_indices[0],temp_indices[1],temp_indices[2],temp_indices[3],temp_indices[4],temp_indices[5] };
-	
 	
 	//indices = indices_;
 	//UInt32* index = indicesa;
@@ -562,9 +634,6 @@ void MeshApp::SetupLights()
 	default_shader_data.set_ambient_light_colour(gef::Colour(0.5f, 0.5f, 0.5f, 1.0f));
 	default_shader_data.AddPointLight(default_point_light);
 
-	terrain_shader_->shader_data.set_ambient_light_colour( gef::Colour( 0.5f, 0.5f, 0.5f, 1.0f ) );
-	terrain_shader_->shader_data.AddPointLight( default_point_light );
-
 }
 
 void MeshApp::SetupCamera()
@@ -578,7 +647,6 @@ void MeshApp::SetupCamera()
 	far_plane = 1000.f;
 }
 
-
 void MeshApp::RenderTerrain()
 {
 	if( terrain_shader_active_ )
@@ -589,9 +657,12 @@ void MeshApp::RenderTerrain()
 		gef::Matrix44 view_matrix;
 
 		projection_matrix = platform_.PerspectiveProjectionFov( camera_fov, (float)platform_.width() / (float)platform_.height(), near_plane, far_plane );
+		//projection_matrix = platform_.OrthographicFrustum(0 , platform_.width(),0, platform_.height(), camera_0->GetNear(), camera_0->GetFar() );
+
+		renderer_3d_->set_projection_matrix( projection_matrix );
 
 		view_matrix.LookAt( camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp() );
-
+		//view_matrix.SetIdentity();
 		// use the shader for renderering the depth values to the shadow buffer
 		renderer_3d_->SetShader( terrain_shader_ );
 
@@ -628,10 +699,3 @@ void MeshApp::RenderTerrain()
 	}
 }
 
-void MeshApp::SetupShader(const gef::MeshInstance& mesh_instance)
-{
-	// depending on the shader being used
-	// pass the data to the appropriate shader
-	
-
-}

@@ -1,4 +1,7 @@
 #include "MAINMENU_state.h"
+
+#include "NORMAL_TERRAIN_GEN_state.h"
+
 #include "graphics\renderer_3d.h"
 #include "graphics\sprite_renderer.h"
 #include "graphics\font.h"
@@ -15,29 +18,14 @@
 #include "graphics\material.h"
 #include "graphics\texture.h"
 #include <input\input_manager.h>
-#include <input\sony_controller_input_manager.h>
+#include <input\keyboard.h>
 
 #include "graphics\mesh.h"
 
-
 #define DEBUGON true
 
-
-/*
-
-A     B
- \   /
-  \ /
-   O
-  / \
- /   \
-D     C
-
-*/
-
-
-
-void MAINMENUstate::init(gef::Platform* platform, ARSCalibrationData* ARSCalibration )
+void MAINMENUstate::init(gef::Platform* platform, ARSCalibrationData* ARSCalibration, 
+	Kinect_v2* kinect_sensor_ )
 {
 	platform_ = platform;
 
@@ -45,20 +33,20 @@ void MAINMENUstate::init(gef::Platform* platform, ARSCalibrationData* ARSCalibra
 	ARS_calibration_data_ = ARSCalibration;
 
 	gef::PNGLoader PngLoader;
-	gef::ImageData crossData;
-	crossHairs = new gef::Sprite();
-	PngLoader.Load("Calibration_Square.png", *platform_, crossData);
-	if (crossData.image() == NULL)
-	{
-		exit(-1);
-	}
-	crossHairsTexture = gef::Texture::Create(*platform_, crossData);
-	crossHairs->set_height(64);
-	crossHairs->set_width(64);
-	crossHairs->set_position(gef::Vector4( platform_->width() / 2, platform_->height() - 28, 0.9f));
-	crossHairs->set_texture(crossHairsTexture);
-	crossHairs->set_uv_width(1.0f);
-	crossHairs->set_uv_height(1.0f);
+	//gef::ImageData crossData;
+	//crossHairs = new gef::Sprite();
+	//PngLoader.Load("Calibration_Square.png", *platform_, crossData);
+	//if (crossData.image() == NULL)
+	//{
+	//	exit(-1);
+	//}
+	//crossHairsTexture = gef::Texture::Create(*platform_, crossData);
+	//crossHairs->set_height(64);
+	//crossHairs->set_width(64);
+	//crossHairs->set_position(gef::Vector4( platform_->width() / 2, platform_->height() - 28, 0.9f));
+	//crossHairs->set_texture(crossHairsTexture);
+	//crossHairs->set_uv_width(1.0f);
+	//crossHairs->set_uv_height(1.0f);
 
 	
 	// Init Meshes ///////////////////////////////////
@@ -73,7 +61,7 @@ void MAINMENUstate::init(gef::Platform* platform, ARSCalibrationData* ARSCalibra
 	Selection = 0;
 
 	gef::ImageData textureData;
-	PngLoader.Load("selectiontexture.png", *platform_, textureData);
+	PngLoader.Load("menu/selectiontexture.png", *platform_, textureData);
 	if (textureData.image() == NULL)
 	{
 		exit(-1);
@@ -109,7 +97,7 @@ void MAINMENUstate::InitMeshes()
 
 	//  Main Menu
 	model_scene_title = new gef::Scene();
-	model_scene_title->ReadSceneFromFile(*platform_, "mainmenu.scn");
+	model_scene_title->ReadSceneFromFile(*platform_, "menu/mainmenu.scn");
 	model_scene_title->CreateMaterials(*platform_);
 	if (model_scene_title->meshes.size() > 0)
 		mesh_title = model_scene_title->CreateMesh(*platform_, model_scene_title->meshes.front());
@@ -136,7 +124,7 @@ void MAINMENUstate::InitMeshes()
 
 	//  Play
 	model_scene_play = new gef::Scene();
-	model_scene_play->ReadSceneFromFile(*platform_, "play.scn");
+	model_scene_play->ReadSceneFromFile(*platform_, "menu/play.scn");
 	model_scene_play->CreateMaterials(*platform_);
 	if (model_scene_play->meshes.size() > 0)
 		mesh_play = model_scene_play->CreateMesh(*platform_, model_scene_play->meshes.front());
@@ -162,11 +150,10 @@ void MAINMENUstate::InitMeshes()
 
 	//  options
 	model_scene_options = new gef::Scene();
-	model_scene_options->ReadSceneFromFile(*platform_, "options.scn");
+	model_scene_options->ReadSceneFromFile(*platform_, "menu/options.scn");
 	model_scene_options->CreateMaterials(*platform_);
 	if (model_scene_options->meshes.size() > 0)
 		mesh_options = model_scene_play->CreateMesh(*platform_, model_scene_options->meshes.front());
-	//mesh_title = CreateSquare();
 	draw_list.push_back(new GameObject());
 	draw_list.back()->set_mesh(mesh_options);
 
@@ -187,11 +174,10 @@ void MAINMENUstate::InitMeshes()
 
 	// Exit
 	model_scene_exit = new gef::Scene();
-	model_scene_exit->ReadSceneFromFile(*platform_, "exit.scn");
+	model_scene_exit->ReadSceneFromFile(*platform_, "menu/exit.scn");
 	model_scene_exit->CreateMaterials(*platform_);
 	if (model_scene_exit->meshes.size() > 0)
 		mesh_exit = model_scene_play->CreateMesh(*platform_, model_scene_exit->meshes.front());
-	//mesh_title = CreateSquare();
 	draw_list.push_back(new GameObject());
 	draw_list.back()->set_mesh(mesh_exit);
 
@@ -203,6 +189,10 @@ void MAINMENUstate::InitMeshes()
 	trasformation = rotationx * rotationy * rotationz *scale * translation;
 	draw_list.back()->set_transform(trasformation);
 
+}
+
+void MAINMENUstate::Render3DScene( gef::Renderer3D * renderer_3d_ )
+{
 }
 
 void MAINMENUstate::cleanup()
@@ -222,7 +212,6 @@ void MAINMENUstate::Update(StateManager* state_manager, float delta_time, gef::I
 	HandleInput(input_manager_);
 
 	// Updates all the Marker Infomation.
-	MarkerUpdate();
 
 	
 	//Update Material
@@ -255,11 +244,53 @@ void MAINMENUstate::Update(StateManager* state_manager, float delta_time, gef::I
 
 void MAINMENUstate::HandleInput(gef::InputManager* input_manager_)
 {
-	input_manager_->Update();
-	const gef::SonyControllerInputManager* ControlerInput = input_manager_->controller_input();
-	const gef::SonyController* controller = ControlerInput->GetController(0);
+	const gef::Keyboard* keyboard = input_manager_->keyboard();
+	if( keyboard )
+	{
+		if( keyboard->IsKeyPressed( gef::Keyboard::KC_ESCAPE ) )
+		{
+			exit( 0 );
+		}
+		if( keyboard->IsKeyPressed( gef::Keyboard::KC_S ) )
+		{
+			if( Selection >= SelectionMax - 1 )
+				Selection = 0;
+			else
+				Selection++;
+		}
+		if( keyboard->IsKeyPressed( gef::Keyboard::KC_W ) )
+		{
+			if( Selection <= 0 )
+				Selection = 2;
+			else
+				Selection--;
+		}
+		if( keyboard->IsKeyPressed( gef::Keyboard::KC_RETURN ) )
+		{
+			switch( Selection )
+			{
+			case 0:
+			{
+				state_manager_->AddState(new NORMAL_TERRAIN_GENstate());
+				break;
+			}
+			case 1:
+			{
+				break;
+			}
+			case 2:
+			{
+				exit( -1 );
+				break;
+			}
+			}
+		}
 
-	if (controller)
+
+	}
+
+	/*
+	if ( input_manager_ ->keyboard())
 	{
 		if (controller->buttons_pressed() & (gef_SONY_CTRL_START))
 		{
@@ -301,11 +332,7 @@ void MAINMENUstate::HandleInput(gef::InputManager* input_manager_)
 
 
 	}
-}
-
-void MAINMENUstate::MarkerUpdate()
-{
-	
+	*/
 }
 
 void MAINMENUstate::Render(gef::Renderer3D * renderer_3d_, gef::SpriteRenderer * sprite_renderer_, gef::Font * font)
@@ -417,5 +444,28 @@ gef::Mesh* MAINMENUstate::CreateSquare()
 	mesh->set_bounding_sphere(sphere);
 
 	return mesh;
+}
+
+void MAINMENUstate::InitFont()
+{
+	font_ = new gef::Font( *platform_ );
+	font_->Load( "comic_sans" );
+}
+
+void MAINMENUstate::CleanUpFont()
+{
+	delete font_;
+	font_ = NULL;
+}
+
+void MAINMENUstate::DrawHUD( gef::SpriteRenderer * sprite_renderer_ )
+{
+	if( font_ )
+	{
+		// display frame rate
+
+		font_->RenderText( sprite_renderer_, gef::Vector4(platform_->width() - 150.f, platform_->height() - 80.f, -0.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "FPS: %.1f", fps_ );
+
+	}
 }
 

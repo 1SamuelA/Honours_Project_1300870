@@ -11,6 +11,8 @@
 #include <graphics\image_data.h>
 
 #include <camera_object.h>
+
+#include "ARS_calibration_data.h"
 #include <kinect_v2.h>
 
 
@@ -29,7 +31,8 @@ namespace gef
 }
 
 class TerrainShader;
-
+class StateManager;
+class State;
 
 class MeshApp : public gef::Application
 {
@@ -47,21 +50,22 @@ private:
 	void SetupCamera();
 
 	void RenderTerrain();
-	void SetupShader(const gef::MeshInstance& mesh_instance);
 	void UpdateTerrain();
 	//
-	void ComputeNormals();
-
 
 	void ProcessKeyboardInput();
-	void ProcessTouchInput();
 
 	bool terrain_changed_;
 	bool terrain_shader_active_;
 
+	StateManager* state_manager_;
+
 
 	gef::InputManager* input_manager_;
 	Kinect_v2* KinectSensor_;
+	ARSCalibrationData* ARS_calibration_data_;
+
+	State* previous_state;
 
 	Int32 active_touch_id_;
 	gef::Vector2 touch_position_;

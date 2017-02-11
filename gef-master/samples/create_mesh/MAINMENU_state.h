@@ -27,14 +27,14 @@ namespace gef
 class MAINMENUstate : public State
 {
 public:
-	MAINMENUstate():
-		model_scene_(NULL) {
+	MAINMENUstate()
+	{
 		AlreadyInit = false;
 	};
 
 	~MAINMENUstate() {};
 
-	void init(gef::Platform* platform, ARSCalibrationData* ARSCalibration);
+	void init( gef::Platform* platform, ARSCalibrationData* ARS_calibration_data, Kinect_v2* kinect_sensor_ );
 	void cleanup();
 	void Update(StateManager* state_manager_,float delta_time, gef::InputManager* inputmanager);
 	void Render(class gef::Renderer3D* renderer_3d_, class gef::SpriteRenderer* sprite_renderer_, gef::Font* font);
@@ -43,15 +43,15 @@ public:
 	gef::Mesh* CreateSquare();
 private:
 	
+	void InitFont();
+	void CleanUpFont();
+	void DrawHUD( gef::SpriteRenderer * sprite_renderer_ );
+
 	bool AlreadyInit;
 
 	void HandleInput(gef::InputManager* input_manager_);
 
-	void MarkerUpdate();
-
 	ARSCalibrationData* ARS_calibration_data_;
-
-	
 
 	float fps_;
 
