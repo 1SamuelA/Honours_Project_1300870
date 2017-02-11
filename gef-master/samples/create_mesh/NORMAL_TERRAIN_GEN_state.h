@@ -92,7 +92,7 @@ private:
 	//Update varibles
 	bool terrain_changed_;
 	bool terrain_shader_active_;
-	int fps_;
+	float fps_;
 
 
 	//RenderFunctions

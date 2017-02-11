@@ -21,6 +21,7 @@
 #include <input\keyboard.h>
 
 #include "graphics\mesh.h"
+#include <maths\math_utils.h>
 
 #define DEBUGON true
 

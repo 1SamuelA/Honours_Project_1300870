@@ -35,7 +35,7 @@
 #include <time.h>
 
 
-#define DEGBUG_O false
+#define DEGBUG_O true
 
 
 MeshApp::MeshApp(gef::Platform& platform) :
@@ -198,22 +198,22 @@ bool MeshApp::Update(float frame_time)
 	{
 		input_manager_->Update();
 
-		if( state_manager_->GetNumStates() != 0 )
-		{
-
-			if( state_manager_->GetCurrentState() == previous_state )
-			{
-				state_manager_->GetCurrentState()->Update( state_manager_, frame_time, input_manager_ );
-			}
-
-			if( state_manager_->GetCurrentState() != previous_state )
-			{
-				state_manager_->GetCurrentState()->init( &platform_, ARS_calibration_data_, KinectSensor_ );
-				previous_state = state_manager_->GetCurrentState();
-			}
-
-
-		}
+		//if( state_manager_->GetNumStates() != 0 )
+		//{
+		//
+		//	if( state_manager_->GetCurrentState() == previous_state )
+		//	{
+		//		state_manager_->GetCurrentState()->Update( state_manager_, frame_time, input_manager_ );
+		//	}
+		//
+		//	if( state_manager_->GetCurrentState() != previous_state )
+		//	{
+		//		state_manager_->GetCurrentState()->init( &platform_, ARS_calibration_data_, KinectSensor_ );
+		//		previous_state = state_manager_->GetCurrentState();
+		//	}
+		//
+		//
+		//}
 		fps_ = 1.0f / frame_time;
 		time_ += frame_time;
 
@@ -247,6 +247,7 @@ bool MeshApp::Update(float frame_time)
 			{
 				state_manager_->GetCurrentState()->init( &platform_, ARS_calibration_data_, KinectSensor_ );
 				previous_state = state_manager_->GetCurrentState();
+				state_manager_->GetCurrentState()->Update( state_manager_, frame_time, input_manager_ );
 			}
 
 

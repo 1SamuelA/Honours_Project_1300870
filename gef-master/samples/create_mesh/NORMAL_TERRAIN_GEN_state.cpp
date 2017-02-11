@@ -18,6 +18,8 @@
 #include "input\input_manager.h"
 #include "input\keyboard.h"
 
+#include <maths\math_utils.h>
+
 void NORMAL_TERRAIN_GENstate::init( gef::Platform * platform, ARSCalibrationData * ARSCalibration, Kinect_v2* kinect_sensor_)
 {
 	platform_ = platform;
@@ -77,7 +79,7 @@ void NORMAL_TERRAIN_GENstate::Update( StateManager * state_manager, float delta_
 	rotationx.RotationX( 0.0f );
 	rotationy.RotationY( 0.0f );
 	rotationz.RotationZ( 0.0f );
-	scale.Scale( gef::Vector4( 0.1f, 0.1f, 0.1f ) );
+	scale.Scale( gef::Vector4( 1.f, 1.f, 1.f ) );
 	translation.SetTranslation( gef::Vector4( 0.0f, 0.0f, -0.0 ) );
 	trasformation = rotationx * rotationy * rotationz *scale *translation;
 	cube_player_.set_transform( trasformation );
@@ -188,7 +190,7 @@ void NORMAL_TERRAIN_GENstate::initCamera()
 	gef::Vector4 camera_eye = gef::Vector4( 0.0f, 150.0f, 0.0f );
 	gef::Vector4 camera_forward = gef::Vector4( 0.0f, 149.0f, 0.0f );
 	gef::Vector4 camera_up = gef::Vector4( 01.0f, 150.0f, 0.0f );
-	float camera_fov = gef::DegToRad( 45.0f );
+	float camera_fov = 45.0f;
 	float near_plane = 0.01f;
 	float far_plane = 1000.f;
 
@@ -339,8 +341,16 @@ void NORMAL_TERRAIN_GENstate::RenderTerrain( gef::Renderer3D * renderer_3d_ )
 		gef::Matrix44 projection_matrix;
 		gef::Matrix44 view_matrix;
 
-		projection_matrix = platform_->PerspectiveProjectionFov( camera_0->GetFov(), (float)platform_->width() / (float)platform_->height(), camera_0->GetNear(), camera_0->GetFar() );
+		float a = gef::DegToRad( 45 );
+		camera_0->SetFov(45);
+		//float b = camera_0->GetFov();
+		// gef::DegToRad( 45 );
+
+		//projection_matrix = platform_->PerspectiveProjectionFov( camera_0->GetFov(), (float)platform_->width() / (float)platform_->height(), camera_0->GetNear(), camera_0->GetFar() );
 		
+		projection_matrix = platform_->OrthographicFrustum(-10 ,10, -10, 10, camera_0->GetNear(), camera_0->GetFar() );
+
+
 		view_matrix.LookAt( camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp() );
 
 		// use the shader for renderering the depth values to the shadow buffer
