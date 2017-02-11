@@ -187,9 +187,9 @@ gef::Mesh * NORMAL_TERRAIN_GENstate::CreateSquare()
 void NORMAL_TERRAIN_GENstate::initCamera()
 {
 
-	gef::Vector4 camera_eye = gef::Vector4( 0.0f, 150.0f, 0.0f );
-	gef::Vector4 camera_forward = gef::Vector4( 0.0f, 149.0f, 0.0f );
-	gef::Vector4 camera_up = gef::Vector4( 01.0f, 150.0f, 0.0f );
+	gef::Vector4 camera_eye = gef::Vector4( 0.0f, 10.0f, 0.0f );
+	gef::Vector4 camera_forward = gef::Vector4( 0.0f, 9.0f, 0.0f );
+	gef::Vector4 camera_up = gef::Vector4( 01.0f, 10.0f, 0.0f );
 	float camera_fov = 45.0f;
 	float near_plane = 0.01f;
 	float far_plane = 1000.f;
@@ -348,8 +348,7 @@ void NORMAL_TERRAIN_GENstate::RenderTerrain( gef::Renderer3D * renderer_3d_ )
 
 		//projection_matrix = platform_->PerspectiveProjectionFov( camera_0->GetFov(), (float)platform_->width() / (float)platform_->height(), camera_0->GetNear(), camera_0->GetFar() );
 		
-		projection_matrix = platform_->OrthographicFrustum(-10 ,10, -10, 10, camera_0->GetNear(), camera_0->GetFar() );
-
+		projection_matrix = platform_->OrthographicFrustum( 50, -50,50, -50, camera_0->GetNear(), camera_0->GetFar() );
 
 		view_matrix.LookAt( camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp() );
 
@@ -357,7 +356,7 @@ void NORMAL_TERRAIN_GENstate::RenderTerrain( gef::Renderer3D * renderer_3d_ )
 		renderer_3d_->SetShader( terrain_shader_ );
 
 		// render target needs to be cleared to zero [black]
-		platform_->set_render_target_clear_colour( gef::Colour( 0.0f, 0.0f, 0.0f, 1.0f ) );
+		platform_->set_render_target_clear_colour( gef::Colour( 0.30f, 0.10f, 0.60f, 1.0f ) );
 		renderer_3d_->Begin();
 
 		float currentTime, TotalTime;

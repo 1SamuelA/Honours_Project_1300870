@@ -35,7 +35,7 @@
 #include <time.h>
 
 
-#define DEGBUG_O true
+#define DEGBUG_O false
 
 
 MeshApp::MeshApp(gef::Platform& platform) :
@@ -306,8 +306,8 @@ void MeshApp::Render()
 		gef::Matrix44 projection_matrix;
 		gef::Matrix44 view_matrix;
 
-		projection_matrix = platform_.PerspectiveProjectionFov( camera_fov, (float)platform_.width() / (float)platform_.height(), near_plane, far_plane );
-		//projection_matrix = platform_.OrthographicFrustum( 0.0, platform_.width(), 0.0, platform_.height(), camera_0->GetNear(), camera_0->GetFar() );
+		//projection_matrix = platform_.PerspectiveProjectionFov( camera_fov, (float)platform_.width() / (float)platform_.height(), near_plane, far_plane );
+		projection_matrix = platform_.OrthographicFrustum( 0.0, platform_.width(), 0.0, platform_.height(), camera_0->GetNear(), camera_0->GetFar() );
 		view_matrix.LookAt( camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp() );
 		//view_matrix.LookAt(camera_eye, camera_lookat, camera_up);
 
@@ -673,7 +673,6 @@ void MeshApp::RenderTerrain()
 
 		float currentTime, TotalTime;
 		currentTime = TotalTime = 0;
-
 		
 		
 
