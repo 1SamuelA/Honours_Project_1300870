@@ -22,6 +22,9 @@
 
 void NORMAL_TERRAIN_GENstate::init( gef::Platform * platform, ARSCalibrationData * ARSCalibration, Kinect_v2* kinect_sensor_)
 {
+	AlreadyInit = true;
+
+
 	platform_ = platform;
 	initCamera();
 
@@ -45,6 +48,8 @@ void NORMAL_TERRAIN_GENstate::cleanup()
 
 void NORMAL_TERRAIN_GENstate::Update( StateManager * state_manager, float delta_time, gef::InputManager * input_manager_ )
 {
+
+
 
 	state_manager_ = state_manager;
 

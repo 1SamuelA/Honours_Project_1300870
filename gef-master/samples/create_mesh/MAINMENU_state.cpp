@@ -51,7 +51,31 @@ void MAINMENUstate::init(gef::Platform* platform, ARSCalibrationData* ARSCalibra
 
 	
 	// Init Meshes ///////////////////////////////////
-	InitMeshes();
+	if( !AlreadyInit )
+	{
+
+		InitMeshes();
+
+		gef::ImageData textureData;
+		PngLoader.Load( "menu/selectiontexture.png", *platform_, textureData );
+		if( textureData.image() == NULL )
+		{
+			exit( -1 );
+		}
+		selectionTexture = gef::Texture::Create( *platform_, textureData );
+		defselectmat = new gef::Material();
+		//defselectmat->set_texture(selectionTexture);
+		defselectmat->set_colour( 0xffffffff );
+
+		selectedmat = new gef::Material();
+		//selectedmat->set_texture(selectionTexture);
+		selectedmat->set_colour( 0xff00ff00 );
+
+		unavaliblemat = new gef::Material();
+		unavaliblemat->set_colour( 0xff0000ff );
+	}
+
+	
 
 	
 
@@ -61,23 +85,7 @@ void MAINMENUstate::init(gef::Platform* platform, ARSCalibrationData* ARSCalibra
 	SelectionMax = 3;
 	Selection = 0;
 
-	gef::ImageData textureData;
-	PngLoader.Load("menu/selectiontexture.png", *platform_, textureData);
-	if (textureData.image() == NULL)
-	{
-		exit(-1);
-	}
-	selectionTexture = gef::Texture::Create(*platform_, textureData);
-	defselectmat = new gef::Material();
-	//defselectmat->set_texture(selectionTexture);
-	defselectmat->set_colour(0xffffffff);
-
-	selectedmat = new gef::Material();
-	//selectedmat->set_texture(selectionTexture);
-	selectedmat->set_colour(0xff00ff00);
-
-	unavaliblemat = new gef::Material();
-	unavaliblemat->set_colour(0xff0000ff);
+	
 }
 
 void MAINMENUstate::InitMeshes()
