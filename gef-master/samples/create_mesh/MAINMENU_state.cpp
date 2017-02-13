@@ -30,7 +30,6 @@ void MAINMENUstate::init(gef::Platform* platform, ARSCalibrationData* ARSCalibra
 {
 	platform_ = platform;
 
-
 	ARS_calibration_data_ = ARSCalibration;
 
 	gef::PNGLoader PngLoader;
@@ -53,7 +52,6 @@ void MAINMENUstate::init(gef::Platform* platform, ARSCalibrationData* ARSCalibra
 	// Init Meshes ///////////////////////////////////
 	if( !AlreadyInit )
 	{
-
 		InitMeshes();
 
 		gef::ImageData textureData;
@@ -202,6 +200,7 @@ void MAINMENUstate::InitMeshes()
 
 void MAINMENUstate::Render3DScene( gef::Renderer3D * renderer_3d_ )
 {
+
 }
 
 void MAINMENUstate::cleanup()

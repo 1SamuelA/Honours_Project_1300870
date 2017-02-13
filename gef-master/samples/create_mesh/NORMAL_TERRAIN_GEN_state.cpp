@@ -22,7 +22,11 @@
 
 void NORMAL_TERRAIN_GENstate::init( gef::Platform * platform, ARSCalibrationData * ARSCalibration, Kinect_v2* kinect_sensor_)
 {
-	AlreadyInit = true;
+	
+	if( !AlreadyInit )
+	{
+		AlreadyInit = !AlreadyInit;
+	}
 
 
 	platform_ = platform;
