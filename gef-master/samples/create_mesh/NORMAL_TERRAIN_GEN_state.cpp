@@ -27,7 +27,7 @@ void NORMAL_TERRAIN_GENstate::init( gef::Platform * platform, ARSCalibrationData
 
 	initMeshes();
 
-	
+	KinectSensor_ = kinect_sensor_;
 
 
 	ARSCalibration_ = ARSCalibration;
@@ -348,7 +348,7 @@ void NORMAL_TERRAIN_GENstate::RenderTerrain( gef::Renderer3D * renderer_3d_ )
 
 		//projection_matrix = platform_->PerspectiveProjectionFov( camera_0->GetFov(), (float)platform_->width() / (float)platform_->height(), camera_0->GetNear(), camera_0->GetFar() );
 		
-		projection_matrix = platform_->OrthographicFrustum( 50, -50,50, -50, camera_0->GetNear(), camera_0->GetFar() );
+		projection_matrix = platform_->OrthographicFrustum( -50, 50,50, -50, camera_0->GetNear(), camera_0->GetFar() );
 
 		view_matrix.LookAt( camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp() );
 
