@@ -4,6 +4,7 @@
 #include <graphics/font.h>
 #include <input/input_manager.h>
 #include <input/keyboard.h>
+#include <input\mouse.h>
 #include <input/sony_controller_input_manager.h>
 #include <input/touch_input_manager.h>
 #include <system/debug_log.h>
@@ -128,6 +129,9 @@ void InputApp::Init()
 		input_manager_->touch_manager()->EnablePanel(0);
 
 	InitFont();
+
+	mouse_down_[0] = false;
+	mouse_down_[1] = false;
 }
 
 void InputApp::CleanUp()
@@ -151,7 +155,8 @@ bool InputApp::Update(float frame_time)
 
 		ProcessKeyboardInput();
 		ProcessControllerInput();
-		ProcessTouchInput();
+		//ProcessTouchInput();
+		ProcessMouseInput();
 	}
 
 	return true;
@@ -182,6 +187,8 @@ void InputApp::DrawHUD()
 		// if a touch is active lets draw some text
 		if (active_touch_id_ != -1)
 			font_->RenderText(sprite_renderer_, gef::Vector4(touch_position_.x, touch_position_.y, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "(%.1f, %.1f)", touch_position_.x, touch_position_.y);
+
+		font_->RenderText( sprite_renderer_, gef::Vector4( mouse_pos_.x, mouse_pos_.y, -0.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "(%.1f, %.1f)", mouse_pos_.x, mouse_pos_.y );
 
 		// display frame rate
 		font_->RenderText(sprite_renderer_, gef::Vector4(850.0f, 510.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "FPS: %.1f", fps_);
@@ -281,6 +288,19 @@ void InputApp::ProcessTouchInput()
 			}
 		}
 	}
+}
+
+void InputApp::ProcessMouseInput()
+{
+	gef::Mouse* mouse_ = input_manager_->mouse();
+	if( mouse_ )
+	{
+		mouse_pos_ = mouse_->mouse_position();
+
+		mouse_down_ 
+
+	}
+
 }
 
 

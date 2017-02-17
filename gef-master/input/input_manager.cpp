@@ -1,6 +1,7 @@
 #include "input_manager.h"
 #include "touch_input_manager.h"
 #include "keyboard.h"
+#include "mouse.h"
 #include "sony_controller_input_manager.h"
 #include <cstddef> // for NULL definition
 
@@ -9,6 +10,7 @@ namespace gef
 	InputManager::InputManager(Platform& platform)
 		: touch_manager_(NULL)
 		, keyboard_(NULL)
+		, mouse_(NULL)
 		, controller_manager_(NULL)
 	{
 
@@ -27,6 +29,9 @@ namespace gef
 
 		if (keyboard_)
 			keyboard_->Update();
+
+		if( mouse_ )
+			mouse_->Update();
 
 		if (controller_manager_)
 			controller_manager_->Update();

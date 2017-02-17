@@ -29,6 +29,7 @@ private:
 	void ProcessKeyboardInput();
 	void ProcessControllerInput();
 	void ProcessTouchInput();
+	void ProcessMouseInput();
 
 	gef::SpriteRenderer* sprite_renderer_;
 	gef::Font* font_;
@@ -36,6 +37,10 @@ private:
 
 	Int32 active_touch_id_;
 	gef::Vector2 touch_position_;
+
+	// Mouse Varibles
+	gef::Vector2 mouse_pos_;
+	bool mouse_down_[2];
 
 	float fps_;
 };

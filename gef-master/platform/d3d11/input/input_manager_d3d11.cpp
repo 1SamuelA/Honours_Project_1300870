@@ -1,6 +1,7 @@
 #include "input_manager_d3d11.h"
 #include "touch_input_manager_d3d11.h"
 #include "keyboard_d3d11.h"
+#include "mouse_d3d11.h"
 #include "sony_controller_input_manager_d3d11.h"
 #include <platform/d3d11/system/platform_d3d11.h>
 
@@ -27,6 +28,8 @@ namespace gef
 			touch_manager_ = new TouchInputManagerD3D11(&platform_d3d11, direct_input_);
 			platform.set_touch_input_manager(touch_manager_);
 			keyboard_ = new KeyboardD3D11(platform_d3d11, direct_input_);
+
+			mouse_ = new MouseD3D11( &platform_d3d11, direct_input_ );
 			controller_manager_ = new SonyControllerInputManagerD3D11(platform_d3d11, direct_input_);
 		}
 	}

@@ -57,6 +57,9 @@
     <ClCompile Include="..\..\audio\audio_manager_d3d11.cpp">
       <Filter>audio</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\input\mouse_d3d11.cpp">
+      <Filter>input</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\graphics\depth_buffer_d3d11.h">
@@ -96,6 +99,9 @@
       <Filter>input</Filter>
     </ClInclude>
     <ClInclude Include="..\..\input\input_manager_d3d11.h">
+      <Filter>input</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\input\mouse_d3d11.h">
       <Filter>input</Filter>
     </ClInclude>
   </ItemGroup>

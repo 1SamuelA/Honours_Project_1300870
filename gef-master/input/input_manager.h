@@ -6,6 +6,7 @@ namespace gef
 	class Platform;
 	class TouchInputManager;
 	class Keyboard;
+	class Mouse;
 	class SonyControllerInputManager;
 
 	class InputManager
@@ -17,7 +18,7 @@ namespace gef
 		inline TouchInputManager* touch_manager() const { return touch_manager_; }
 		inline Keyboard* keyboard() const { return keyboard_; }
 		inline SonyControllerInputManager* controller_input() const { return controller_manager_; }
-
+		inline Mouse* mouse() const { return mouse_; }
 		static InputManager* Create(Platform& platform);
 
 	protected:
@@ -25,6 +26,7 @@ namespace gef
 
 		TouchInputManager* touch_manager_;
 		Keyboard* keyboard_;
+		Mouse* mouse_;
 		SonyControllerInputManager* controller_manager_;
 	};
 }
