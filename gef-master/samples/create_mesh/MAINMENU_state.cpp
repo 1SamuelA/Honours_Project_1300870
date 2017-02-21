@@ -19,6 +19,7 @@
 #include "graphics\texture.h"
 #include <input\input_manager.h>
 #include <input\keyboard.h>
+#include <input\mouse.h>
 
 #include "graphics\mesh.h"
 #include <maths\math_utils.h>
@@ -112,7 +113,6 @@ void MAINMENUstate::InitMeshes()
 	draw_list.push_back(new GameObject());
 	draw_list.back()->set_mesh(mesh_title);
 
-
 	rotationx.RotationX(0.0f);
 	rotationy.RotationY(0.0f);
 	rotationz.RotationZ(0.0f);
@@ -148,6 +148,10 @@ void MAINMENUstate::InitMeshes()
 	trasformation = rotationx * rotationy * rotationz *scale *translation;
 	draw_list.back()->set_transform(trasformation);
 
+	mouse_collision_lists.push_back(new MouseCollisionObject);
+	mouse_collision_lists.back()->SetTopLeftAndBottemRight(gef::Vector2(-0.5, -0.15), gef::Vector2(0.5, -0.05));
+
+
 	trasformation.SetIdentity();
 	rotationx.SetIdentity();
 	rotationy.SetIdentity();
@@ -171,6 +175,9 @@ void MAINMENUstate::InitMeshes()
 	translation.SetTranslation(gef::Vector4(0.0f, 0.0f, -1.0));
 	trasformation = rotationx * rotationy * rotationz *scale * translation;
 	draw_list.back()->set_transform(trasformation);
+
+	mouse_collision_lists.push_back(new MouseCollisionObject);
+	mouse_collision_lists.back()->SetTopLeftAndBottemRight(gef::Vector2(-0.5, -0.05), gef::Vector2(0.5, 0.05));
 
 	trasformation.SetIdentity();
 	rotationx.SetIdentity();
@@ -196,6 +203,9 @@ void MAINMENUstate::InitMeshes()
 	trasformation = rotationx * rotationy * rotationz *scale * translation;
 	draw_list.back()->set_transform(trasformation);
 
+	mouse_collision_lists.push_back(new MouseCollisionObject);
+	mouse_collision_lists.back()->SetTopLeftAndBottemRight(gef::Vector2(-0.5, 0.05), gef::Vector2(0.5, 0.15));
+
 }
 
 void MAINMENUstate::Render3DScene( gef::Renderer3D * renderer_3d_ )
@@ -217,7 +227,8 @@ void MAINMENUstate::Update(StateManager* state_manager, float delta_time, gef::I
 	delta_time_ = delta_time;
 	fps_ = 1.0f / delta_time_;
 
-	HandleInput(input_manager_);
+	//HandleInput(input_manager_);
+	HandleMouseInput(input_manager_);
 
 	// Updates all the Marker Infomation.
 
@@ -232,7 +243,6 @@ void MAINMENUstate::Update(StateManager* state_manager, float delta_time, gef::I
 	{
 	case 0:
 	{
-		
 		mesh_play->GetPrimitive(0)->set_material(selectedmat);
 		break;
 	}
@@ -244,6 +254,10 @@ void MAINMENUstate::Update(StateManager* state_manager, float delta_time, gef::I
 	case 2:
 	{
 		mesh_exit->GetPrimitive(0)->set_material(selectedmat);
+		break;
+	}
+	case 3:
+	{
 		break;
 	}
 	}
@@ -343,6 +357,46 @@ void MAINMENUstate::HandleInput(gef::InputManager* input_manager_)
 	*/
 }
 
+void MAINMENUstate::HandleMouseInput(gef::InputManager* input_manager_)
+{
+	const gef::Mouse* mouse = input_manager_->mouse();
+	if (mouse)
+	{
+
+		gef::Vector2 mouse_pos = mouse->mouse_position();
+
+		float xScaleFactor = 1.f / (platform_->width()-(platform_->width() / 2.f));
+		float yScaleFactor = 1.f / (platform_->height() - (platform_->height() / 2.f));
+
+		mouse_position_2 = mouse_pos;
+
+		mouse_pos.x *= xScaleFactor;
+		mouse_pos.y *= yScaleFactor;
+
+		mouse_pos.x -= 1;
+		mouse_pos.y -= 1;
+
+		if (mouse_collision_lists[0]->Collision(mouse_pos))
+		{
+			Selection = 0;
+		}
+		else if (mouse_collision_lists[1]->Collision(mouse_pos))
+		{
+			Selection = 1;
+		}
+		else if (mouse_collision_lists[2]->Collision(mouse_pos))
+		{
+			Selection = 2;
+		}
+		else
+			Selection = 3;
+
+		mouse_position_ = mouse_pos;
+	}
+}
+
+
+
 void MAINMENUstate::Render(gef::Renderer3D * renderer_3d_, gef::SpriteRenderer * sprite_renderer_, gef::Font * font)
 {	
 
@@ -360,7 +414,7 @@ void MAINMENUstate::DrawSprite(gef::SpriteRenderer * sprite_renderer_, gef::Font
 	proj_matrix2d = platform_->OrthographicFrustum(0.0f, platform_->width(), 0.0f, platform_->height(), -1.0f, 1.0f);
 	sprite_renderer_->set_projection_matrix(proj_matrix2d);
 
-	sprite_renderer_->Begin(false);
+	sprite_renderer_->Begin();
 	
 
 
@@ -369,14 +423,15 @@ void MAINMENUstate::DrawSprite(gef::SpriteRenderer * sprite_renderer_, gef::Font
 
 		font_->RenderText(sprite_renderer_, gef::Vector4(850.0f, 510.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "FPS: %.1f", fps_);
 		
-		font_->RenderText(sprite_renderer_, gef::Vector4(800.0f, 20.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "MAIN MENU");
+		font_->RenderText(sprite_renderer_, gef::Vector4(800.0f, 20.0f, -0.9f), 1.0f, 0xff0000ff, gef::TJ_LEFT, "MAIN MENU");
 
 		//if (any_marker_visible_)
 		//{
 		//	font_->RenderText(sprite_renderer_, gef::Vector4(400.0f, 20.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_CENTRE, "MARKER FOUND");
 		//}
 
-		
+
+		font_->RenderText(sprite_renderer_, gef::Vector4(mouse_position_2.x, mouse_position_2.y, -1.9f), 1.0f, 0xffff00ff, gef::TJ_LEFT, "(%.3f, %.3f)", mouse_position_.x, mouse_position_.y);
 
 	}
 	sprite_renderer_->End();

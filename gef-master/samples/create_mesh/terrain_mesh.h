@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TERRAIN_MESH_H
+#define TERRAIN_MESH_H
 
 #include <game_object.h>
 #include <graphics\mesh.h>
@@ -8,7 +9,7 @@
 
 class PerlinNoise;
 
-class TerrainMesh 
+class TerrainMesh
 {
 public:
 	TerrainMesh();
@@ -17,13 +18,13 @@ public:
 	void GenerateIndex();
 	void CalculateNormals();
 
-	inline float GetWidth()		{ return x_length; }
-	inline float GetHeight()	{ return z_length; }
+	inline float GetWidth() { return x_length; }
+	inline float GetHeight() { return z_length; }
 
 	inline std::vector<gef::Mesh::Vertex> GetTerrainVerticies() { return terrain_verticies; }
 	inline std::vector<int> GetTerrainIndices() { return terrain_index; }
 
-PerlinNoise* perlin_noise_;
+	PerlinNoise* perlin_noise_;
 private:
 	std::vector<gef::Mesh::Vertex> terrain_verticies;
 	std::vector<int> terrain_index;
@@ -35,3 +36,8 @@ private:
 
 
 };
+
+
+#endif // !TERRAIN_MESH_H
+
+

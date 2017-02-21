@@ -72,4 +72,20 @@ namespace gef
 			}
 		}
 	}
+
+	bool Mouse::is_button_down(int key) const
+	{
+		return false;
+	}
+
+	bool Mouse::is_button_pressed(int key) const
+	{
+		return false;
+	}
+
+	bool Mouse::is_button_released(int key) const
+	{
+		return false;
+	}
+
 }

@@ -37,6 +37,18 @@
     <Filter Include="Source Files\Mesh">
       <UniqueIdentifier>{d9884ebd-d56e-4743-a4bd-7e05941c4d69}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\States\Base">
+      <UniqueIdentifier>{2096fee0-6035-4d3f-836a-ddad274f3916}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\States\Base">
+      <UniqueIdentifier>{6b904cf6-4b87-4bb0-ae74-d73d86edfa03}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\States\Tower_Defence_Game_Mouse">
+      <UniqueIdentifier>{8664b645-f4a0-494a-a19f-f082bb51e3e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\States\Tower_Defence_Game_Mouse">
+      <UniqueIdentifier>{c6c5ef35-e8e9-4089-b879-ab352f2ab339}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\main_d3d11.cpp">
@@ -57,9 +69,6 @@
     <ClCompile Include="..\..\terrrain_shader_data.cpp">
       <Filter>Source Files\Shader</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\MAINMENU_state.cpp">
-      <Filter>Source Files\States</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\terrain_mesh.cpp">
       <Filter>Source Files\Mesh</Filter>
     </ClCompile>
@@ -69,8 +78,17 @@
     <ClCompile Include="..\..\camera_object.cpp">
       <Filter>Source Files\System</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\MAINMENU_state.cpp">
+      <Filter>Source Files\States\Base</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\NORMAL_TERRAIN_GEN_state.cpp">
-      <Filter>Source Files\States</Filter>
+      <Filter>Source Files\States\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\Tower_Defence_Game_Mouse\TDFG_Mouse_MainMenu.cpp">
+      <Filter>Source Files\States\Tower_Defence_Game_Mouse</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\mouse_collision_object.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -98,20 +116,26 @@
     <ClInclude Include="..\..\terrrain_shader_data.h">
       <Filter>Header Files\Shader</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\StateManager.h">
-      <Filter>Header Files\States</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\State.h">
-      <Filter>Header Files\States</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\ARS_calibration_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\MAINMENU_state.h">
-      <Filter>Header Files\States</Filter>
+      <Filter>Header Files\States\Base</Filter>
     </ClInclude>
     <ClInclude Include="..\..\NORMAL_TERRAIN_GEN_state.h">
-      <Filter>Header Files\States</Filter>
+      <Filter>Header Files\States\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\State.h">
+      <Filter>Header Files\States\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\StateManager.h">
+      <Filter>Header Files\States\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\Tower_Defence_Game_Mouse\TDFG_Mouse_MainMenu.h">
+      <Filter>Header Files\States\Tower_Defence_Game_Mouse</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\mouse_collision_object.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

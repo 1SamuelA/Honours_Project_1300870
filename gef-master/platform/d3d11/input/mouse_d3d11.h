@@ -42,13 +42,18 @@ namespace gef
 		const PlatformD3D11* platform_;
 		MouseTouch touches_[1][2];
 		bool panel_enabled_[1];
+
 		bool is_button_down_[2];
 		bool is_button_pressed_[2];
 		bool is_button_released_[2];
 
+		bool live_button_state_[2];
+		bool button_previous_state_[2];
+
 		bool is_mouse_locked_;
 
 		gef::Vector2 mouse_position_;
+		gef::Vector2 previous_mouse_position_;
 	};
 }
 

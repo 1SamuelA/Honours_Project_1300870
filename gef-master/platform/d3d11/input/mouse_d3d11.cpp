@@ -53,6 +53,11 @@ namespace gef
 		*/
 		panels_.push_back( MouseTouchContainer() );
 
+		button_previous_state_[0] = false;
+		button_previous_state_[1] = false;
+
+		is_mouse_locked_ = false;
+
 		is_button_down_[0] = false;
 		is_button_down_[1] = false;
 		is_button_pressed_[0] = false;
@@ -86,10 +91,11 @@ namespace gef
 
 		// store the button status for this update
 		// intialise it to the same state as last frame
-		bool is_button_down[2] = { false, false };
+		live_button_state_[0] =  false;
+		live_button_state_[1] = false;
 
-		is_button_down[0] = is_button_down_[0];
-		is_button_down[1] = is_button_down_[1];
+		button_previous_state_[0] = is_button_down_[0];
+		button_previous_state_[1] = is_button_down_[1];
 
 		while( dwElements != 0 )
 		{
@@ -98,21 +104,42 @@ namespace gef
 			if( FAILED( hresult ) )
 				break;
 
+
+
+
 			switch( od.dwOfs )
 			{
 			case DIMOFS_BUTTON0:
 				if( od.dwData & 0x80 )
-					is_button_down[0] = true;
+					live_button_state_[0] = true;
 				else
-					is_button_down[0] = false;
+					live_button_state_[0] = false;
 				break;
 			case DIMOFS_BUTTON1:
 				if( od.dwData & 0x80 )
-					is_button_down[1] = true;
+					live_button_state_[1] = true;
 				else
-					is_button_down[1] = false;
+					live_button_state_[1] = false;
+				break;
+			case DIMOFS_BUTTON2:
+				if (od.dwData & 0x80)
+					live_button_state_[1] = true;
+				else
+					live_button_state_[1] = false;
 				break;
 			}
+		}
+
+		for (int x = 0; x < 2; x++)
+		{
+			// Does if down
+			is_button_down_[x] = live_button_state_[x];
+
+			//Pressed
+			is_button_pressed_[x] = ((live_button_state_[x] == true) && (button_previous_state_[x] == false)) ? true : false;
+
+			//false
+			is_button_released_[x] = ((live_button_state_[x] == false) && (button_previous_state_[x] == true)) ? true : false;
 		}
 
 		POINT mouse_pos;
@@ -120,6 +147,21 @@ namespace gef
 		ScreenToClient( platform_->hwnd(), &mouse_pos );
 		mouse_position_.x = (float)mouse_pos.x;
 		mouse_position_.y = (float)mouse_pos.y;
+
+		mouse_pos.x = platform_->width();
+		mouse_pos.y = platform_->height();
+
+		float x_distance = mouse_pos.x - mouse_position_.x;
+		float y_distance = mouse_pos.y - mouse_position_.y;
+
+		if (is_mouse_locked_)
+		{
+			ClientToScreen(platform_->hwnd(), &mouse_pos);
+
+			SetCursorPos( mouse_pos.x , mouse_pos.y);
+		}
+
+		/*
 
 		for( Int32 panel_index = 0; panel_index<1; ++panel_index )
 		{
@@ -176,7 +218,8 @@ namespace gef
 					is_button_down_[touch_index] = is_button_down[touch_index];
 				}
 			}
-		}
+			
+		}*/
 	}
 
 	void MouseD3D11::EnablePanel( const Int32 panel_index )
@@ -188,5 +231,7 @@ namespace gef
 	{
 		panel_enabled_[panel_index] = false;
 	}
+
+
 }
 

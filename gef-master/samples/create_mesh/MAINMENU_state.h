@@ -9,6 +9,8 @@
 #include "Shaders\terrain_shader.h"
 #include "StateManager.h"
 
+#include "mouse_collision_object.h"
+
 namespace gef
 {
 	class Mesh;
@@ -50,6 +52,7 @@ private:
 	bool AlreadyInit;
 
 	void HandleInput(gef::InputManager* input_manager_);
+	void HandleMouseInput(gef::InputManager* input_manager_);
 
 	ARSCalibrationData* ARS_calibration_data_;
 
@@ -60,7 +63,7 @@ private:
 	
 	StateManager* state_manager_;
 
-
+	bool mouse_collision_(gef::Vector2 top_left_, gef::Vector2 bottom_right_);
 
 	gef::PNGLoader* PngLoader;
 
@@ -89,10 +92,13 @@ private:
 	gef::Scene* model_scene_exit;
 	gef::Mesh* mesh_exit;
 
-
 	gef::Scene* model_scene_;
 	gef::Mesh* mesh_;
 	
+	std::vector<MouseCollisionObject*> mouse_collision_lists;
+
+	gef::Vector2 mouse_position_, mouse_position_2;
+
 	// Selection /////////////
 
 	gef::Material* defselectmat;

@@ -60,9 +60,9 @@ namespace gef
 		//virtual const Int32 num_touches() const  = 0;
 
 		virtual const gef::Vector2& mouse_position() const = 0;
-		virtual bool is_button_pressed( Int32 button_num ) const = 0;
-		virtual bool is_button_down( Int32 button_num ) const = 0;
-		virtual bool is_button_released( Int32 button_num ) const = 0;
+		virtual bool is_button_pressed( int button_num ) const = 0;
+		virtual bool is_button_down( int button_num ) const = 0;
+		virtual bool is_button_released( int button_num ) const = 0;
 
 		virtual bool is_mouse_locked() const = 0;
 		virtual void set_is_mouse_locked(bool locked) = 0;

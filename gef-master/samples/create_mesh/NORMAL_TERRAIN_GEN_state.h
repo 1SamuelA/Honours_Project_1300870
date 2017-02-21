@@ -14,8 +14,7 @@
 
 #include "graphics/mesh.h"
 
-class TerrainMesh;
-class TerrainShader;
+
 
 namespace gef
 {
@@ -29,7 +28,11 @@ namespace gef
 	class PNGLoader;
 	class Texture;
 	class InputManager;
+	
 }
+
+class TerrainMesh;
+class TerrainShader;
 
 class NORMAL_TERRAIN_GENstate : public State
 {
