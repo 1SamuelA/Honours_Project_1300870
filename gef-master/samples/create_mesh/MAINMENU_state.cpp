@@ -391,6 +391,33 @@ void MAINMENUstate::HandleMouseInput(gef::InputManager* input_manager_)
 		else
 			Selection = 3;
 
+
+		if (mouse->is_button_pressed(0))
+		{
+			switch (Selection)
+			{
+			case 0:
+			{
+				state_manager_->AddState(new NORMAL_TERRAIN_GENstate());
+				break;
+			}
+			case 1:
+			{
+				break;
+			}
+			case 2:
+			{
+				exit(-1);
+				break;
+			}
+			default:
+			{
+				break;
+			}
+			}
+		}
+
+
 		mouse_position_ = mouse_pos;
 	}
 }
