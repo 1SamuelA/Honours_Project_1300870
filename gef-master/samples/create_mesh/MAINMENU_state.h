@@ -63,8 +63,6 @@ private:
 	
 	StateManager* state_manager_;
 
-	bool mouse_collision_(gef::Vector2 top_left_, gef::Vector2 bottom_right_);
-
 	gef::PNGLoader* PngLoader;
 
 	gef::Sprite* crossHairs;
@@ -96,6 +94,8 @@ private:
 	gef::Mesh* mesh_;
 	
 	std::vector<MouseCollisionObject*> mouse_collision_lists;
+
+	bool mouse_updated
 
 	gef::Vector2 mouse_position_, mouse_position_2;
 

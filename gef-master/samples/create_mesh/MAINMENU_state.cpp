@@ -307,8 +307,6 @@ void MAINMENUstate::HandleInput(gef::InputManager* input_manager_)
 			}
 			}
 		}
-
-
 	}
 
 	/*
@@ -355,6 +353,7 @@ void MAINMENUstate::HandleInput(gef::InputManager* input_manager_)
 
 	}
 	*/
+
 }
 
 void MAINMENUstate::HandleMouseInput(gef::InputManager* input_manager_)
