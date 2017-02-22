@@ -93,6 +93,7 @@ private:
 	void CleanUpFont();
 
 	//Update varibles
+	bool updateKinect;
 	bool terrain_changed_;
 	bool terrain_shader_active_;
 	float fps_;

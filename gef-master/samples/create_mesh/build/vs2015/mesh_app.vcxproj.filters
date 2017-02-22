@@ -87,7 +87,7 @@
     <ClCompile Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\Tower_Defence_Game_Mouse\TDFG_Mouse_MainMenu.cpp">
       <Filter>Source Files\States\Tower_Defence_Game_Mouse</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\mouse_collision_object.cpp">
+    <ClCompile Include="..\..\mouse_collision_object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -134,7 +134,7 @@
     <ClInclude Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\Tower_Defence_Game_Mouse\TDFG_Mouse_MainMenu.h">
       <Filter>Header Files\States\Tower_Defence_Game_Mouse</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\mouse_collision_object.h">
+    <ClInclude Include="..\..\mouse_collision_object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

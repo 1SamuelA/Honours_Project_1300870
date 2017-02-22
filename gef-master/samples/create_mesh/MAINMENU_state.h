@@ -95,7 +95,7 @@ private:
 	
 	std::vector<MouseCollisionObject*> mouse_collision_lists;
 
-	bool mouse_updated
+	bool mouse_updated;
 
 	gef::Vector2 mouse_position_, mouse_position_2;
 

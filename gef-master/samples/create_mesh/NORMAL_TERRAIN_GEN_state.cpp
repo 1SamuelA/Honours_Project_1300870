@@ -295,10 +295,19 @@ void NORMAL_TERRAIN_GENstate::HandleInput( gef::InputManager* input_manager_ )
 
 		if( keyboard->IsKeyDown( gef::Keyboard::KC_X ) )
 		{
+			
+			updateKinect = !updateKinect;
+			
+
+			
+		}
+
+		if( updateKinect )
+		{
 			bool Pass;
 			KinectSensor_->UpdateDEFeed( Pass );
-
 			terrain_changed_ = Pass;
+
 		}
 
 	}

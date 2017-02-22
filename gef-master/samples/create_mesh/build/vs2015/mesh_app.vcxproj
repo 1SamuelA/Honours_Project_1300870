@@ -160,7 +160,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\mouse_collision_object.cpp" />
     <ClCompile Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\Tower_Defence_Game_Mouse\TDFG_Mouse_MainMenu.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -172,6 +171,7 @@
     </ClCompile>
     <ClCompile Include="..\..\main_d3d11.cpp" />
     <ClCompile Include="..\..\mesh_app.cpp" />
+    <ClCompile Include="..\..\mouse_collision_object.cpp" />
     <ClCompile Include="..\..\NORMAL_TERRAIN_GEN_state.cpp" />
     <ClCompile Include="..\..\PerlinNoise.cpp" />
     <ClCompile Include="..\..\Shaders\terrain_shader.cpp" />
@@ -179,7 +179,6 @@
     <ClCompile Include="..\..\terrrain_shader_data.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\mouse_collision_object.h" />
     <ClInclude Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\Tower_Defence_Game_Mouse\TDFG_Mouse_MainMenu.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClInclude>
@@ -191,6 +190,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="..\..\mesh_app.h" />
+    <ClInclude Include="..\..\mouse_collision_object.h" />
     <ClInclude Include="..\..\NORMAL_TERRAIN_GEN_state.h" />
     <ClInclude Include="..\..\PerlinNoise.h" />
     <ClInclude Include="..\..\Shaders\terrain_shader.h" />
