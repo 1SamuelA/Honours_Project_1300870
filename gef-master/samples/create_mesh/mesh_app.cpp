@@ -114,6 +114,8 @@ void MeshApp::Init()
 		input_manager_ = gef::InputManager::Create( platform_ );
 		KinectSensor_ = new Kinect_v2;
 
+		ARS_calibration_data_ = new ARSCalibrationData;
+
 		state_manager_ = new StateManager;
 
 		KinectSensor_->Init();
@@ -151,6 +153,8 @@ void MeshApp::Init()
 		SetupCamera();
 		*/
 		SetupLights();
+
+		
 
 		state_manager_->AddState( new MAINMENUstate );
 		state_manager_->GetCurrentState()->init( &platform_, ARS_calibration_data_, KinectSensor_ );

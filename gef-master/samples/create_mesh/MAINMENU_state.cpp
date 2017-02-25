@@ -1,6 +1,7 @@
 #include "MAINMENU_state.h"
 
 #include "NORMAL_TERRAIN_GEN_state.h"
+#include "CALIBRATION_state.h"
 
 #include "graphics\renderer_3d.h"
 #include "graphics\sprite_renderer.h"
@@ -227,7 +228,7 @@ void MAINMENUstate::Update(StateManager* state_manager, float delta_time, gef::I
 	delta_time_ = delta_time;
 	fps_ = 1.0f / delta_time_;
 
-	//HandleInput(input_manager_);
+	HandleInput(input_manager_);
 	HandleMouseInput(input_manager_);
 
 	// Updates all the Marker Infomation.
@@ -298,6 +299,7 @@ void MAINMENUstate::HandleInput(gef::InputManager* input_manager_)
 			}
 			case 1:
 			{
+				state_manager_->AddState( new CALIBRATIONstate() );
 				break;
 			}
 			case 2:
@@ -375,20 +377,22 @@ void MAINMENUstate::HandleMouseInput(gef::InputManager* input_manager_)
 		mouse_pos.x -= 1;
 		mouse_pos.y -= 1;
 
-		if (mouse_collision_lists[0]->Collision(mouse_pos))
+		if(mouse->is_mouse_moved() )
 		{
-			Selection = 0;
+
+			if( mouse_collision_lists[0]->Collision( mouse_pos ) )
+			{
+				Selection = 0;
+			}
+			else if( mouse_collision_lists[1]->Collision( mouse_pos ) )
+			{
+				Selection = 1;
+			}
+			else if( mouse_collision_lists[2]->Collision( mouse_pos ) )
+			{
+				Selection = 2;
+			}
 		}
-		else if (mouse_collision_lists[1]->Collision(mouse_pos))
-		{
-			Selection = 1;
-		}
-		else if (mouse_collision_lists[2]->Collision(mouse_pos))
-		{
-			Selection = 2;
-		}
-		else
-			Selection = 3;
 
 
 		if (mouse->is_button_pressed(0))
@@ -402,6 +406,7 @@ void MAINMENUstate::HandleMouseInput(gef::InputManager* input_manager_)
 			}
 			case 1:
 			{
+				state_manager_->AddState( new CALIBRATIONstate() );
 				break;
 			}
 			case 2:

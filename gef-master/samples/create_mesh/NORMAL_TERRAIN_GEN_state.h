@@ -103,6 +103,9 @@ private:
 	void RenderTerrain( gef::Renderer3D * renderer_3d_ );
 	void DrawHUD( gef::SpriteRenderer * sprite_renderer_ );
 
+	//Render Varibles
+	bool RenderProspective;
+
 };
 
 

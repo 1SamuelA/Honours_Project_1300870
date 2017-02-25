@@ -64,6 +64,8 @@ namespace gef
 		virtual bool is_button_down( int button_num ) const = 0;
 		virtual bool is_button_released( int button_num ) const = 0;
 
+		virtual bool is_mouse_moved() const = 0;
+
 		virtual bool is_mouse_locked() const = 0;
 		virtual void set_is_mouse_locked(bool locked) = 0;
 

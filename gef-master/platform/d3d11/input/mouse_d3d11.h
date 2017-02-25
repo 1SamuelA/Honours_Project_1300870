@@ -29,8 +29,10 @@ namespace gef
 		inline const gef::Vector2& mouse_position() const { return mouse_position_; }
 		inline bool is_button_down( Int32 button_num ) const { return is_button_down_[button_num]; }
 
-		bool is_button_pressed( Int32 button_num ) const { return is_button_pressed_[button_num]; }
-		bool is_button_released( Int32 button_num ) const { return is_button_released_[button_num]; }
+		inline bool is_button_pressed( Int32 button_num ) const { return is_button_pressed_[button_num]; }
+		inline bool is_button_released( Int32 button_num ) const { return is_button_released_[button_num]; }
+		inline bool is_mouse_moved() const { return is_mouse_moved_; }
+
 
 		bool is_mouse_locked() const { return is_mouse_locked_; }
 		void set_is_mouse_locked(bool locked) { is_mouse_locked_ = locked; }
@@ -51,6 +53,7 @@ namespace gef
 		bool button_previous_state_[2];
 
 		bool is_mouse_locked_;
+		bool is_mouse_moved_;
 
 		gef::Vector2 mouse_position_;
 		gef::Vector2 previous_mouse_position_;

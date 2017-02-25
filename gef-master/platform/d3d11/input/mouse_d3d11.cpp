@@ -97,6 +97,8 @@ namespace gef
 		button_previous_state_[0] = is_button_down_[0];
 		button_previous_state_[1] = is_button_down_[1];
 
+		previous_mouse_position_ = mouse_position_;
+
 		while( dwElements != 0 )
 		{
 			dwElements = 1;
@@ -148,11 +150,24 @@ namespace gef
 		mouse_position_.x = (float)mouse_pos.x;
 		mouse_position_.y = (float)mouse_pos.y;
 
+		if( (mouse_position_.x != previous_mouse_position_.x) &&
+			(mouse_position_.y != previous_mouse_position_.y) )
+		{
+			is_mouse_moved_ = true;
+		}
+		else
+		{
+			is_mouse_moved_ = false;
+		}
+
 		mouse_pos.x = platform_->width();
 		mouse_pos.y = platform_->height();
 
 		float x_distance = mouse_pos.x - mouse_position_.x;
 		float y_distance = mouse_pos.y - mouse_position_.y;
+
+
+
 
 		if (is_mouse_locked_)
 		{

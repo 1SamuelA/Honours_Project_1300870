@@ -264,7 +264,7 @@ void Kinect_v2::UpdateDEFeed(bool &Pass)
 			{
 				hr = de_frame_->get_DepthMinReliableDistance(&nDepthMinReliableDistance);
 
-				nDepthMinReliableDistance = 250;
+				nDepthMinReliableDistance = 2000;
 			}
 
 
@@ -277,7 +277,7 @@ void Kinect_v2::UpdateDEFeed(bool &Pass)
 				// Note:  If you wish to filter by reliable depth distance, uncomment the following line.
 				hr = de_frame_->get_DepthMaxReliableDistance(&nDepthMaxDistance);
 
-				nDepthMaxDistance = 1000;
+				nDepthMaxDistance = 2200;
 			}
 
 			if (SUCCEEDED(hr))

@@ -49,15 +49,18 @@
     <Filter Include="Header Files\States\Tower_Defence_Game_Mouse">
       <UniqueIdentifier>{c6c5ef35-e8e9-4089-b879-ab352f2ab339}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Mesh">
+      <UniqueIdentifier>{5636d801-591c-4563-ba94-02f75d3c4e19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\System">
+      <UniqueIdentifier>{c9819d1c-697c-4b5c-8038-18d0d0c8d97a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\main_d3d11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\mesh_app.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\PerlinNoise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\kinect_v2.cpp">
@@ -87,24 +90,18 @@
     <ClCompile Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\Tower_Defence_Game_Mouse\TDFG_Mouse_MainMenu.cpp">
       <Filter>Source Files\States\Tower_Defence_Game_Mouse</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\CALIBRATION_statecpp.cpp">
+      <Filter>Source Files\States\Base</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\mouse_collision_object.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\PerlinNoise.cpp">
+      <Filter>Source Files\System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\mesh_app.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\game_object.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\camera_object.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\terrain_mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\PerlinNoise.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\kinect_v2.h">
@@ -115,9 +112,6 @@
     </ClInclude>
     <ClInclude Include="..\..\terrrain_shader_data.h">
       <Filter>Header Files\Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ARS_calibration_data.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\MAINMENU_state.h">
       <Filter>Header Files\States\Base</Filter>
@@ -134,8 +128,26 @@
     <ClInclude Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\Tower_Defence_Game_Mouse\TDFG_Mouse_MainMenu.h">
       <Filter>Header Files\States\Tower_Defence_Game_Mouse</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\CALIBRATION_state.h">
+      <Filter>Header Files\States\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\terrain_mesh.h">
+      <Filter>Header Files\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\game_object.h">
+      <Filter>Header Files\Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\PerlinNoise.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\camera_object.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ARS_calibration_data.h">
+      <Filter>Header Files\System</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\mouse_collision_object.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

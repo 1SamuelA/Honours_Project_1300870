@@ -25,8 +25,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	
 	int hoz, vert;
 
+
+
 	GetDesktopResolution( hoz, vert );
 
+	hoz = 1024;
+	vert = 768;
 	
 	// initialisation
 	gef::PlatformD3D11 platform(hInstance, hoz, vert, false, true);
