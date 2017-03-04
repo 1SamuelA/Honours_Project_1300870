@@ -33,6 +33,7 @@
 
 class Kinect_v2
 {
+public:
 	static const int        cInfraredWidth = 512;
 	static const int        cInfraredHeight = 424;
 
@@ -42,13 +43,15 @@ class Kinect_v2
 	//static const int        cInfraredWidth = 512;
 	//static const int        cInfraredHeight = 424;
 	//
-public:
+
 	Kinect_v2();
 	~Kinect_v2();
 
 	void Init();
 	void UpdateIRFeed();
 	void UpdateDEFeed(bool &Pass);
+
+	void UpdateDEFeed( bool &Pass, USHORT Mindepth, USHORT Maxdepth );
 	
 	float** ir_data_2darray;
 	int ir_streams_width, ir_streams_height;
@@ -71,10 +74,7 @@ private:
 	IDepthFrameSource* de_frame_source_;
 
 	UINT16* deData;
-	byte* deDataConverted;
-	RGBQUAD* m_pDepthRGBX;
 	
-
 	BOOLEAN sensor_connected_;
 
 	std::vector<float> *depthValues;

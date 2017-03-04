@@ -102,6 +102,7 @@ private:
 	float fps_;
 
 	int calibration_mode;
+	float timer_depth_update;
 
 	//RenderFunctions
 	void RenderTerrain( gef::Renderer3D * renderer_3d_ );

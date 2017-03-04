@@ -290,7 +290,7 @@ void CameraObject::TurnRight()
 	m_speed = m_frameTime * 25.0f;
 
 	// Update the rotation.
-	camera_rotation_.set_y(camera_rotation_ .y()+ m_speed);
+	camera_rotation_.set_y(camera_rotation_.y()+ m_speed);
 
 	// Keep the rotation in the 0 to 360 range.
 	if (camera_rotation_.y() > 360.0f)
@@ -300,6 +300,37 @@ void CameraObject::TurnRight()
 
 }
 
+
+void CameraObject::TurnLeft( float deg )
+{
+	// Update the right turn movement based on the frame time
+	m_speed = m_frameTime * 25.0f;
+
+	// Update the rotation.
+	camera_rotation_.set_y( camera_rotation_.y() - deg );
+
+	// Keep the rotation in the 0 to 360 range.
+	if( camera_rotation_.y() > 360.0f )
+	{
+		camera_rotation_.set_y( 0.0f );
+	}
+
+}
+
+void CameraObject::TurnRight( float deg )
+{
+	// Update the right turn movement based on the frame time
+	m_speed = m_frameTime * 25.0f;
+
+	// Update the rotation.
+	camera_rotation_.set_y( camera_rotation_.y() + deg );
+
+	// Keep the rotation in the 0 to 360 range.
+	if( camera_rotation_.y() > 360.0f )
+	{
+		camera_rotation_.set_y( 0.0f );
+	}
+}
 
 void CameraObject::TurnUp()
 {

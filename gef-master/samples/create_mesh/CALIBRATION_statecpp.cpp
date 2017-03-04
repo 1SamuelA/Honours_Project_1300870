@@ -20,14 +20,11 @@
 
 #include <maths\math_utils.h>
 
+#define CALIBRATIONSTAGES 5
+
 void CALIBRATIONstate::init( gef::Platform * platform, ARSCalibrationData * ARSCalibration, Kinect_v2* kinect_sensor_ )
 {
-
-	if( !AlreadyInit )
-	{
-		AlreadyInit = !AlreadyInit;
-	}
-
+	ARSCalibration_ = ARSCalibration;
 
 	platform_ = platform;
 	initCamera();
@@ -37,9 +34,24 @@ void CALIBRATIONstate::init( gef::Platform * platform, ARSCalibrationData * ARSC
 	KinectSensor_ = kinect_sensor_;
 	updateKinect = false;
 
-	ARSCalibration_ = ARSCalibration;
+	
 
-	ARSCalibration_->LeftRightTopBottom = gef::Vector4( -50, 50, 50, -50 );
+	if( !AlreadyInit )
+	{
+		ARSCalibration_->MinDepth = 2000;
+		ARSCalibration_->maxDepth = 2200;
+
+		ARSCalibration_->LeftRightTopBottom = gef::Vector4( -50, 50, 50, -50 );
+
+		ARSCalibration_->Image_LeftRightTopBottom = gef::Vector4( 0, KinectSensor_->cDepthWidth, KinectSensor_->cDepthHeight, 0 );
+
+		AlreadyInit = !AlreadyInit;
+	}
+
+	
+
+	
+	
 
 	calibration_mode = 0;
 }
@@ -65,6 +77,28 @@ void CALIBRATIONstate::Update( StateManager * state_manager, float delta_time, g
 	fps_ = 1.0f / delta_time_;
 
 	HandleInput( input_manager_ );
+
+
+
+	if( updateKinect )
+	{
+		if( timer_depth_update <= 0 )
+		{
+			bool Pass;
+			KinectSensor_->UpdateDEFeed( Pass , ARSCalibration_->MinDepth , ARSCalibration_->maxDepth );
+			terrain_changed_ = Pass;
+
+			timer_depth_update = 1.f;
+
+		}
+		else
+		{
+			timer_depth_update -= delta_time;
+		}
+
+		
+
+	}
 
 	camera_0->SetFrameTime( delta_time_ );
 	camera_0->update();
@@ -256,16 +290,23 @@ void CALIBRATIONstate::HandleInput( gef::InputManager* input_manager_ )
 	if( keyboard )
 	{
 		// go through all the keys and print out some debug text when a key is pressed or released
-		if( keyboard->IsKeyDown( gef::Keyboard::KC_ESCAPE ) )
+		if( keyboard->IsKeyDown( gef::Keyboard::KC_P ) )
 		{
-			exit( 10 );
+			state_manager_->GotoPreviousState();
 		}
 
 		switch( calibration_mode )
 		{
 		case 0:
 		{
-			HandleCameraUpdates( keyboard );
+			if( keyboard->IsKeyPressed( gef::Keyboard::KC_NUMPAD4 ) )
+			{
+				camera_0->TurnLeft( 90.f );
+			}
+			if( keyboard->IsKeyPressed( gef::Keyboard::KC_NUMPAD6 ) )
+			{
+				camera_0->TurnRight( 90.f );
+			}
 			break;
 		}
 		case 1:
@@ -314,6 +355,84 @@ void CALIBRATIONstate::HandleInput( gef::InputManager* input_manager_ )
 			}
 			break;
 		}
+		case 3:
+		{
+			gef::Vector4 a = ARSCalibration_->Image_LeftRightTopBottom;
+
+			if( keyboard->IsKeyPressed( gef::Keyboard::KC_W ) )
+			{
+				if( ARSCalibration_->Image_LeftRightTopBottom.x() < ARSCalibration_->Image_LeftRightTopBottom.y() )
+					ARSCalibration_->Image_LeftRightTopBottom.set_x( a.x() + 1 );
+			}
+			if( keyboard->IsKeyPressed( gef::Keyboard::KC_S ) )
+			{
+				if( ARSCalibration_->Image_LeftRightTopBottom.x() > 0 )
+					ARSCalibration_->Image_LeftRightTopBottom.set_x( a.x() - 1 );
+			}
+
+			if( keyboard->IsKeyPressed( gef::Keyboard::KC_A ) )
+			{
+				if( ARSCalibration_->Image_LeftRightTopBottom.y() > ARSCalibration_->Image_LeftRightTopBottom.x() )
+					ARSCalibration_->Image_LeftRightTopBottom.set_y( a.y() - 1 );
+			}
+			if( keyboard->IsKeyPressed( gef::Keyboard::KC_D ) )
+			{
+				if( ARSCalibration_->Image_LeftRightTopBottom.y() <  KinectSensor_->cDepthWidth )
+					ARSCalibration_->Image_LeftRightTopBottom.set_y( a.y() + 1 );
+			}
+			break;
+		}
+		case 4:
+		{
+			gef::Vector4 a = ARSCalibration_->Image_LeftRightTopBottom;
+
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_W ) )
+			{
+				if( ARSCalibration_->Image_LeftRightTopBottom.z() < KinectSensor_->cDepthHeight )
+					ARSCalibration_->Image_LeftRightTopBottom.set_z( a.z() + 1 );
+			}
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_S ) )
+			{
+				if( ARSCalibration_->Image_LeftRightTopBottom.z() > ARSCalibration_->Image_LeftRightTopBottom.w() + 1 )
+					ARSCalibration_->Image_LeftRightTopBottom.set_z( a.z() - 1 );
+			}
+
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_A ) )
+			{
+				if( ARSCalibration_->Image_LeftRightTopBottom.w() > 0 )
+					ARSCalibration_->Image_LeftRightTopBottom.set_w( a.w() - 1 );
+			}
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_D ) )
+			{
+				if( ARSCalibration_->Image_LeftRightTopBottom.w() < ARSCalibration_->Image_LeftRightTopBottom.z() - 1 )
+				ARSCalibration_->Image_LeftRightTopBottom.set_w( a.w() + 1 );
+			}
+			break;
+		}
+		case 5:
+		{
+			gef::Vector4 a = ARSCalibration_->LeftRightTopBottom;
+
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_W ) )
+			{
+				ARSCalibration_->MinDepth += 10;
+			}
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_S ) )
+			{
+				ARSCalibration_->MinDepth -= 10;
+			}
+
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_A ) )
+			{
+				ARSCalibration_->maxDepth -= 10;
+			}
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_D ) )
+			{
+				ARSCalibration_->maxDepth += 10;
+			}
+			break;
+		}
+		
 		}
 		
 		
@@ -331,25 +450,19 @@ void CALIBRATIONstate::HandleInput( gef::InputManager* input_manager_ )
 		
 		if( keyboard->IsKeyPressed( gef::Keyboard::KC_C ) )
 		{
-
-			calibration_mode--;
+			if( calibration_mode > 0 )
+				calibration_mode--;
 		}
 
 		if( keyboard->IsKeyPressed( gef::Keyboard::KC_V ) )
 		{
-
-			calibration_mode++;
-
-		}
-
-
-		if( updateKinect )
-		{
-			bool Pass;
-			KinectSensor_->UpdateDEFeed( Pass );
-			terrain_changed_ = Pass;
+			if( calibration_mode < CALIBRATIONSTAGES )
+				calibration_mode++;
 
 		}
+
+
+		
 
 
 
@@ -423,15 +536,18 @@ void CALIBRATIONstate::UpdateTerrain()
 
 	float increment_x, increment_y;
 
-	increment_x = KinectSensor_->de_streams_width / terrain_mesh_->GetWidth();
-	increment_y = KinectSensor_->de_streams_height / terrain_mesh_->GetHeight();
+	increment_x = (ARSCalibration_->Image_LeftRightTopBottom.y() - ARSCalibration_->Image_LeftRightTopBottom.x()) 
+		/ terrain_mesh_->GetWidth();
+	
+	increment_y = (ARSCalibration_->Image_LeftRightTopBottom.z() - ARSCalibration_->Image_LeftRightTopBottom.w())
+		/ terrain_mesh_->GetHeight();
 
 	for( int y = 0; y < terrain_mesh_->GetHeight(); y++ )
 	{
 		for( int x = 0; x < terrain_mesh_->GetWidth(); x++ )
 		{
 			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
-			float height = KinectSensor_->de_data_2darray[(int)increment_y * y][(int)increment_x * x] / 16.f;
+			float height = KinectSensor_->de_data_2darray[((int)ARSCalibration_->Image_LeftRightTopBottom.w()+(int)increment_y * y)][(int)ARSCalibration_->Image_LeftRightTopBottom.x() +(int)increment_x * x] / 16.f;
 
 
 

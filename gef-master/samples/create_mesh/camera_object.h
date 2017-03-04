@@ -53,6 +53,10 @@ public:
 
 	void TurnLeft();
 	void TurnRight();
+
+	void TurnLeft(float deg);
+	void TurnRight( float deg );
+
 	void TurnUp();
 	void TurnDown();
 

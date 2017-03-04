@@ -38,6 +38,14 @@ void NORMAL_TERRAIN_GENstate::init( gef::Platform * platform, ARSCalibrationData
 	updateKinect = false;
 
 	ARSCalibration_ = ARSCalibration;
+
+	if( ARSCalibration_ == NULL )
+	{
+		ARSCalibration_->MinDepth = 2000;
+		ARSCalibration_->maxDepth = 2200;
+
+		ARSCalibration_->LeftRightTopBottom = gef::Vector4( -50, 50, 50, -50 );
+	}
 }
 
 void NORMAL_TERRAIN_GENstate::cleanup()
@@ -64,6 +72,14 @@ void NORMAL_TERRAIN_GENstate::Update( StateManager * state_manager, float delta_
 
 	camera_0->SetFrameTime( delta_time_ );
 	camera_0->update();
+
+	if( updateKinect )
+	{
+		bool Pass;
+		KinectSensor_->UpdateDEFeed( Pass, ARSCalibration_->MinDepth, ARSCalibration_->maxDepth );
+		terrain_changed_ = Pass;
+
+	}
 
 	if( terrain_changed_ )
 	{
@@ -307,13 +323,7 @@ void NORMAL_TERRAIN_GENstate::HandleInput( gef::InputManager* input_manager_ )
 
 		}
 
-		if( updateKinect )
-		{
-			bool Pass;
-			KinectSensor_->UpdateDEFeed( Pass );
-			terrain_changed_ = Pass;
-
-		}
+		
 
 	}
 }
@@ -375,7 +385,7 @@ void NORMAL_TERRAIN_GENstate::RenderTerrain( gef::Renderer3D * renderer_3d_ )
 		}
 		else
 		{
-			projection_matrix = platform_->OrthographicFrustum( -50, 50,50, -50, camera_0->GetNear(), camera_0->GetFar() );
+			projection_matrix = platform_->OrthographicFrustum( ARSCalibration_->LeftRightTopBottom.x(), ARSCalibration_->LeftRightTopBottom.y(), ARSCalibration_->LeftRightTopBottom.z(), ARSCalibration_->LeftRightTopBottom.w(), camera_0->GetNear(), camera_0->GetFar() );
 		}
 		
 		
