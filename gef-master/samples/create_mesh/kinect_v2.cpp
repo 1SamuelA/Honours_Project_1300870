@@ -48,7 +48,7 @@ void Kinect_v2::Init()
 	
 	m_pInfraredRGBX = new RGBQUAD[cInfraredWidth * cInfraredHeight];
 
-	m_pDepthRGBX = new RGBQUAD[cInfraredWidth * cInfraredHeight];
+	//m_pDepthRGBX = new RGBQUAD[cInfraredWidth * cInfraredHeight];
 	
 	//ir_reader_->SubscribeFrameArrived;
 
@@ -355,6 +355,142 @@ void Kinect_v2::UpdateDEFeed(bool &Pass)
 
 }
 
+void Kinect_v2::UpdateDEFeed( bool & Pass, USHORT Mindepth, USHORT Maxdepth )
+{
+	Sensor->get_IsOpen( &sensor_connected_ );
+
+	if( sensor_connected_ )
+	{
+		if( !de_reader_ )
+		{
+			Pass = false;
+			return;
+		}
+
+		IDepthFrame*  de_frame_;
+
+		HRESULT hr = de_reader_->AcquireLatestFrame( &de_frame_ );
+
+		if( SUCCEEDED( hr ) )
+		{
+			INT64 nTime = 0;
+			IFrameDescription* pFrameDescription = NULL;
+			UINT nBufferSize = 0;
+			USHORT nDepthMinReliableDistance = 0;
+			USHORT nDepthMaxDistance = 0;
+			UINT16 *pBuffer = NULL;
+
+			hr = de_frame_->get_RelativeTime( &nTime );
+
+			if( SUCCEEDED( hr ) )
+			{
+				hr = de_frame_->get_FrameDescription( &pFrameDescription );
+			}
+
+			if( SUCCEEDED( hr ) )
+			{
+				hr = pFrameDescription->get_Width( &de_streams_width );
+			}
+
+			if( SUCCEEDED( hr ) )
+			{
+				hr = pFrameDescription->get_Height( &de_streams_height );
+			}
+
+			if( SUCCEEDED( hr ) )
+			{
+				hr = de_frame_->get_DepthMinReliableDistance( &nDepthMinReliableDistance );
+
+				//nDepthMinReliableDistance = Mindepth;
+			}
+
+
+			if( SUCCEEDED( hr ) )
+			{
+				// In order to see the full range of depth (including the less reliable far field depth)
+				// we are setting nDepthMaxDistance to the extreme potential depth threshold
+				nDepthMaxDistance = USHRT_MAX;
+
+				// Note:  If you wish to filter by reliable depth distance, uncomment the following line.
+				hr = de_frame_->get_DepthMaxReliableDistance( &nDepthMaxDistance );
+
+				//nDepthMaxDistance = Maxdepth;
+			}
+
+			if( SUCCEEDED( hr ) )
+			{
+				hr = de_frame_->AccessUnderlyingBuffer( &nBufferSize, &pBuffer );
+			}
+
+			if( SUCCEEDED( hr ) )
+			{
+				ProcessDepth( nTime, pBuffer, de_streams_width, de_streams_height, nDepthMinReliableDistance, nDepthMaxDistance );
+			}
+			if( pFrameDescription != NULL )
+			{
+				pFrameDescription->Release();
+				pFrameDescription = NULL;
+			}
+
+
+		}
+
+		if( de_frame_ != NULL )
+		{
+			de_frame_->Release();
+			de_frame_ = NULL;
+		}
+
+		unsigned int length;
+
+		//fd->get_LengthInPixels(&length);
+		//irData = new UINT16[length];
+		//irDataConverted = new byte[length * 4];
+		//
+		//fd->get_Width(&ir_streams_width);
+		//fd->get_Height(&ir_streams_height);
+
+		de_data_2darray = new float*[de_streams_height];
+		for( int i = 0; i < de_streams_height; i++ )
+		{
+			de_data_2darray[i] = new float[de_streams_width];
+		}
+
+		Sensor->get_IsAvailable( &sensor_connected_ );
+
+
+		for( int y = 0; y < de_streams_height; y++ )
+		{
+			for( int x = 0; x < de_streams_width; x++ )
+			{
+				//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
+				int slot = int( (y*de_streams_width) + x );
+				if( depthValues->at( slot ) > 0.5 )
+				{
+					depthValues->at( slot ) = depthValues->at( slot ) - 20;
+
+				}
+				else
+				{
+
+				}
+				de_data_2darray[y][x] = depthValues->at( slot );
+
+			}
+		}
+
+		Pass = true;
+		return;
+
+	}
+	else
+	{
+		Pass = false;
+		return;
+
+	}
+}
+
 void Kinect_v2::ProcessDepth(INT64 nTime, const UINT16 * pBuffer, int nWidth, int nHeight, USHORT nMinDepth, USHORT nMaxDepth)
 {
 	if (!start_time_)
@@ -386,9 +522,8 @@ void Kinect_v2::ProcessDepth(INT64 nTime, const UINT16 * pBuffer, int nWidth, in
 		m_nFramesSinceUpdate = 0;
 	}
 
-	if (m_pDepthRGBX && pBuffer && (nWidth == cInfraredWidth) && (nHeight == cInfraredHeight))
+	if (pBuffer && (nWidth == cInfraredWidth) && (nHeight == cInfraredHeight))
 	{
-		RGBQUAD* pDest = m_pDepthRGBX;
 
 		// end pixel is start + width*height - 1
 		const UINT16* pBufferEnd = pBuffer + (nWidth * nHeight);
@@ -407,8 +542,6 @@ void Kinect_v2::ProcessDepth(INT64 nTime, const UINT16 * pBuffer, int nWidth, in
 		{
 			USHORT depth = *pBuffer;
 
-			
-
 			// To convert to a byte, we're discarding the most-significant
 			// rather than least-significant bits.
 			// We're preserving detail, although the intensity will "wrap."
@@ -416,53 +549,20 @@ void Kinect_v2::ProcessDepth(INT64 nTime, const UINT16 * pBuffer, int nWidth, in
 
 			// Note: Using conditionals in this loop could degrade performance.
 			// Consider using a lookup table instead when writing production code.
-
-			float top = (float)nMaxDepth  - ((float)depth - (float)nMinDepth + 166.f) ;
-			float bottom = (float)nMaxDepth - (float)nMinDepth;
-
-			float depthValue = static_cast<FLOAT>((depth >= nMinDepth) && (depth <= nMaxDepth) ? (top / bottom)*500.f : 0);
+			float Range = (float)nMaxDepth - (float)nMinDepth;
+			float DepthValueInRange = (float)depth - (float)nMinDepth;
 			
-			if(( lowestValue > depthValue ) && (depthValue != 0))
-			{
-				lowestValue = depthValue;
-			}
+			DepthValueInRange = (Range - DepthValueInRange);
 
 
-			//float depthValue2 =
 
-			//float depthValue = static_cast<FLOAT>(depth);
-			//
-			//depthValue = (nMaxDepth - depthValue)/ nMaxDepth;
-			//
-			//if( depth < nMinDepth )
-			//{
-			//	depthValue = 1;
-			//}
-			//else if( (depth >= nMinDepth) && (depth <= nMaxDepth) )
-			//{
-			//	depthValue = ( nMaxDepth)/
-			//
-			//}
+			float depthValue = static_cast<FLOAT>((depth >= nMinDepth) && (depth <= nMaxDepth) ? /*(DepthValueInRange / Range)*500.f*/ depth : 0);
 
-			
-			//if( depthValue !=0 )
-				//depthValue = 1 - depthValue;
-
-			byte intensity = static_cast<BYTE>((depth >= nMinDepth) && (depth <= nMaxDepth) ? (((float)depth / (float)nMaxDepth) * 256.f) : 0);
-			
 			depthValues->push_back(depthValue);
 
-			pDest->rgbRed = intensity;
-			pDest->rgbGreen = intensity;
-			pDest->rgbBlue = intensity;
-
-			
-
-			++pDest;
 			++pBuffer;
 		}
 
-		float finallowest = lowestValue;
 
 	}
 
