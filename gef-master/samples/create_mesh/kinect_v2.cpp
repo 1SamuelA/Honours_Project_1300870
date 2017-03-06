@@ -536,7 +536,8 @@ void Kinect_v2::ProcessDepth(INT64 nTime, const UINT16 * pBuffer, int nWidth, in
 
 		depthValues = new std::vector<float>;
 
-		float lowestValue = 500;
+		float Range = (float)nMaxDepth - (float)nMinDepth;
+
 
 		while (pBuffer < pBufferEnd)
 		{
@@ -549,14 +550,14 @@ void Kinect_v2::ProcessDepth(INT64 nTime, const UINT16 * pBuffer, int nWidth, in
 
 			// Note: Using conditionals in this loop could degrade performance.
 			// Consider using a lookup table instead when writing production code.
-			float Range = (float)nMaxDepth - (float)nMinDepth;
+			
 			float DepthValueInRange = (float)depth - (float)nMinDepth;
 			
 			DepthValueInRange = (Range - DepthValueInRange);
+			float  depthval = (DepthValueInRange / Range);
 
 
-
-			float depthValue = static_cast<FLOAT>((depth >= nMinDepth) && (depth <= nMaxDepth) ? /*(DepthValueInRange / Range)*500.f*/ depth : 0);
+			float depthValue = static_cast<FLOAT>((depth >= nMinDepth) && (depth <= nMaxDepth) ? depth : 0);
 
 			depthValues->push_back(depthValue);
 

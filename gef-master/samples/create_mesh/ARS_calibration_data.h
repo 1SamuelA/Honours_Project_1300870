@@ -10,14 +10,14 @@ struct ARSCalibrationData
 	//Kinect_v2 KinectSensor;
 	int MinDepth;
 	int maxDepth;
-	int flatDepth;
+
+	int ForgroundMinDepth;
+	int ForgroundMaxDepth;
 
 	gef::Vector4 rotation;
 	gef::Vector4 LeftRightTopBottom;
 
 	gef::Vector4 Image_LeftRightTopBottom;
-
-	gef::Vector4 bottomRight;
 };
 
 

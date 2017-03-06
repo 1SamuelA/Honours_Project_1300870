@@ -1,0 +1,20 @@
+#Config File
+
+#ARS_Calibration_Data
+# Sand Box Depth
+Min_Sand_Depth = 2000;
+Max_Sand_Depth = 2200;
+
+# User Interface Layer
+ForgroundMinDepth = 1800;
+ForgroundMaxDepth = 1950;
+
+# Camera Rotation
+rotation = 90;
+
+# 
+LeftRightTopBottom = -50, 50, 50, -50 ;
+
+Image_LeftRightTopBottom =  0, 512, 424, 0 ;
+
+bottomRight

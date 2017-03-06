@@ -330,29 +330,39 @@ void NORMAL_TERRAIN_GENstate::HandleInput( gef::InputManager* input_manager_ )
 
 void NORMAL_TERRAIN_GENstate::UpdateTerrain()
 {
-
-
+	float Range = (float)ARSCalibration_->maxDepth - (float)ARSCalibration_->MinDepth;
 
 	gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) mesh_->vertex_buffer()->vertex_data();
-
 	std::vector<gef::Mesh::Vertex> temp_terrain = terrain_mesh_->GetTerrainVerticies();
 
-
 	float increment_x, increment_y;
-	
-	increment_x = KinectSensor_->de_streams_width / terrain_mesh_->GetWidth();
-	increment_y = KinectSensor_->de_streams_height / terrain_mesh_->GetHeight();
+	increment_x = (ARSCalibration_->Image_LeftRightTopBottom.y() - ARSCalibration_->Image_LeftRightTopBottom.x())
+		/ terrain_mesh_->GetWidth();
+	increment_y = (ARSCalibration_->Image_LeftRightTopBottom.z() - ARSCalibration_->Image_LeftRightTopBottom.w())
+		/ terrain_mesh_->GetHeight();
 
 	for( int y = 0; y < terrain_mesh_->GetHeight(); y++ )
 	{
 		for( int x = 0; x < terrain_mesh_->GetWidth(); x++ )
 		{
+
 			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
-			float height = KinectSensor_->de_data_2darray[(int)increment_y * y][(int)increment_x * x] / 16.f;
+			int a = (ARSCalibration_->Image_LeftRightTopBottom.w() + (increment_y * y));
+			int b = (ARSCalibration_->Image_LeftRightTopBottom.x() + (increment_x * x));
 
 
+			float depth = KinectSensor_->de_data_2darray[a][b];
 
-			vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = height;
+			float DepthValueInRange = depth - ARSCalibration_->MinDepth;
+
+			DepthValueInRange = (Range - DepthValueInRange);
+			
+			float  depthval = (DepthValueInRange / Range);
+
+			if( (depthval != 0) || (depthval <= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py - 0.5)
+				&& (depthval >= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py + 0.5) )
+				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = depthval;
+			
 
 		}
 	}

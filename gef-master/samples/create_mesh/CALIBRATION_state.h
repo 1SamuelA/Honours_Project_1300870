@@ -73,6 +73,7 @@ private:
 	//Shaders
 	TerrainShader* terrain_shader_;
 
+
 	ARSCalibrationData* ARSCalibration;
 	gef::Platform* platform_;
 
@@ -82,15 +83,19 @@ private:
 	//Objects
 	gef::Scene* model_scene_;
 	gef::Mesh* mesh_;
+	gef::Mesh* forground_mesh_;
 	gef::MeshInstance cube_player_;
 
 	TerrainMesh* terrain_mesh_;
+	TerrainMesh* forground_terrain;
+
 	std::vector<gef::Mesh::Vertex> terrain_verticies;
 	std::vector<int> terrain_index;
 
 	//Update Functions
 	void HandleInput( gef::InputManager* input_manager_ );
 	void UpdateTerrain();
+	void UpdateDepthLayer( TerrainMesh*, gef::Mesh* depthLayerMesh, float minDepth, float maxDepth );
 	void CleanUpFont();
 
 	void HandleCameraUpdates( const gef::Keyboard* keyboard );
@@ -98,6 +103,7 @@ private:
 	//Update varibles
 	bool updateKinect;
 	bool terrain_changed_;
+	bool terrain_changed_Calibration;
 	bool terrain_shader_active_;
 	float fps_;
 

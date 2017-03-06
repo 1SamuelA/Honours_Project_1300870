@@ -20,6 +20,8 @@
 
 #include <maths\math_utils.h>
 
+
+
 #define CALIBRATIONSTAGES 5
 
 void CALIBRATIONstate::init( gef::Platform * platform, ARSCalibrationData * ARSCalibration, Kinect_v2* kinect_sensor_ )
@@ -94,10 +96,11 @@ void CALIBRATIONstate::Update( StateManager * state_manager, float delta_time, g
 		else
 		{
 			timer_depth_update -= delta_time;
+			if( terrain_changed_Calibration == true )
+			{
+				terrain_changed_ = true;
+			}
 		}
-
-		
-
 	}
 
 	camera_0->SetFrameTime( delta_time_ );
@@ -125,7 +128,8 @@ void CALIBRATIONstate::Update( StateManager * state_manager, float delta_time, g
 
 	if( terrain_changed_ )
 	{
-		UpdateTerrain();
+		//UpdateTerrain();
+		UpdateDepthLayer( terrain_mesh_, mesh_, ARSCalibration_->MinDepth, ARSCalibration_->maxDepth );
 	}
 
 	gef::Matrix44 trasformation;
@@ -359,23 +363,23 @@ void CALIBRATIONstate::HandleInput( gef::InputManager* input_manager_ )
 		{
 			gef::Vector4 a = ARSCalibration_->Image_LeftRightTopBottom;
 
-			if( keyboard->IsKeyPressed( gef::Keyboard::KC_W ) )
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_W ) )
 			{
 				if( ARSCalibration_->Image_LeftRightTopBottom.x() < ARSCalibration_->Image_LeftRightTopBottom.y() )
 					ARSCalibration_->Image_LeftRightTopBottom.set_x( a.x() + 1 );
 			}
-			if( keyboard->IsKeyPressed( gef::Keyboard::KC_S ) )
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_S ) )
 			{
 				if( ARSCalibration_->Image_LeftRightTopBottom.x() > 0 )
 					ARSCalibration_->Image_LeftRightTopBottom.set_x( a.x() - 1 );
 			}
 
-			if( keyboard->IsKeyPressed( gef::Keyboard::KC_A ) )
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_A ) )
 			{
 				if( ARSCalibration_->Image_LeftRightTopBottom.y() > ARSCalibration_->Image_LeftRightTopBottom.x() )
 					ARSCalibration_->Image_LeftRightTopBottom.set_y( a.y() - 1 );
 			}
-			if( keyboard->IsKeyPressed( gef::Keyboard::KC_D ) )
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_D ) )
 			{
 				if( ARSCalibration_->Image_LeftRightTopBottom.y() <  KinectSensor_->cDepthWidth )
 					ARSCalibration_->Image_LeftRightTopBottom.set_y( a.y() + 1 );
@@ -400,7 +404,7 @@ void CALIBRATIONstate::HandleInput( gef::InputManager* input_manager_ )
 			if( keyboard->IsKeyDown( gef::Keyboard::KC_A ) )
 			{
 				if( ARSCalibration_->Image_LeftRightTopBottom.w() > 0 )
-					ARSCalibration_->Image_LeftRightTopBottom.set_w( a.w() - 1 );
+					ARSCalibration_->Image_LeftRightTopBottom.set_w( a.w() - 1);
 			}
 			if( keyboard->IsKeyDown( gef::Keyboard::KC_D ) )
 			{
@@ -444,6 +448,13 @@ void CALIBRATIONstate::HandleInput( gef::InputManager* input_manager_ )
 		{
 
 			updateKinect = !updateKinect;
+
+
+		}
+		if( keyboard->IsKeyPressed( gef::Keyboard::KC_Z ) )
+		{
+
+			terrain_changed_Calibration = !terrain_changed_Calibration;
 
 
 		}
@@ -526,19 +537,14 @@ void CALIBRATIONstate::HandleCameraUpdates(const gef::Keyboard* keyboard )
 
 void CALIBRATIONstate::UpdateTerrain()
 {
-
-
+	float Range = (float)ARSCalibration_->maxDepth - (float)ARSCalibration_->MinDepth;
 
 	gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) mesh_->vertex_buffer()->vertex_data();
-
 	std::vector<gef::Mesh::Vertex> temp_terrain = terrain_mesh_->GetTerrainVerticies();
 
-
 	float increment_x, increment_y;
-
 	increment_x = (ARSCalibration_->Image_LeftRightTopBottom.y() - ARSCalibration_->Image_LeftRightTopBottom.x()) 
 		/ terrain_mesh_->GetWidth();
-	
 	increment_y = (ARSCalibration_->Image_LeftRightTopBottom.z() - ARSCalibration_->Image_LeftRightTopBottom.w())
 		/ terrain_mesh_->GetHeight();
 
@@ -546,12 +552,22 @@ void CALIBRATIONstate::UpdateTerrain()
 	{
 		for( int x = 0; x < terrain_mesh_->GetWidth(); x++ )
 		{
+
 			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
-			float height = KinectSensor_->de_data_2darray[(int)((ARSCalibration_->Image_LeftRightTopBottom.w()+increment_y) * y)][(int)((ARSCalibration_->Image_LeftRightTopBottom.x() +increment_x) * x)] / 16.f;
+			int a = (ARSCalibration_->Image_LeftRightTopBottom.w() + (increment_y * y));
+			int b = (ARSCalibration_->Image_LeftRightTopBottom.x() + (increment_x * x));
 
 
+			float depth = KinectSensor_->de_data_2darray[a][b];
 
-			vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = height;
+			float DepthValueInRange = depth - ARSCalibration_->MinDepth;
+
+			DepthValueInRange = (Range - DepthValueInRange);
+			float  depthval = (DepthValueInRange / Range);
+
+
+			if( (depthval != 0) && (depthval <= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py - 0.5) && (depthval >= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py + 0.5) )
+				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = depthval;
 
 		}
 	}
@@ -563,6 +579,54 @@ void CALIBRATIONstate::UpdateTerrain()
 
 	terrain_changed_ = false;
 }
+
+void CALIBRATIONstate::UpdateDepthLayer( TerrainMesh* DepthLayerMesh, gef::Mesh* depthLayerMesh, float minDepth, float maxDepth )
+{
+	float Range = maxDepth - minDepth;
+
+	gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) depthLayerMesh->vertex_buffer()->vertex_data();
+	std::vector<gef::Mesh::Vertex> temp_terrain = DepthLayerMesh->GetTerrainVerticies();
+
+	float increment_x, increment_y;
+	increment_x = (ARSCalibration_->Image_LeftRightTopBottom.y() - ARSCalibration_->Image_LeftRightTopBottom.x())
+		/ DepthLayerMesh->GetWidth();
+	increment_y = (ARSCalibration_->Image_LeftRightTopBottom.z() - ARSCalibration_->Image_LeftRightTopBottom.w())
+		/ DepthLayerMesh->GetHeight();
+
+	for( int y = 0; y < DepthLayerMesh->GetHeight(); y++ )
+	{
+		for( int x = 0; x < DepthLayerMesh->GetWidth(); x++ )
+		{
+
+			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
+			int a = (ARSCalibration_->Image_LeftRightTopBottom.w() + (increment_y * y));
+			int b = (ARSCalibration_->Image_LeftRightTopBottom.x() + (increment_x * x));
+
+
+			float depth = KinectSensor_->de_data_2darray[a][b];
+
+			float DepthValueInRange = depth - minDepth;
+
+			DepthValueInRange = (Range - DepthValueInRange);
+			float  depthval = (DepthValueInRange / Range);
+
+
+			if( (depthval != 0) || (depthval <= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py - 0.5) 
+				&& (depthval >= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py + 0.5) )
+				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = depthval;
+
+		}
+	}
+
+	//vertices_[0].py = sin(time_)/2;
+
+
+	depthLayerMesh->vertex_buffer()->Update( *platform_ );
+
+	terrain_changed_ = false;
+}
+
+
 
 void CALIBRATIONstate::RenderTerrain( gef::Renderer3D * renderer_3d_ )
 {
@@ -580,7 +644,12 @@ void CALIBRATIONstate::RenderTerrain( gef::Renderer3D * renderer_3d_ )
 
 		//projection_matrix = platform_->PerspectiveProjectionFov( camera_0->GetFov(), (float)platform_->width() / (float)platform_->height(), camera_0->GetNear(), camera_0->GetFar() );
 
-		projection_matrix = platform_->OrthographicFrustum( ARSCalibration_->LeftRightTopBottom.x(), ARSCalibration_->LeftRightTopBottom.y(), ARSCalibration_->LeftRightTopBottom.z(), ARSCalibration_->LeftRightTopBottom.w(), camera_0->GetNear(), camera_0->GetFar() );
+		projection_matrix = platform_->OrthographicFrustum( 
+			ARSCalibration_->LeftRightTopBottom.x(),
+			ARSCalibration_->LeftRightTopBottom.y(),
+			ARSCalibration_->LeftRightTopBottom.z(),
+			ARSCalibration_->LeftRightTopBottom.w(),
+			camera_0->GetNear(), camera_0->GetFar());
 
 		view_matrix.LookAt( camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp() );
 
@@ -635,12 +704,12 @@ void CALIBRATIONstate::DrawHUD( gef::SpriteRenderer * sprite_renderer_ )
 	{
 		// display frame rate
 
-		font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() - 150.f, platform_->height() - 80.f, -0.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "FPS: %.1f", fps_ );
+		font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() - 150.f, platform_->height() - 80.f, -1.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "FPS: %.1f", fps_ );
 
-		font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 000.0f, -0.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "pitch: %.1f", camera_0->GetPitch() );
-		font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 030.0f, -0.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "yaw: %.1f", camera_0->GetYaw() );
-		font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 060.0f, -0.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "roll: %.1f", camera_0->GetRoll() );
-
-		font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 090.0f, -0.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "Pos: %.1f %.1f %.1f", camera_0->GetPos().x(), camera_0->GetPos().y(), camera_0->GetPos().z() );
+		font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 000.0f, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "pitch: %.1f", camera_0->GetPitch() );
+		font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 030.0f, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "yaw: %.1f", camera_0->GetYaw() );
+		font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 060.0f, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "roll: %.1f", camera_0->GetRoll() );
+																		   
+		font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 090.0f, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "Pos: %.1f %.1f %.1f", camera_0->GetPos().x(), camera_0->GetPos().y(), camera_0->GetPos().z() );
 	}
 }

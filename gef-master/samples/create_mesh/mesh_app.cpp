@@ -11,9 +11,7 @@
 #include <input/keyboard.h>
 #include <input\input_manager.h>
 #include <maths/vector2.h>
-#include <maths/math_utils.h>
 #include <graphics/renderer_3d.h>
-
 
 #include <system/debug_log.h>
 
@@ -25,18 +23,12 @@
 
 #include <shaders\terrain_shader.h>
 
-#include "PerlinNoise.h"
-
 #include "StateManager.h"
 #include "MAINMENU_state.h"
 #include "NORMAL_TERRAIN_GEN_state.h"
 
 #include <random>
 #include <time.h>
-
-
-#define DEGBUG_O false
-
 
 MeshApp::MeshApp(gef::Platform& platform) :
 	Application(platform),
@@ -52,117 +44,29 @@ MeshApp::MeshApp(gef::Platform& platform) :
 
 void MeshApp::Init()
 {
+	// Starts all the managers and Renders.
+	sprite_renderer_ = gef::SpriteRenderer::Create( platform_ );
+	renderer_3d_ = gef::Renderer3D::Create( platform_ );
+	input_manager_ = gef::InputManager::Create( platform_ );
+	KinectSensor_ = new Kinect_v2;
 
-	if( DEGBUG_O == true )
-	{
-		// Starts all the managers and Renders.
-		sprite_renderer_ = gef::SpriteRenderer::Create( platform_ );
-		renderer_3d_ = gef::Renderer3D::Create( platform_ );
-		input_manager_ = gef::InputManager::Create( platform_ );
-		KinectSensor_ = new Kinect_v2;
+	ARS_calibration_data_ = new ARSCalibrationData;
 
-		state_manager_ = new StateManager;
+	state_manager_ = new StateManager;
 
-		KinectSensor_->Init();
+	KinectSensor_->Init();
 
-		InitFont();
+	InitFont();
 
-		terrain_mesh_ = new TerrainMesh();
+	SetupLights();
 
-		terrain_mesh_->GenerateVertices();
-		terrain_mesh_->GenerateIndex();
+	state_manager_->AddState( new MAINMENUstate );
+	state_manager_->GetCurrentState()->init( &platform_, ARS_calibration_data_, KinectSensor_ );
 
-		terrain_shader_ = new TerrainShader(platform_);
-		platform_.AddShader(terrain_shader_);
+	previous_state = state_manager_->GetCurrentState();
 
-		terrain_changed_ = false;
-
-
-		mesh_ = CreateCubeMesh();
-		cube_player_.set_mesh(mesh_);
-
-		terrain_shader_active_ = false;
-
-
-		gef::Vector4 camera_eye = gef::Vector4(0.0f, 150.0f, 0.0f);
-		gef::Vector4 camera_forward = gef::Vector4(0.0f, 149.0f, 0.0f);
-		gef::Vector4 camera_up = gef::Vector4(01.0f, 150.0f, 0.0f);
-		float camera_fov = gef::DegToRad(45.0f);
-		float near_plane = 0.01f;
-		float far_plane = 1000.f;
-
-		camera_0 = new CameraObject(camera_eye, camera_forward, camera_up, camera_fov, near_plane, far_plane);
-		camera_0->SetYaw( 0.0f );
-		camera_0->SetPitch( -90.0f );
-
-		SetupCamera();
-		
-		SetupLights();
-
-		state_manager_->AddState( new MAINMENUstate );
-		state_manager_->GetCurrentState()->init( &platform_, ARS_calibration_data_, KinectSensor_ );
-
-		previous_state = state_manager_->GetCurrentState();
-
-		time_ = 0;
-	}
-	else
-	{
-		// Starts all the managers and Renders.
-		sprite_renderer_ = gef::SpriteRenderer::Create( platform_ );
-		renderer_3d_ = gef::Renderer3D::Create( platform_ );
-		input_manager_ = gef::InputManager::Create( platform_ );
-		KinectSensor_ = new Kinect_v2;
-
-		ARS_calibration_data_ = new ARSCalibrationData;
-
-		state_manager_ = new StateManager;
-
-		KinectSensor_->Init();
-
-		InitFont();
-
-		/*terrain_mesh_ = new TerrainMesh();
-
-		terrain_mesh_->GenerateVertices();
-		terrain_mesh_->GenerateIndex();
-
-		terrain_shader_ = new TerrainShader(platform_);
-		platform_.AddShader(terrain_shader_);
-
-		terrain_changed_ = false;
-
-
-		mesh_ = CreateCubeMesh();
-		cube_player_.set_mesh(mesh_);
-
-		terrain_shader_active_ = false;
-
-
-		gef::Vector4 camera_eye = gef::Vector4(0.0f, 150.0f, 0.0f);
-		gef::Vector4 camera_forward = gef::Vector4(0.0f, 149.0f, 0.0f);
-		gef::Vector4 camera_up = gef::Vector4(01.0f, 150.0f, 0.0f);
-		float camera_fov = gef::DegToRad(45.0f);
-		float near_plane = 0.01f;
-		float far_plane = 1000.f;
-
-		camera_0 = new CameraObject(camera_eye, camera_forward, camera_up, camera_fov, near_plane, far_plane);
-		camera_0->SetYaw( 0.0f );
-		camera_0->SetPitch( -90.0f );
-
-		SetupCamera();
-		*/
-		SetupLights();
-
-		
-
-		state_manager_->AddState( new MAINMENUstate );
-		state_manager_->GetCurrentState()->init( &platform_, ARS_calibration_data_, KinectSensor_ );
-
-		previous_state = state_manager_->GetCurrentState();
-
-		time_ = 0;
-	}
+	time_ = 0;
+	
 
 	
 }
@@ -198,72 +102,26 @@ void MeshApp::CleanUp()
 
 bool MeshApp::Update(float frame_time)
 {
-	if( DEGBUG_O )
+	input_manager_->Update();
+
+	if( state_manager_->GetNumStates() != 0 )
 	{
-		input_manager_->Update();
 
-		//if( state_manager_->GetNumStates() != 0 )
-		//{
-		//
-		//	if( state_manager_->GetCurrentState() == previous_state )
-		//	{
-		//		state_manager_->GetCurrentState()->Update( state_manager_, frame_time, input_manager_ );
-		//	}
-		//
-		//	if( state_manager_->GetCurrentState() != previous_state )
-		//	{
-		//		state_manager_->GetCurrentState()->init( &platform_, ARS_calibration_data_, KinectSensor_ );
-		//		previous_state = state_manager_->GetCurrentState();
-		//	}
-		//
-		//
-		//}
-		fps_ = 1.0f / frame_time;
-		time_ += frame_time;
-
-		//Upadtes Camera Infomation.
-		camera_0->SetFrameTime(frame_time);
-		camera_0->update();
-
-		if (terrain_changed_)
+		if( state_manager_->GetCurrentState() == previous_state )
 		{
-			UpdateTerrain();
+			state_manager_->GetCurrentState()->Update( state_manager_, frame_time, input_manager_ );
 		}
 
-		ProcessKeyboardInput();
-
-		return true;
-
-	}
-	else
-	{
-		input_manager_->Update();
-
-		if( state_manager_->GetNumStates() != 0 )
+		if( state_manager_->GetCurrentState() != previous_state )
 		{
-
-			if( state_manager_->GetCurrentState() == previous_state )
-			{
-				state_manager_->GetCurrentState()->Update( state_manager_, frame_time, input_manager_ );
-			}
-
-			if( state_manager_->GetCurrentState() != previous_state )
-			{
-				state_manager_->GetCurrentState()->init( &platform_, ARS_calibration_data_, KinectSensor_ );
-				previous_state = state_manager_->GetCurrentState();
-				state_manager_->GetCurrentState()->Update( state_manager_, frame_time, input_manager_ );
-			}
-
-
+			state_manager_->GetCurrentState()->init( &platform_, ARS_calibration_data_, KinectSensor_ );
+			previous_state = state_manager_->GetCurrentState();
+			state_manager_->GetCurrentState()->Update( state_manager_, frame_time, input_manager_ );
 		}
 
-		return true;
+
 	}
-
-	
-
-
-	
+	return true;
 }
 
 void MeshApp::UpdateTerrain()
@@ -305,40 +163,10 @@ void MeshApp::UpdateTerrain()
 
 void MeshApp::Render()
 {
-	if( DEGBUG_O == true )
-	{
-		gef::Matrix44 projection_matrix;
-		gef::Matrix44 view_matrix;
-
-		//projection_matrix = platform_.PerspectiveProjectionFov( camera_fov, (float)platform_.width() / (float)platform_.height(), near_plane, far_plane );
-		projection_matrix = platform_.OrthographicFrustum( 0.0, platform_.width(), 0.0, platform_.height(), camera_0->GetNear(), camera_0->GetFar() );
-		view_matrix.LookAt( camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp() );
-		//view_matrix.LookAt(camera_eye, camera_lookat, camera_up);
-
-		renderer_3d_->set_projection_matrix( projection_matrix );
-		renderer_3d_->set_view_matrix( view_matrix );
-
-
-		// draw meshes here
-		renderer_3d_->Begin();
-		renderer_3d_->DrawMesh( cube_player_ );
-
-		//renderer_3d_->SetFillMode(gef::Renderer3D::FillMode::kSolid);
-
-		renderer_3d_->End();
-
-		RenderTerrain();
-
-		// setup the sprite renderer, but don't clear the frame buffer
-		// draw 2D sprites here
-		sprite_renderer_->Begin( false );
-		DrawHUD();
-		sprite_renderer_->End();
-	}
-	else
-	{
-		state_manager_->GetCurrentState()->Render( renderer_3d_, sprite_renderer_, font_ );
-	}
+	
+	
+	state_manager_->GetCurrentState()->Render( renderer_3d_, sprite_renderer_, font_ );
+	
 
 }
 
