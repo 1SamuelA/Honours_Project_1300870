@@ -547,7 +547,7 @@ void CALIBRATIONstate::UpdateTerrain()
 		for( int x = 0; x < terrain_mesh_->GetWidth(); x++ )
 		{
 			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
-			float height = KinectSensor_->de_data_2darray[((int)ARSCalibration_->Image_LeftRightTopBottom.w()+(int)increment_y * y)][(int)ARSCalibration_->Image_LeftRightTopBottom.x() +(int)increment_x * x] / 16.f;
+			float height = KinectSensor_->de_data_2darray[(int)((ARSCalibration_->Image_LeftRightTopBottom.w()+increment_y) * y)][(int)((ARSCalibration_->Image_LeftRightTopBottom.x() +increment_x) * x)] / 16.f;
 
 
 
