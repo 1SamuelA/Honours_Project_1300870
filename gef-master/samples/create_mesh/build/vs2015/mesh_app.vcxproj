@@ -173,6 +173,7 @@
     </ClCompile>
     <ClCompile Include="..\..\CALIBRATION_statecpp.cpp" />
     <ClCompile Include="..\..\camera_object.cpp" />
+    <ClCompile Include="..\..\ConfigFile.cpp" />
     <ClCompile Include="..\..\game_object.cpp" />
     <ClCompile Include="..\..\kinect_v2.cpp" />
     <ClCompile Include="..\..\MAINMENU_state.cpp">
@@ -194,6 +195,7 @@
     <ClInclude Include="..\..\ARS_calibration_data.h" />
     <ClInclude Include="..\..\CALIBRATION_state.h" />
     <ClInclude Include="..\..\camera_object.h" />
+    <ClInclude Include="..\..\ConfigFile.h" />
     <ClInclude Include="..\..\game_object.h" />
     <ClInclude Include="..\..\kinect_v2.h" />
     <ClInclude Include="..\..\MAINMENU_state.h">
@@ -231,6 +233,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\config.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\media\config.cfg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

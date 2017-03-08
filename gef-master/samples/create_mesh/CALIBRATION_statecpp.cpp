@@ -20,6 +20,8 @@
 
 #include <maths\math_utils.h>
 
+#include "ConfigFile.h"
+
 
 
 #define CALIBRATIONSTAGES 5
@@ -36,7 +38,22 @@ void CALIBRATIONstate::init( gef::Platform * platform, ARSCalibrationData * ARSC
 	KinectSensor_ = kinect_sensor_;
 	updateKinect = false;
 
+	ConfigFile cfg( "config.cfg" );
+
+	bool exists = cfg.keyExists( "car" );
+	//std::cout << "car key: " << std::boolalpha << exists << "\n";
+	exists = cfg.keyExists( "fruits" );
+	//std::cout << "fruits key: " << exists << "\n";
+
+	std::string someValue = cfg.getValueOfKey<std::string>( "mykey", "Unknown" );
+	//std::cout << "value of key mykey: " << someValue << "\n";
 	
+	double x, y, z, w;
+
+	double doubleVal = cfg.getValueOfKey<double>( "double" );
+
+	std::cin.get();
+
 
 	if( !AlreadyInit )
 	{

@@ -375,6 +375,57 @@ void NORMAL_TERRAIN_GENstate::UpdateTerrain()
 	terrain_changed_ = false;
 }
 
+
+void NORMAL_TERRAIN_GENstate::UpdateDepthLayer( TerrainMesh* DepthLayerMesh,
+	gef::Mesh* depthLayerMesh,
+	float minDepth,
+	float maxDepth)
+{
+	float Range = maxDepth - minDepth;
+
+	gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) depthLayerMesh->vertex_buffer()->vertex_data();
+	std::vector<gef::Mesh::Vertex> temp_terrain = DepthLayerMesh->GetTerrainVerticies();
+
+	float increment_x, increment_y;
+	increment_x = (ARSCalibration_->Image_LeftRightTopBottom.y() - ARSCalibration_->Image_LeftRightTopBottom.x())
+		/ DepthLayerMesh->GetWidth();
+	increment_y = (ARSCalibration_->Image_LeftRightTopBottom.z() - ARSCalibration_->Image_LeftRightTopBottom.w())
+		/ DepthLayerMesh->GetHeight();
+
+	for( int y = 0; y < DepthLayerMesh->GetHeight(); y++ )
+	{
+		for( int x = 0; x < DepthLayerMesh->GetWidth(); x++ )
+		{
+
+			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
+			int a = (ARSCalibration_->Image_LeftRightTopBottom.w() + (increment_y * y));
+			int b = (ARSCalibration_->Image_LeftRightTopBottom.x() + (increment_x * x));
+
+
+			float depth = KinectSensor_->de_data_2darray[a][b];
+
+			float DepthValueInRange = depth - minDepth;
+
+			DepthValueInRange = (Range - DepthValueInRange);
+			float  depthval = (DepthValueInRange / Range);
+
+
+			if( (depthval != 0) || (depthval <= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py - 0.5)
+				&& (depthval >= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py + 0.5) )
+				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = depthval;
+
+		}
+	}
+
+	//vertices_[0].py = sin(time_)/2;
+
+
+	depthLayerMesh->vertex_buffer()->Update( *platform_ );
+
+	terrain_changed_ = false;
+}
+
+
 void NORMAL_TERRAIN_GENstate::RenderTerrain( gef::Renderer3D * renderer_3d_ )
 {
 	if( terrain_shader_active_ )

@@ -90,6 +90,7 @@ private:
 	//Update Functions
 	void HandleInput( gef::InputManager* input_manager_ );
 	void UpdateTerrain();
+	void UpdateDepthLayer( TerrainMesh* DepthLayerMesh, gef::Mesh* depthLayerMesh, float minDepth, float maxDepth );
 	void CleanUpFont();
 
 	//Update varibles
