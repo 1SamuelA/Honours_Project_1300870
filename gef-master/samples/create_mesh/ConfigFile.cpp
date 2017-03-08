@@ -1,6 +1,6 @@
 #include "ConfigFile.h"
 
-void exitWithError( const std::string &error )
+void ConfigFile::exitWithError( const std::string &error )
 {
 	std::cout << error;
 	std::cin.ignore();
@@ -8,33 +8,6 @@ void exitWithError( const std::string &error )
 
 	exit( EXIT_FAILURE );
 }
-
-template <typename T>
-static std::string Convert::T_to_string( T const &val )
-{
-	std::ostringstream ostr;
-	ostr << val;
-
-	return ostr.str();
-}
-
-template <typename T>
-static T Convert::string_to_T( std::string const &val )
-{
-	std::istringstream istr( val );
-	T returnVal;
-	if( !(istr >> returnVal) )
-		exitWithError( "CFG: Not a valid " + (std::string)typeid(T).name() + " received!\n" );
-
-	return returnVal;
-}
-
-template <>
-static std::string Convert::string_to_T( std::string const &val )
-{
-	return val;
-}
-
 
 
 
@@ -140,12 +113,5 @@ bool ConfigFile::keyExists( const std::string &key ) const
 	return contents.find( key ) != contents.end();
 }
 
-template <typename ValueType>
-ValueType  ConfigFile::getValueOfKey( const std::string &key, ValueType const &defaultValue) const
-{
-	if( !keyExists( key ) )
-		return defaultValue;
 
-	return Convert::string_to_T<ValueType>( contents.find( key )->second );
-}
 

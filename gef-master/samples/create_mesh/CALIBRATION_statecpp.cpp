@@ -22,6 +22,8 @@
 
 #include "ConfigFile.h"
 
+#include <iostream>
+
 
 
 #define CALIBRATIONSTAGES 5
@@ -38,33 +40,47 @@ void CALIBRATIONstate::init( gef::Platform * platform, ARSCalibrationData * ARSC
 	KinectSensor_ = kinect_sensor_;
 	updateKinect = false;
 
-	ConfigFile cfg( "config.cfg" );
-
-	bool exists = cfg.keyExists( "car" );
-	//std::cout << "car key: " << std::boolalpha << exists << "\n";
-	exists = cfg.keyExists( "fruits" );
-	//std::cout << "fruits key: " << exists << "\n";
-
-	std::string someValue = cfg.getValueOfKey<std::string>( "mykey", "Unknown" );
-	//std::cout << "value of key mykey: " << someValue << "\n";
 	
-	double x, y, z, w;
 
-	double doubleVal = cfg.getValueOfKey<double>( "double" );
-
-	std::cin.get();
 
 
 	if( !AlreadyInit )
 	{
-		ARSCalibration_->MinDepth = 2000;
-		ARSCalibration_->maxDepth = 2200;
 
-		ARSCalibration_->LeftRightTopBottom = gef::Vector4( -50, 50, 50, -50 );
+		ConfigFile cfg( "config.cfg" );
 
-		ARSCalibration_->Image_LeftRightTopBottom = gef::Vector4( 0, KinectSensor_->cDepthWidth, KinectSensor_->cDepthHeight, 0 );
+		ARSCalibration_->MinDepth = cfg.getValueOfKey<double>( "Min_Sand_Depth" );
+		ARSCalibration_->maxDepth = cfg.getValueOfKey<double>( "Max_Sand_Depth" );
+
+		ARSCalibration_->ForgroundMinDepth = cfg.getValueOfKey<double>( "ForgroundMinDepth" );
+		ARSCalibration_->ForgroundMaxDepth = cfg.getValueOfKey<double>( "ForgroundMaxDepth" );
+
+		double x, y, z, w;
+
+		x = cfg.getValueOfKey<double>( "Left" );
+		y = cfg.getValueOfKey<double>( "Right" );
+		z = cfg.getValueOfKey<double>( "Top" );
+		w = cfg.getValueOfKey<double>( "Bottom" );
+
+		ARSCalibration_->LeftRightTopBottom = gef::Vector4( x, y, z, w );
+
+		x = cfg.getValueOfKey<double>( "Image_Left" );
+		y = cfg.getValueOfKey<double>( "Image_Right" );
+		z = cfg.getValueOfKey<double>( "Image_Top" );
+		w = cfg.getValueOfKey<double>( "Image_Bottom" );
+
+		ARSCalibration_->Image_LeftRightTopBottom = gef::Vector4( x, y, z, w );
+
+
+		//ARSCalibration_->MinDepth = 2000;
+		//ARSCalibration_->maxDepth = 2200;
+		//
+		//ARSCalibration_->LeftRightTopBottom = gef::Vector4( -50, 50, 50, -50 );
+		//
+		//ARSCalibration_->Image_LeftRightTopBottom = gef::Vector4( 0, KinectSensor_->cDepthWidth, KinectSensor_->cDepthHeight, 0 );
 
 		AlreadyInit = !AlreadyInit;
+
 	}
 
 	
