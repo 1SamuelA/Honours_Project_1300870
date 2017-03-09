@@ -71,7 +71,9 @@ void CALIBRATIONstate::init( gef::Platform * platform, ARSCalibrationData * ARSC
 
 		ARSCalibration_->Image_LeftRightTopBottom = gef::Vector4( x, y, z, w );
 
+		ARSCalibration_->rotation.set_x(cfg.getValueOfKey<double>( "rotation" ));
 
+		camera_0->TurnRight( ARSCalibration_->rotation.x() );
 		//ARSCalibration_->MinDepth = 2000;
 		//ARSCalibration_->maxDepth = 2200;
 		//
@@ -450,20 +452,38 @@ void CALIBRATIONstate::HandleInput( gef::InputManager* input_manager_ )
 		{
 			gef::Vector4 a = ARSCalibration_->LeftRightTopBottom;
 
-			if( keyboard->IsKeyDown( gef::Keyboard::KC_W ) )
+			if( !keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_W ) )
+			{
+				ARSCalibration_->MinDepth += 1;
+			}
+			if( !keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_S ) )
+			{
+				ARSCalibration_->MinDepth -= 1;
+			}
+
+			if( !keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_A ) )
+			{
+				ARSCalibration_->maxDepth -= 1;
+			}
+			if( !keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_D ) )
+			{
+				ARSCalibration_->maxDepth += 1;
+			}
+
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_W ) )
 			{
 				ARSCalibration_->MinDepth += 10;
 			}
-			if( keyboard->IsKeyDown( gef::Keyboard::KC_S ) )
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_S ) )
 			{
 				ARSCalibration_->MinDepth -= 10;
 			}
 
-			if( keyboard->IsKeyDown( gef::Keyboard::KC_A ) )
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_A ) )
 			{
 				ARSCalibration_->maxDepth -= 10;
 			}
-			if( keyboard->IsKeyDown( gef::Keyboard::KC_D ) )
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_D ) )
 			{
 				ARSCalibration_->maxDepth += 10;
 			}
@@ -598,8 +618,7 @@ void CALIBRATIONstate::UpdateTerrain()
 			DepthValueInRange = (Range - DepthValueInRange);
 			float  depthval = (DepthValueInRange / Range);
 
-
-			if( (depthval != 0) && (depthval <= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py - 0.5) && (depthval >= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py + 0.5) )
+			if ((depth > ARSCalibration_->MinDepth))
 				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = depthval;
 
 		}
@@ -641,11 +660,10 @@ void CALIBRATIONstate::UpdateDepthLayer( TerrainMesh* DepthLayerMesh, gef::Mesh*
 			float DepthValueInRange = depth - minDepth;
 
 			DepthValueInRange = (Range - DepthValueInRange);
-			float  depthval = (DepthValueInRange / Range);
+			float  depthval = (DepthValueInRange / Range)*25;
 
 
-			if( (depthval != 0) || (depthval <= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py - 0.5) 
-				&& (depthval >= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py + 0.5) )
+			if( (depth > ARSCalibration_->MinDepth) )
 				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = depthval;
 
 		}
@@ -744,5 +762,46 @@ void CALIBRATIONstate::DrawHUD( gef::SpriteRenderer * sprite_renderer_ )
 		font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 060.0f, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "roll: %.1f", camera_0->GetRoll() );
 																		   
 		font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 090.0f, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "Pos: %.1f %.1f %.1f", camera_0->GetPos().x(), camera_0->GetPos().y(), camera_0->GetPos().z() );
+	
+		font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 120.0f, -1.1f ), 1.0f, 0xffff00ff, gef::TJ_LEFT, "Min, Max Depth: %i %i", ARSCalibration_->MinDepth, ARSCalibration_->maxDepth );
+
 	}
+}
+
+bool CALIBRATIONstate::OutputConfigFile()
+{
+	//std::ofstream file;
+	//file.open( fName.c_str() );
+	//if( !file )
+	//	exit( -1 );
+	std::ofstream file;
+
+	class OutData
+	{
+	private:
+		std::string varible_name_, varible_data_, _comment;
+	public:
+		OutData( std::string name, std::string data, std::string coment = NULL )
+		{
+			varible_name_ = name;
+			varible_data_ = data;
+		}
+
+	};
+
+	
+	std::vector<OutData> OutputData;
+
+	OutputData.push_back( OutData( "Min_Sand_Depth", std::to_string( ARSCalibration_->MinDepth ) ) );
+	OutputData.push_back( OutData( "Max_Sand_Depth", std::to_string( ARSCalibration_->maxDepth ) ) );
+	OutputData.push_back( OutData( "", NULL ) );
+	OutputData.push_back( OutData( "Min_Sand_Depth", std::to_string( ARSCalibration_->MinDepth ) ) );
+	OutputData.push_back( OutData( "Min_Sand_Depth", std::to_string( ARSCalibration_->MinDepth ) ) );
+
+
+	for( int x = 0; x < OutputData.size(); x++ )
+	{
+		file << "s";
+	}
+	return true;
 }

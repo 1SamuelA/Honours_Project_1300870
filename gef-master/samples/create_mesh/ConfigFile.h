@@ -86,20 +86,7 @@ public:
 		return Convert::string_to_T<ValueType>( contents.find( key )->second );
 	}
 
-	bool OutputFile()
-	{
-		//std::ofstream file;
-		//file.open( fName.c_str() );
-		//if( !file )
-		//	exit( -1 );
-		std::string file;
-
-		for( int x = 0; x < contents.size(); x++ )
-		{
-			std::string line = (std::string)contents.
-			file = "a";
-		}
-	}
+	
 };
 
 

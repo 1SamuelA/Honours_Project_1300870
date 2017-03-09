@@ -33,6 +33,7 @@ namespace gef
 }
 
 class TerrainMesh;
+class UILayerShader;
 class TerrainShader;
 
 class CALIBRATIONstate : public State
@@ -113,6 +114,8 @@ private:
 	//RenderFunctions
 	void RenderTerrain( gef::Renderer3D * renderer_3d_ );
 	void DrawHUD( gef::SpriteRenderer * sprite_renderer_ );
+
+	bool OutputConfigFile();
 
 };
 

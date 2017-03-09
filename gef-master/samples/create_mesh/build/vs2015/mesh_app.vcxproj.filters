@@ -102,6 +102,9 @@
     <ClCompile Include="..\..\ConfigFile.cpp">
       <Filter>Source Files\System</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Shaders\UI_layer_shader.cpp">
+      <Filter>Source Files\Shader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\mesh_app.h">
@@ -155,6 +158,9 @@
     <ClInclude Include="..\..\ConfigFile.h">
       <Filter>Header Files\System</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Shaders\UI_layer_shader.h">
+      <Filter>Header Files\Shader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\..\..\media\shaders\gef\d3d11\terrain_ps.hlsl">
@@ -173,6 +179,12 @@
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="..\..\..\media\shaders\gef\d3d11\default_3d_shader_vs.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\..\media\shaders\gef\d3d11\hand_depth_shader_ps.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="..\..\..\media\shaders\gef\d3d11\hand_depth_shader_vs.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>

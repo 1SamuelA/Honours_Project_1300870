@@ -30,7 +30,7 @@ void NORMAL_TERRAIN_GENstate::init( gef::Platform * platform, ARSCalibrationData
 
 
 	platform_ = platform;
-	initCamera();
+	
 
 	initMeshes();
 
@@ -46,6 +46,9 @@ void NORMAL_TERRAIN_GENstate::init( gef::Platform * platform, ARSCalibrationData
 
 		ARSCalibration_->LeftRightTopBottom = gef::Vector4( -50, 50, 50, -50 );
 	}
+
+	initCamera();
+
 }
 
 void NORMAL_TERRAIN_GENstate::cleanup()
@@ -69,6 +72,23 @@ void NORMAL_TERRAIN_GENstate::Update( StateManager * state_manager, float delta_
 	fps_ = 1.0f / delta_time_;
 
 	HandleInput(input_manager_);
+
+	switch( activeCamera )
+	{
+	case 0:
+	{
+		camera_0->SetFrameTime( delta_time_ );
+		camera_0->update();
+		break;
+
+	}
+	case 1:
+	{
+		camera_1->SetFrameTime( delta_time_ );
+		camera_1->update();
+		break;
+	}
+	}
 
 	camera_0->SetFrameTime( delta_time_ );
 	camera_0->update();
@@ -220,9 +240,19 @@ void NORMAL_TERRAIN_GENstate::initCamera()
 	float far_plane = 1000.f;
 
 	camera_0 = new CameraObject( camera_eye, camera_forward, camera_up, camera_fov, near_plane, far_plane );
-	camera_0->SetYaw( 0.0f );
+	camera_0->SetYaw( ARSCalibration_->rotation.x() );
 	camera_0->SetPitch( -90.0f );
+	
+	camera_eye = gef::Vector4( 0.0f, 10.0f, 0.0f );
+	camera_forward = gef::Vector4( 1.0f, 10.0f, 0.0f );
+	camera_up = gef::Vector4( 0.0f, 11.0f, 0.0f );
 
+
+	camera_1 = new CameraObject( camera_eye, camera_forward, camera_up, camera_fov, near_plane, far_plane );
+	camera_1->SetYaw( ARSCalibration_->rotation.x() );
+	camera_1->SetPitch( 0.0 );
+
+	activeCamera = 0;
 }
 
 void NORMAL_TERRAIN_GENstate::initMeshes()
@@ -254,60 +284,31 @@ void NORMAL_TERRAIN_GENstate::HandleInput( gef::InputManager* input_manager_ )
 		}
 
 
-		// Translation
-		if( keyboard->IsKeyDown( gef::Keyboard::KC_W ) )
-		{
-			camera_0->MoveForward();
-		}
-		if( keyboard->IsKeyDown( gef::Keyboard::KC_S ) )
-		{
-			camera_0->MoveBackward();
-		}
-
-		if( keyboard->IsKeyDown( gef::Keyboard::KC_A ) )
-		{
-			camera_0->StrafeLeft();
-		}
-		if( keyboard->IsKeyDown( gef::Keyboard::KC_D ) )
-		{
-			camera_0->StrafeRight();
-		}
-
-		// Rotation
-		if( keyboard->IsKeyDown( gef::Keyboard::KC_NUMPAD4 ) )
-		{
-			camera_0->TurnLeft();
-		}
-		if( keyboard->IsKeyDown( gef::Keyboard::KC_NUMPAD6 ) )
-		{
-			camera_0->TurnRight();
-		}
-
-		if( keyboard->IsKeyDown( gef::Keyboard::KC_NUMPAD8 ) )
-		{
-			camera_0->TurnUp();
-		}
-		if( keyboard->IsKeyDown( gef::Keyboard::KC_NUMPAD5 ) )
-		{
-			camera_0->TurnDown();
-		}
-
-		if( keyboard->IsKeyDown( gef::Keyboard::KC_Q ) )
-		{
-			camera_0->MoveUp();
-		}
-		if( keyboard->IsKeyDown( gef::Keyboard::KC_E ) )
-		{
-			camera_0->MoveDown();
-		}
+		
 
 		if( keyboard->IsKeyPressed( gef::Keyboard::KC_C ) )
 		{
 
 			terrain_shader_active_ = !terrain_shader_active_;
 			terrain_changed_ = false;
+
+			
 		}
 
+		
+		switch( activeCamera )
+		{
+		case 0:
+		{
+			InputCameraControls( camera_0 , keyboard );
+			break;
+		}
+		case 1:
+		{
+			InputCameraControls( camera_1, keyboard );
+			break;
+		}
+		}
 
 		if( keyboard->IsKeyPressed( gef::Keyboard::KC_X ) )
 		{
@@ -318,8 +319,19 @@ void NORMAL_TERRAIN_GENstate::HandleInput( gef::InputManager* input_manager_ )
 
 		if( keyboard->IsKeyPressed( gef::Keyboard::KC_R ) )
 		{
-
-			RenderProspective = !RenderProspective;
+			switch( activeCamera )
+			{
+			case 0:
+			{
+				activeCamera = 1;
+				break;
+			}
+			case 1:
+			{
+				activeCamera = 0;
+				break;
+			}
+			}
 
 		}
 
@@ -327,6 +339,56 @@ void NORMAL_TERRAIN_GENstate::HandleInput( gef::InputManager* input_manager_ )
 
 	}
 }
+
+void NORMAL_TERRAIN_GENstate::InputCameraControls( CameraObject* ActiveCamera, const gef::Keyboard* keyboard )
+{
+	// Translation
+	if( keyboard->IsKeyDown( gef::Keyboard::KC_W ) )
+	{
+		ActiveCamera->MoveForward();
+	}
+	if( keyboard->IsKeyDown( gef::Keyboard::KC_S ) )
+	{
+		ActiveCamera->MoveBackward();
+	}
+
+	if( keyboard->IsKeyDown( gef::Keyboard::KC_A ) )
+	{
+		ActiveCamera->StrafeLeft();
+	}
+	if( keyboard->IsKeyDown( gef::Keyboard::KC_D ) )
+	{
+		ActiveCamera->StrafeRight();
+	}
+
+	// Rotation
+	if( keyboard->IsKeyDown( gef::Keyboard::KC_NUMPAD4 ) )
+	{
+		ActiveCamera->TurnLeft();
+	}
+	if( keyboard->IsKeyDown( gef::Keyboard::KC_NUMPAD6 ) )
+	{
+		ActiveCamera->TurnRight();
+	}
+
+	if( keyboard->IsKeyDown( gef::Keyboard::KC_NUMPAD8 ) )
+	{
+		ActiveCamera->TurnUp();
+	}
+	if( keyboard->IsKeyDown( gef::Keyboard::KC_NUMPAD5 ) )
+	{
+		ActiveCamera->TurnDown();
+	}
+
+	if( keyboard->IsKeyDown( gef::Keyboard::KC_Q ) )
+	{
+		ActiveCamera->MoveUp();
+	}
+	if( keyboard->IsKeyDown( gef::Keyboard::KC_E ) )
+	{
+		ActiveCamera->MoveDown();
+	}
+};
 
 void NORMAL_TERRAIN_GENstate::UpdateTerrain()
 {
@@ -357,10 +419,13 @@ void NORMAL_TERRAIN_GENstate::UpdateTerrain()
 
 			DepthValueInRange = (Range - DepthValueInRange);
 			
-			float  depthval = (DepthValueInRange / Range);
+			float  depthval = (DepthValueInRange / Range)*100;
 
-			if( (depthval != 0) || (depthval <= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py - 0.5)
-				&& (depthval >= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py + 0.5) )
+			//if( (depthval != 0) || (depthval <= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py - 0.5)
+			//	&& (depthval >= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py + 0.5) )
+			//	vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = depthval;
+
+			if( (depth > ARSCalibration_->MinDepth) )
 				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = depthval;
 			
 
@@ -374,6 +439,7 @@ void NORMAL_TERRAIN_GENstate::UpdateTerrain()
 
 	terrain_changed_ = false;
 }
+
 
 
 void NORMAL_TERRAIN_GENstate::UpdateDepthLayer( TerrainMesh* DepthLayerMesh,
@@ -449,8 +515,22 @@ void NORMAL_TERRAIN_GENstate::RenderTerrain( gef::Renderer3D * renderer_3d_ )
 			projection_matrix = platform_->OrthographicFrustum( ARSCalibration_->LeftRightTopBottom.x(), ARSCalibration_->LeftRightTopBottom.y(), ARSCalibration_->LeftRightTopBottom.z(), ARSCalibration_->LeftRightTopBottom.w(), camera_0->GetNear(), camera_0->GetFar() );
 		}
 		
-		
-		view_matrix.LookAt( camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp() );
+		switch( activeCamera )
+		{
+		case 0:
+		{
+			projection_matrix = platform_->OrthographicFrustum( ARSCalibration_->LeftRightTopBottom.x(), ARSCalibration_->LeftRightTopBottom.y(), ARSCalibration_->LeftRightTopBottom.z(), ARSCalibration_->LeftRightTopBottom.w(), camera_0->GetNear(), camera_0->GetFar() );
+			view_matrix.LookAt( camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp() );
+			break;
+		}
+		case 1:
+		{
+			projection_matrix = platform_->PerspectiveProjectionFov( camera_1->GetFov(), (float)platform_->width() / (float)platform_->height(), camera_1->GetNear(), camera_1->GetFar() );
+			view_matrix.LookAt( camera_1->GetPos(), camera_1->GetLook(), camera_1->GetUp() );
+			break;
+		}
+		}
+		//view_matrix.LookAt( camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp() );
 
 		// use the shader for renderering the depth values to the shadow buffer
 		renderer_3d_->SetShader( terrain_shader_ );

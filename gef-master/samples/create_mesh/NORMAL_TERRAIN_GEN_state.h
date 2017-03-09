@@ -28,6 +28,7 @@ namespace gef
 	class PNGLoader;
 	class Texture;
 	class InputManager;
+	class Keyboard;
 	
 }
 
@@ -76,6 +77,7 @@ private:
 	gef::Platform* platform_;
 
 	CameraObject* camera_0;
+	CameraObject* camera_1;
 	
 
 	//Objects
@@ -88,7 +90,8 @@ private:
 	std::vector<int> terrain_index;
 
 	//Update Functions
-	void HandleInput( gef::InputManager* input_manager_ );
+	void HandleInput( gef::InputManager* input_manager_ );;
+	void InputCameraControls( CameraObject* ActiveCamera, const gef::Keyboard* keyboard );;
 	void UpdateTerrain();
 	void UpdateDepthLayer( TerrainMesh* DepthLayerMesh, gef::Mesh* depthLayerMesh, float minDepth, float maxDepth );
 	void CleanUpFont();
@@ -101,11 +104,12 @@ private:
 
 
 	//RenderFunctions
-	void RenderTerrain( gef::Renderer3D * renderer_3d_ );
-	void DrawHUD( gef::SpriteRenderer * sprite_renderer_ );
+	void RenderTerrain( gef::Renderer3D* renderer_3d_ );
+	void DrawHUD( gef::SpriteRenderer* sprite_renderer_ );
 
 	//Render Varibles
 	bool RenderProspective;
+	int activeCamera;
 
 };
 
