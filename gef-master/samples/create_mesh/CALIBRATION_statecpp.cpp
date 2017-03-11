@@ -5,6 +5,7 @@
 
 #include <terrain_mesh.h>
 #include <shaders\terrain_shader.h>
+#include <shaders\UI_layer_shader.h>
 #include "PerlinNoise.h"
 #include <random>
 #include <time.h>
@@ -165,6 +166,7 @@ void CALIBRATIONstate::Update( StateManager * state_manager, float delta_time, g
 	{
 		//UpdateTerrain();
 		UpdateDepthLayer( terrain_mesh_, mesh_, ARSCalibration_->MinDepth, ARSCalibration_->maxDepth );
+		UpdateDepthLayer( forground_terrain, forground_mesh_, ARSCalibration_->ForgroundMinDepth, ARSCalibration_->ForgroundMaxDepth );
 	}
 
 	gef::Matrix44 trasformation;
@@ -189,6 +191,23 @@ void CALIBRATIONstate::Update( StateManager * state_manager, float delta_time, g
 	translation.SetTranslation( gef::Vector4( 0.0f, 0.0f, -0.0 ) );
 	trasformation = rotationx * rotationy * rotationz *scale *translation;
 	cube_player_.set_transform( trasformation );
+
+
+	trasformation.SetIdentity();
+	rotationx.SetIdentity();
+	rotationy.SetIdentity();
+	rotationz.SetIdentity();
+	scale.SetIdentity();
+	translation.SetIdentity();
+
+
+	rotationx.RotationX( 0.0f );
+	rotationy.RotationY( 0.0f );
+	rotationz.RotationZ( 0.0f );
+	scale.Scale( gef::Vector4( 1.f, 1.f, 1.f ) );
+	translation.SetTranslation( gef::Vector4( 0.0f, 49.0f, -0.0 ) );
+	trasformation = rotationx * rotationy * rotationz *scale *translation;
+	forground_meshinstance_.set_transform( trasformation );
 
 }
 
@@ -320,6 +339,20 @@ void CALIBRATIONstate::initMeshes()
 
 	mesh_ = CreateSquare();
 	cube_player_.set_mesh( mesh_ );
+
+	//  Forground
+	forground_terrain = new TerrainMesh();
+
+	forground_terrain->GenerateVertices();
+	forground_terrain->GenerateIndex();
+
+	UI_shader = new UILayerShader( *platform_ );
+	platform_->AddShader( UI_shader );
+
+	terrain_changed_ = false;
+
+	forground_mesh_ = CreateSquare();
+	forground_meshinstance_.set_mesh( forground_mesh_ );
 
 }
 
@@ -722,6 +755,41 @@ void CALIBRATIONstate::RenderTerrain( gef::Renderer3D * renderer_3d_ )
 			terrain_shader_->SetVertexShaderData( cube_player_.transform(), view_matrix, projection_matrix, currentTime, TotalTime );
 		}
 		renderer_3d_->DrawMesh( cube_player_ );
+
+		renderer_3d_->End();
+
+		// restore previous shader
+		renderer_3d_->SetShader( previous_shader );
+
+		// set render target to the the default [the back buffer]
+		platform_->set_render_target( NULL );
+
+		// reset clear colour
+		platform_->set_render_target_clear_colour( gef::Colour( 0.0f, 0.0f, 1.0f, 1.0f ) );
+
+		previous_shader = renderer_3d_->shader();
+
+		//float b = camera_0->GetFov();
+		// gef::DegToRad( 45 );
+
+		//projection_matrix = platform_->PerspectiveProjectionFov( camera_0->GetFov(), (float)platform_->width() / (float)platform_->height(), camera_0->GetNear(), camera_0->GetFar() );
+
+		// use the shader for renderering the depth values to the shadow buffer
+		renderer_3d_->SetShader( UI_shader );
+
+		// render target needs to be cleared to zero [black]
+		platform_->set_render_target_clear_colour( gef::Colour( 0.30f, 0.10f, 0.60f, 1.0f ) );
+		renderer_3d_->Begin();
+
+
+
+		if( renderer_3d_->shader() == UI_shader )
+		{
+			UI_shader->SetSceneData( UI_shader->shader_data, view_matrix, projection_matrix );
+			UI_shader->SetMeshData( forground_meshinstance_, view_matrix, projection_matrix );
+			UI_shader->SetVertexShaderData( forground_meshinstance_.transform(), view_matrix, projection_matrix, currentTime, TotalTime );
+		}
+		renderer_3d_->DrawMesh( forground_meshinstance_ );
 
 		renderer_3d_->End();
 

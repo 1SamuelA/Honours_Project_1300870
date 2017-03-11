@@ -1,5 +1,5 @@
-#ifndef _TERRAIN_SHADER_H
-#define _TERRAIN_SHADER_H
+#ifndef _UI_LAYER_SHADER_H
+#define _UI_LAYER_SHADER_H
 
 #include <graphics/shader.h>
 #include <gef.h>

@@ -13,6 +13,7 @@
 #include "StateManager.h"
 
 #include "graphics/mesh.h"
+#include "Shaders\UI_layer_shader.h"
 
 
 
@@ -73,7 +74,7 @@ private:
 
 	//Shaders
 	TerrainShader* terrain_shader_;
-
+	UILayerShader* UI_shader;
 
 	ARSCalibrationData* ARSCalibration;
 	gef::Platform* platform_;
@@ -86,6 +87,7 @@ private:
 	gef::Mesh* mesh_;
 	gef::Mesh* forground_mesh_;
 	gef::MeshInstance cube_player_;
+	gef::MeshInstance forground_meshinstance_;
 
 	TerrainMesh* terrain_mesh_;
 	TerrainMesh* forground_terrain;
