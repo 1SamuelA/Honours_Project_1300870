@@ -752,44 +752,20 @@ void CALIBRATIONstate::RenderTerrain( gef::Renderer3D * renderer_3d_ )
 		{
 			terrain_shader_->SetSceneData( terrain_shader_->shader_data, view_matrix, projection_matrix );
 			terrain_shader_->SetMeshData( cube_player_, view_matrix, projection_matrix );
-			terrain_shader_->SetVertexShaderData( cube_player_.transform(), view_matrix, projection_matrix, currentTime, TotalTime );
+			terrain_shader_->SetVertexShaderData( cube_player_.transform(), view_matrix, projection_matrix, 0, TotalTime );
 		}
+
 		renderer_3d_->DrawMesh( cube_player_ );
 
-		renderer_3d_->End();
-
-		// restore previous shader
-		renderer_3d_->SetShader( previous_shader );
-
-		// set render target to the the default [the back buffer]
-		platform_->set_render_target( NULL );
-
-		// reset clear colour
-		platform_->set_render_target_clear_colour( gef::Colour( 0.0f, 0.0f, 1.0f, 1.0f ) );
-
-		previous_shader = renderer_3d_->shader();
-
-		//float b = camera_0->GetFov();
-		// gef::DegToRad( 45 );
-
-		//projection_matrix = platform_->PerspectiveProjectionFov( camera_0->GetFov(), (float)platform_->width() / (float)platform_->height(), camera_0->GetNear(), camera_0->GetFar() );
-
-		// use the shader for renderering the depth values to the shadow buffer
-		renderer_3d_->SetShader( UI_shader );
-
-		// render target needs to be cleared to zero [black]
-		platform_->set_render_target_clear_colour( gef::Colour( 0.30f, 0.10f, 0.60f, 1.0f ) );
-		renderer_3d_->Begin();
-
-
-
-		if( renderer_3d_->shader() == UI_shader )
+		if( renderer_3d_->shader() == terrain_shader_ )
 		{
-			UI_shader->SetSceneData( UI_shader->shader_data, view_matrix, projection_matrix );
-			UI_shader->SetMeshData( forground_meshinstance_, view_matrix, projection_matrix );
-			UI_shader->SetVertexShaderData( forground_meshinstance_.transform(), view_matrix, projection_matrix, currentTime, TotalTime );
+			terrain_shader_->SetSceneData( terrain_shader_->shader_data, view_matrix, projection_matrix );
+			terrain_shader_->SetMeshData( forground_meshinstance_, view_matrix, projection_matrix );
+			terrain_shader_->SetVertexShaderData( forground_meshinstance_.transform(), view_matrix, projection_matrix, 1, TotalTime );
 		}
+		
 		renderer_3d_->DrawMesh( forground_meshinstance_ );
+
 
 		renderer_3d_->End();
 
