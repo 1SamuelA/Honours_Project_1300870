@@ -36,6 +36,7 @@ namespace gef
 class TerrainMesh;
 class UILayerShader;
 class TerrainShader;
+class HandCollision;
 
 class CALIBRATIONstate : public State
 {
@@ -94,6 +95,8 @@ private:
 
 	std::vector<gef::Mesh::Vertex> terrain_verticies;
 	std::vector<int> terrain_index;
+
+	HandCollision* FirstBox;
 
 	//Update Functions
 	void HandleInput( gef::InputManager* input_manager_ );

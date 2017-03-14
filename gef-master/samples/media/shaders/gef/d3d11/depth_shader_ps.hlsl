@@ -105,7 +105,7 @@ float4 PS( PixelInput input ) : SV_Target
 	
 		colour = ALPHA;
 		
-		if( h >= 50.f )
+		if( h >= 1.f )
 		{
 			colour = ORANGE;
 		}

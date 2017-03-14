@@ -188,6 +188,7 @@
     <ClCompile Include="..\..\Shaders\UI_layer_shader.cpp" />
     <ClCompile Include="..\..\terrain_mesh.cpp" />
     <ClCompile Include="..\..\terrrain_shader_data.cpp" />
+    <ClCompile Include="hand_collision.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\Tower_Defence_Game_Mouse\TDFG_Mouse_MainMenu.h">
@@ -212,6 +213,7 @@
     <ClInclude Include="..\..\StateManager.h" />
     <ClInclude Include="..\..\terrain_mesh.h" />
     <ClInclude Include="..\..\terrrain_shader_data.h" />
+    <ClInclude Include="hand_collision.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\..\..\media\shaders\gef\d3d11\default_3d_shader_ps.hlsl">

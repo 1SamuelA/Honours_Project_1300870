@@ -27,7 +27,7 @@
 
 
 
-#define CALIBRATIONSTAGES 5
+#define CALIBRATIONSTAGES 6
 
 void CALIBRATIONstate::init( gef::Platform * platform, ARSCalibrationData * ARSCalibration, Kinect_v2* kinect_sensor_ )
 {
@@ -205,7 +205,7 @@ void CALIBRATIONstate::Update( StateManager * state_manager, float delta_time, g
 	rotationy.RotationY( 0.0f );
 	rotationz.RotationZ( 0.0f );
 	scale.Scale( gef::Vector4( 1.f, 1.f, 1.f ) );
-	translation.SetTranslation( gef::Vector4( 0.0f, 49.0f, -0.0 ) );
+	translation.SetTranslation( gef::Vector4( 0.0f, -49.0f, -0.0 ) );
 	trasformation = rotationx * rotationy * rotationz *scale *translation;
 	forground_meshinstance_.set_transform( trasformation );
 
@@ -472,12 +472,12 @@ void CALIBRATIONstate::HandleInput( gef::InputManager* input_manager_ )
 			if( keyboard->IsKeyDown( gef::Keyboard::KC_A ) )
 			{
 				if( ARSCalibration_->Image_LeftRightTopBottom.w() > 0 )
-					ARSCalibration_->Image_LeftRightTopBottom.set_w( a.w() - 1);
+					ARSCalibration_->Image_LeftRightTopBottom.set_w( a.w() - 1 );
 			}
 			if( keyboard->IsKeyDown( gef::Keyboard::KC_D ) )
 			{
 				if( ARSCalibration_->Image_LeftRightTopBottom.w() < ARSCalibration_->Image_LeftRightTopBottom.z() - 1 )
-				ARSCalibration_->Image_LeftRightTopBottom.set_w( a.w() + 1 );
+					ARSCalibration_->Image_LeftRightTopBottom.set_w( a.w() + 1 );
 			}
 			break;
 		}
@@ -522,7 +522,47 @@ void CALIBRATIONstate::HandleInput( gef::InputManager* input_manager_ )
 			}
 			break;
 		}
-		
+		case 6:
+		{
+			gef::Vector4 a = ARSCalibration_->LeftRightTopBottom;
+
+			if( !keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_W ) )
+			{
+				ARSCalibration_->ForgroundMinDepth += 1;
+			}
+			if( !keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_S ) )
+			{
+				ARSCalibration_->ForgroundMinDepth -= 1;
+			}
+
+			if( !keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_A ) )
+			{
+				ARSCalibration_->ForgroundMaxDepth -= 1;
+			}
+			if( !keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_D ) )
+			{
+				ARSCalibration_->ForgroundMaxDepth += 1;
+			}
+
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_W ) )
+			{
+				ARSCalibration_->ForgroundMinDepth += 10;
+			}
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_S ) )
+			{
+				ARSCalibration_->ForgroundMinDepth -= 10;
+			}
+
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_A ) )
+			{
+				ARSCalibration_->ForgroundMaxDepth -= 10;
+			}
+			if( keyboard->IsKeyDown( gef::Keyboard::KC_LSHIFT ) && keyboard->IsKeyPressed( gef::Keyboard::KC_D ) )
+			{
+				ARSCalibration_->ForgroundMaxDepth += 10;
+			}
+			break;
+		}
 		}
 		
 		
@@ -696,7 +736,7 @@ void CALIBRATIONstate::UpdateDepthLayer( TerrainMesh* DepthLayerMesh, gef::Mesh*
 			float  depthval = (DepthValueInRange / Range)*25;
 
 
-			if( (depth > ARSCalibration_->MinDepth) )
+			if( (depth > minDepth) )
 				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = depthval;
 
 		}
@@ -754,7 +794,7 @@ void CALIBRATIONstate::RenderTerrain( gef::Renderer3D * renderer_3d_ )
 			terrain_shader_->SetMeshData( cube_player_, view_matrix, projection_matrix );
 			terrain_shader_->SetVertexShaderData( cube_player_.transform(), view_matrix, projection_matrix, 0, TotalTime );
 		}
-
+		
 		renderer_3d_->DrawMesh( cube_player_ );
 
 		if( renderer_3d_->shader() == terrain_shader_ )
@@ -799,6 +839,65 @@ void CALIBRATIONstate::DrawHUD( gef::SpriteRenderer * sprite_renderer_ )
 	{
 		// display frame rate
 
+		switch( calibration_mode )
+		{
+		case 0:
+		{
+			// Camera Rotation
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width()/2, platform_->height()/2, -1.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT
+				, "Camera Rotation");
+			break;
+		}
+		case 1:
+		{
+			// OrthoView topLeft
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, platform_->height() / 2, -1.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT
+				, "OrthoView topLeft" );
+			break;
+		}
+		case 2:
+		{
+			// OrthoView bottomRight
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, platform_->height() / 2, -1.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT
+				, "OrthoView bottomRight" );
+			break;
+		}
+		case 3:
+		{
+			//Image Width
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, platform_->height() / 2, -1.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT
+				, "Image Width" );
+			break;
+		}
+		case 4:
+		{
+			//Image Height
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, platform_->height() / 2, -1.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT
+				, "Image Height" );
+			break;
+		}
+		case 5:
+		{
+			// Sand Depth
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, platform_->height() / 2, -1.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT
+				, "Sand Depth" );
+
+			font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 120.0f, -1.1f ), 1.0f, 0xffff00ff, gef::TJ_LEFT, "Min, Max Depth: %i %i", ARSCalibration_->MinDepth, ARSCalibration_->maxDepth );
+			break;
+		}
+		case 6:
+		{
+			// Forground Depth
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, platform_->height() / 2, -1.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT
+				, "Forground Depth" );
+
+			font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 120.0f, -1.1f ), 1.0f, 0xffff00ff, gef::TJ_LEFT, "Min, Max Depth: %i %i", ARSCalibration_->ForgroundMinDepth, ARSCalibration_->ForgroundMaxDepth );
+			break;
+		}
+
+		}
+
+
 		font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() - 150.f, platform_->height() - 80.f, -1.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "FPS: %.1f", fps_ );
 
 		font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 000.0f, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "pitch: %.1f", camera_0->GetPitch() );
@@ -807,7 +906,6 @@ void CALIBRATIONstate::DrawHUD( gef::SpriteRenderer * sprite_renderer_ )
 																		   
 		font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 090.0f, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "Pos: %.1f %.1f %.1f", camera_0->GetPos().x(), camera_0->GetPos().y(), camera_0->GetPos().z() );
 	
-		font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 120.0f, -1.1f ), 1.0f, 0xffff00ff, gef::TJ_LEFT, "Min, Max Depth: %i %i", ARSCalibration_->MinDepth, ARSCalibration_->maxDepth );
 
 	}
 }

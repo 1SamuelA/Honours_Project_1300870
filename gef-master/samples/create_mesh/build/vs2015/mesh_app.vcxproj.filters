@@ -105,6 +105,9 @@
     <ClCompile Include="..\..\Shaders\UI_layer_shader.cpp">
       <Filter>Source Files\Shader</Filter>
     </ClCompile>
+    <ClCompile Include="hand_collision.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\mesh_app.h">
@@ -160,6 +163,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Shaders\UI_layer_shader.h">
       <Filter>Header Files\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="hand_collision.h">
+      <Filter>Header Files\Kinect</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
