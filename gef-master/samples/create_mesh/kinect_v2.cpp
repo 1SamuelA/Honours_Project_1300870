@@ -2,6 +2,8 @@
 
 Kinect_v2::Kinect_v2()
 {
+
+	depthvalues = new float[cDepthWidth*cDepthHeight];
 }
 
 Kinect_v2::~Kinect_v2()
@@ -465,17 +467,18 @@ void Kinect_v2::UpdateDEFeed( bool & Pass, USHORT Mindepth, USHORT Maxdepth )
 			{
 				//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
 				int slot = int( (y*de_streams_width) + x );
-				if( depthValues->at( slot ) > 0.5 )
+				if( depthvalues[slot] > 0.5 )
 				{
-					depthValues->at( slot ) = depthValues->at( slot ) - 20;
+					depthvalues[ slot ] = depthvalues[slot] - 20;
 
 				}
 				else
 				{
 
 				}
-				de_data_2darray[y][x] = depthValues->at( slot );
-
+				
+				int a = depthvalues[slot];
+				de_data_2darray[y][x] = a;
 			}
 		}
 
@@ -536,8 +539,8 @@ void Kinect_v2::ProcessDepth(INT64 nTime, const UINT16 * pBuffer, int nWidth, in
 
 		depthValues = new std::vector<float>;
 
-		float Range = (float)nMaxDepth - (float)nMinDepth;
-
+		int counter = 0;
+		
 
 		while (pBuffer < pBufferEnd)
 		{
@@ -551,19 +554,19 @@ void Kinect_v2::ProcessDepth(INT64 nTime, const UINT16 * pBuffer, int nWidth, in
 			// Note: Using conditionals in this loop could degrade performance.
 			// Consider using a lookup table instead when writing production code.
 			
-			float DepthValueInRange = (float)depth - (float)nMinDepth;
+			/*float DepthValueInRange = (float)depth - (float)nMinDepth;
 			
 			DepthValueInRange = (Range - DepthValueInRange);
-			float  depthval = (DepthValueInRange / Range);
+			float  depthval = (DepthValueInRange / Range);*/
 
+			depthvalues[counter] = static_cast<FLOAT>((depth >= nMinDepth) && (depth <= nMaxDepth) ? depth : 0);
 
-			float depthValue = static_cast<FLOAT>((depth >= nMinDepth) && (depth <= nMaxDepth) ? depth : 0);
-
-			depthValues->push_back(depthValue);
-
+			//depthValues->push_back(depthValue);
+		
 			++pBuffer;
+			++counter;
 		}
-
+		float a = 2;
 
 	}
 

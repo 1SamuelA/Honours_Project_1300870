@@ -20,6 +20,7 @@
 #include "input\keyboard.h"
 
 #include <maths\math_utils.h>
+#include "hand_collision.h"
 
 #include "ConfigFile.h"
 
@@ -41,7 +42,7 @@ void CALIBRATIONstate::init( gef::Platform * platform, ARSCalibrationData * ARSC
 	KinectSensor_ = kinect_sensor_;
 	updateKinect = false;
 
-	
+	Hand_Collision = false;
 
 
 
@@ -86,7 +87,7 @@ void CALIBRATIONstate::init( gef::Platform * platform, ARSCalibrationData * ARSC
 
 	}
 
-	
+	FirstBox = new HandCollision(gef::Vector4(0,0,50,50));
 
 	
 	
@@ -126,7 +127,7 @@ void CALIBRATIONstate::Update( StateManager * state_manager, float delta_time, g
 			KinectSensor_->UpdateDEFeed( Pass , ARSCalibration_->MinDepth , ARSCalibration_->maxDepth );
 			terrain_changed_ = Pass;
 
-			timer_depth_update = 1.f;
+			timer_depth_update = 0.1f;
 
 		}
 		else
@@ -165,9 +166,11 @@ void CALIBRATIONstate::Update( StateManager * state_manager, float delta_time, g
 	if( terrain_changed_ )
 	{
 		//UpdateTerrain();
-		UpdateDepthLayer( terrain_mesh_, mesh_, ARSCalibration_->MinDepth, ARSCalibration_->maxDepth );
+		UpdateTerrain();
 		UpdateDepthLayer( forground_terrain, forground_mesh_, ARSCalibration_->ForgroundMinDepth, ARSCalibration_->ForgroundMaxDepth );
 	}
+
+	HandCollisionUpdate( forground_terrain, forground_mesh_, ARSCalibration_->ForgroundMinDepth, ARSCalibration_->ForgroundMaxDepth );
 
 	gef::Matrix44 trasformation;
 	gef::Matrix44 rotationx;
@@ -609,6 +612,58 @@ void CALIBRATIONstate::HandleInput( gef::InputManager* input_manager_ )
 	}
 }
 
+void CALIBRATIONstate::HandCollisionUpdate( TerrainMesh* DepthLayerMesh, gef::Mesh* depthLayerMesh, float minDepth, float maxDepth )
+{
+
+	Hand_Collision = false;
+
+	gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) depthLayerMesh->vertex_buffer()->vertex_data();
+	std::vector<gef::Mesh::Vertex> temp_terrain = DepthLayerMesh->GetTerrainVerticies();
+
+
+	float depth = 50;
+
+
+	float increment_x, increment_y;
+	increment_x = (ARSCalibration_->Image_LeftRightTopBottom.y() - ARSCalibration_->Image_LeftRightTopBottom.x())
+		/ DepthLayerMesh->GetWidth();
+	increment_y = (ARSCalibration_->Image_LeftRightTopBottom.z() - ARSCalibration_->Image_LeftRightTopBottom.w())
+		/ DepthLayerMesh->GetHeight();
+
+	for( int y = 0; y < DepthLayerMesh->GetHeight(); y++ )
+	{
+		for( int x = 0; x < DepthLayerMesh->GetWidth(); x++ )
+		{
+
+			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
+			
+			float depth = vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py;
+			if( depth > 20 )
+			{
+				if( FirstBox->Collision( gef::Vector2( x - 50, y - 50 ) ))
+				{
+					Hand_Collision = true;
+					break;
+				}
+				else
+				{
+					false;
+				}
+			}
+
+		}
+	}
+
+	//vertices_[0].py = sin(time_)/2;
+
+
+	depthLayerMesh->vertex_buffer()->Update( *platform_ );
+
+	terrain_changed_ = false;
+
+
+}
+
 void CALIBRATIONstate::HandleCameraUpdates(const gef::Keyboard* keyboard )
 {
 
@@ -661,6 +716,7 @@ void CALIBRATIONstate::HandleCameraUpdates(const gef::Keyboard* keyboard )
 }
 
 
+
 void CALIBRATIONstate::UpdateTerrain()
 {
 	float Range = (float)ARSCalibration_->maxDepth - (float)ARSCalibration_->MinDepth;
@@ -680,6 +736,7 @@ void CALIBRATIONstate::UpdateTerrain()
 		{
 
 			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
+			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
 			int a = (ARSCalibration_->Image_LeftRightTopBottom.w() + (increment_y * y));
 			int b = (ARSCalibration_->Image_LeftRightTopBottom.x() + (increment_x * x));
 
@@ -689,7 +746,7 @@ void CALIBRATIONstate::UpdateTerrain()
 			float DepthValueInRange = depth - ARSCalibration_->MinDepth;
 
 			DepthValueInRange = (Range - DepthValueInRange);
-			float  depthval = (DepthValueInRange / Range);
+			float  depthval = (DepthValueInRange / Range) * 25;
 
 			if ((depth > ARSCalibration_->MinDepth))
 				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = depthval;
@@ -738,6 +795,8 @@ void CALIBRATIONstate::UpdateDepthLayer( TerrainMesh* DepthLayerMesh, gef::Mesh*
 
 			if( (depth > minDepth) )
 				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = depthval;
+			else
+				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = 0;
 
 		}
 	}
@@ -897,6 +956,11 @@ void CALIBRATIONstate::DrawHUD( gef::SpriteRenderer * sprite_renderer_ )
 
 		}
 
+		if( Hand_Collision )
+		{
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, 20+platform_->height() / 2,  -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "Collsion" );
+
+		}
 
 		font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() - 150.f, platform_->height() - 80.f, -1.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "FPS: %.1f", fps_ );
 

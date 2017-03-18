@@ -175,6 +175,7 @@
     <ClCompile Include="..\..\camera_object.cpp" />
     <ClCompile Include="..\..\ConfigFile.cpp" />
     <ClCompile Include="..\..\game_object.cpp" />
+    <ClCompile Include="..\..\hand_collision.cpp" />
     <ClCompile Include="..\..\kinect_v2.cpp" />
     <ClCompile Include="..\..\MAINMENU_state.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -188,7 +189,6 @@
     <ClCompile Include="..\..\Shaders\UI_layer_shader.cpp" />
     <ClCompile Include="..\..\terrain_mesh.cpp" />
     <ClCompile Include="..\..\terrrain_shader_data.cpp" />
-    <ClCompile Include="hand_collision.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\Tower_Defence_Game_Mouse\TDFG_Mouse_MainMenu.h">
@@ -199,6 +199,7 @@
     <ClInclude Include="..\..\camera_object.h" />
     <ClInclude Include="..\..\ConfigFile.h" />
     <ClInclude Include="..\..\game_object.h" />
+    <ClInclude Include="..\..\hand_collision.h" />
     <ClInclude Include="..\..\kinect_v2.h" />
     <ClInclude Include="..\..\MAINMENU_state.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -213,7 +214,6 @@
     <ClInclude Include="..\..\StateManager.h" />
     <ClInclude Include="..\..\terrain_mesh.h" />
     <ClInclude Include="..\..\terrrain_shader_data.h" />
-    <ClInclude Include="hand_collision.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\..\..\media\shaders\gef\d3d11\default_3d_shader_ps.hlsl">

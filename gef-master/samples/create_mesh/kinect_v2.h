@@ -78,7 +78,7 @@ private:
 	BOOLEAN sensor_connected_;
 
 	std::vector<float> *depthValues;
-	
+	float* depthvalues;
 
 	INT64 start_time_;
 	DWORD frames_since_update_;

@@ -1,5 +1,5 @@
-#ifndef _HAND_COLLISION_
-#define _HAND_COLLISION_
+#ifndef _HAND_COLLISION_H_
+#define _HAND_COLLISION_H_
 
 #include "maths\vector2.h"
 #include "maths\vector4.h"

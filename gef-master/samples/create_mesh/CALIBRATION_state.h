@@ -97,12 +97,17 @@ private:
 	std::vector<int> terrain_index;
 
 	HandCollision* FirstBox;
+	bool Hand_Collision;
 
 	//Update Functions
 	void HandleInput( gef::InputManager* input_manager_ );
 	void UpdateTerrain();
 	void UpdateDepthLayer( TerrainMesh*, gef::Mesh* depthLayerMesh, float minDepth, float maxDepth );
 	void CleanUpFont();
+
+	//Collsion
+
+	void HandCollisionUpdate( TerrainMesh* DepthLayerMesh, gef::Mesh* depthLayerMesh, float minDepth, float maxDepth );
 
 	void HandleCameraUpdates( const gef::Keyboard* keyboard );
 
