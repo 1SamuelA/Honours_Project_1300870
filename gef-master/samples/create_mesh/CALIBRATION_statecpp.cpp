@@ -22,6 +22,11 @@
 #include <maths\math_utils.h>
 #include "hand_collision.h"
 
+#include "assets\png_loader.h"
+#include "graphics\image_data.h"
+#include "graphics\sprite.h"
+#include "graphics\texture.h"
+
 #include "ConfigFile.h"
 
 #include <iostream>
@@ -42,9 +47,27 @@ void CALIBRATIONstate::init( gef::Platform * platform, ARSCalibrationData * ARSC
 	KinectSensor_ = kinect_sensor_;
 	updateKinect = false;
 
-	Hand_Collision = false;
+	Hand_Collision[0] = false;
+
+	gef::PNGLoader PngLoader;
+	gef::ImageData crossData;
+	CrossSprite = new gef::Sprite();
+	PngLoader.Load( "cross-button.png", *platform_, crossData );
+	if( crossData.image() == NULL )
+	{
+		exit( -1 );
+	}
+
+	
 
 
+	CrossTexture = gef::Texture::Create( *platform_, crossData );
+	CrossSprite->set_height( 50 );
+	CrossSprite->set_width( 50 );
+	CrossSprite->set_position( gef::Vector4( -25, -25, -10.f ) );
+	CrossSprite->set_texture( CrossTexture );
+	CrossSprite->set_uv_width( 1.0f );
+	CrossSprite->set_uv_height( 1.0f );
 
 	if( !AlreadyInit )
 	{
@@ -87,10 +110,11 @@ void CALIBRATIONstate::init( gef::Platform * platform, ARSCalibrationData * ARSC
 
 	}
 
-	FirstBox = new HandCollision(gef::Vector4(0,0,50,50));
-
 	
-	
+	HandCollisionBoxes.push_back( new HandCollision( gef::Vector4( -50, -50, 0, 0 ) ) );
+	HandCollisionBoxes.push_back( new HandCollision( gef::Vector4( -0, -50, 50, 0 ) ) );
+	HandCollisionBoxes.push_back( new HandCollision( gef::Vector4( -50, 0, 0, 50 ) ) );
+	HandCollisionBoxes.push_back( new HandCollision( gef::Vector4( 0, 0, 50, 50 ) ) );
 
 	calibration_mode = 0;
 }
@@ -243,8 +267,35 @@ void CALIBRATIONstate::Render( gef::Renderer3D * renderer_3d_, gef::SpriteRender
 
 	//setup the sprite renderer, but don't clear the frame buffer
 	//draw 2D sprites here
+
+	gef::Matrix44 proj_matrix2d;
+
+	//proj_matrix2d = platform_->OrthographicFrustum( 0.0f, platform_->width(), 0.0f, platform_->height(), -1.0f, 1.0f );
+
+	//proj_matrix2d = platform_->OrthographicFrustum( -50.0f, 50, -50.f, 50, -1.0f, 1.0f );
+
+	proj_matrix2d = platform_->OrthographicFrustum(
+		ARSCalibration_->LeftRightTopBottom.x(),
+		ARSCalibration_->LeftRightTopBottom.y(),
+		-ARSCalibration_->LeftRightTopBottom.z(),
+		-ARSCalibration_->LeftRightTopBottom.w(),
+		-1, 1.0f);
+		
+
+	sprite_renderer_->set_projection_matrix( proj_matrix2d );
+
+	sprite_renderer_->Begin( false );
+
+	sprite_renderer_->DrawSprite( *CrossSprite );
+
+	sprite_renderer_->End();
+	proj_matrix2d = platform_->OrthographicFrustum( 0.0f, platform_->width(), 0.0f, platform_->height(), -1.0f, 1.0f );
+	sprite_renderer_->set_projection_matrix( proj_matrix2d );
+
 	sprite_renderer_->Begin( false );
 	DrawHUD( sprite_renderer_ );
+
+
 	sprite_renderer_->End();
 
 }
@@ -615,7 +666,10 @@ void CALIBRATIONstate::HandleInput( gef::InputManager* input_manager_ )
 void CALIBRATIONstate::HandCollisionUpdate( TerrainMesh* DepthLayerMesh, gef::Mesh* depthLayerMesh, float minDepth, float maxDepth )
 {
 
-	Hand_Collision = false;
+	Hand_Collision[0] = false;
+	Hand_Collision[1] = false;
+	Hand_Collision[2] = false;
+	Hand_Collision[3] = false;
 
 	gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) depthLayerMesh->vertex_buffer()->vertex_data();
 	std::vector<gef::Mesh::Vertex> temp_terrain = DepthLayerMesh->GetTerrainVerticies();
@@ -630,24 +684,28 @@ void CALIBRATIONstate::HandCollisionUpdate( TerrainMesh* DepthLayerMesh, gef::Me
 	increment_y = (ARSCalibration_->Image_LeftRightTopBottom.z() - ARSCalibration_->Image_LeftRightTopBottom.w())
 		/ DepthLayerMesh->GetHeight();
 
+	
+
 	for( int y = 0; y < DepthLayerMesh->GetHeight(); y++ )
 	{
 		for( int x = 0; x < DepthLayerMesh->GetWidth(); x++ )
 		{
 
 			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
-			
-			float depth = vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py;
-			if( depth > 20 )
+			for( int NumCollisions = 0; NumCollisions < 4; NumCollisions++ )
 			{
-				if( FirstBox->Collision( gef::Vector2( x - 50, y - 50 ) ))
+				float depth = vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py;
+				if( depth > 20 )
 				{
-					Hand_Collision = true;
-					break;
-				}
-				else
-				{
-					false;
+					if( HandCollisionBoxes[NumCollisions]->Collision( gef::Vector2( x - 50, y - 50 ) ) )
+					{
+						Hand_Collision[NumCollisions] = true;
+						break;
+					}
+					else
+					{
+						false;
+					}
 				}
 			}
 
@@ -903,8 +961,8 @@ void CALIBRATIONstate::DrawHUD( gef::SpriteRenderer * sprite_renderer_ )
 		case 0:
 		{
 			// Camera Rotation
-			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width()/2, platform_->height()/2, -1.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT
-				, "Camera Rotation");
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, platform_->height() / 2, -1.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT
+				, "Camera Rotation" );
 			break;
 		}
 		case 1:
@@ -956,9 +1014,24 @@ void CALIBRATIONstate::DrawHUD( gef::SpriteRenderer * sprite_renderer_ )
 
 		}
 
-		if( Hand_Collision )
+		if( Hand_Collision[0] )
 		{
-			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, 20+platform_->height() / 2,  -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "Collsion" );
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, 20 + platform_->height() / 2, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "Collsion 1" );
+
+		}
+		if( Hand_Collision[1] )
+		{
+			font_->RenderText( sprite_renderer_, gef::Vector4( (platform_->width() / 2), 20 + platform_->height() / 2, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "Collsion 2" );
+
+		}
+		if( Hand_Collision[2] )
+		{
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, 20 + platform_->height() / 2, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "Collsion 3" );
+
+		}
+		if( Hand_Collision[3] )
+		{
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, 20 + platform_->height() / 2, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "Collsion 4" );
 
 		}
 

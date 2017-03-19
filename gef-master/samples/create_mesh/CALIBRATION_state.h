@@ -96,8 +96,8 @@ private:
 	std::vector<gef::Mesh::Vertex> terrain_verticies;
 	std::vector<int> terrain_index;
 
-	HandCollision* FirstBox;
-	bool Hand_Collision;
+	std::vector<HandCollision*> HandCollisionBoxes;
+	bool Hand_Collision[4];
 
 	//Update Functions
 	void HandleInput( gef::InputManager* input_manager_ );
@@ -126,6 +126,10 @@ private:
 	void DrawHUD( gef::SpriteRenderer * sprite_renderer_ );
 
 	bool OutputConfigFile();
+
+	//Sprites
+	gef::Sprite* CrossSprite;
+	gef::Texture* CrossTexture;
 
 };
 

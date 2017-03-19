@@ -9,8 +9,8 @@ class HandCollision
 {
 public:
 	HandCollision();
-	HandCollision( gef::Vector2 a, gef::Vector2 b );
-	HandCollision( gef::Vector4 a );
+	HandCollision( gef::Vector2 left_top, gef::Vector2 right_bottom );
+	HandCollision( gef::Vector4 left_top_right_bottom );
 
 	bool Collision( gef::Vector2 collisionpoint);
 
