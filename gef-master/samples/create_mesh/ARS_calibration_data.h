@@ -14,6 +14,8 @@ struct ARSCalibrationData
 	int ForgroundMinDepth;
 	int ForgroundMaxDepth;
 
+	float ratio;
+
 	gef::Vector4 rotation;
 	gef::Vector4 LeftRightTopBottom;
 

@@ -62,6 +62,7 @@ private:
 	//Init Functions
 	void initCamera();
 	void initMeshes();
+	void initSprites();
 	void InitFont();
 
 	gef::Font* font_;
@@ -118,6 +119,10 @@ private:
 	bool terrain_shader_active_;
 	float fps_;
 
+
+	bool bool_update_terrain;
+	bool bool_update_handlayer;
+
 	int calibration_mode;
 	float timer_depth_update;
 
@@ -130,6 +135,15 @@ private:
 	//Sprites
 	gef::Sprite* CrossSprite;
 	gef::Texture* CrossTexture;
+
+	gef::Sprite* CircleSprite;
+	gef::Texture* CircleTexture;
+
+	gef::Sprite* TriangleSprite;
+	gef::Texture* TriangleTexture;
+
+	gef::Sprite* SquareSprite;
+	gef::Texture* SquareTexture;
 
 };
 

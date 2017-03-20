@@ -3,14 +3,15 @@
 
 #include "maths\vector2.h"
 #include "maths\vector4.h"
+#include "graphics\sprite.h"
 
-
-class HandCollision
+class HandCollision : public gef::Sprite
 {
 public:
 	HandCollision();
-	HandCollision( gef::Vector2 left_top, gef::Vector2 right_bottom );
-	HandCollision( gef::Vector4 left_top_right_bottom );
+	HandCollision(int mode, gef::Vector2 LT_OR_XY, gef::Vector2 RB_OR_WH );
+	HandCollision( int mode, int L_OR_X, int T_OR_Y, int R_OR_W, int B_OR_H );
+	HandCollision(int mode, gef::Vector4 LTRB_OR_XYWH );
 
 	bool Collision( gef::Vector2 collisionpoint);
 

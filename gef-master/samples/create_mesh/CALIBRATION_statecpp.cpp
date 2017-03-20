@@ -47,27 +47,12 @@ void CALIBRATIONstate::init( gef::Platform * platform, ARSCalibrationData * ARSC
 	KinectSensor_ = kinect_sensor_;
 	updateKinect = false;
 
+	bool_update_terrain = false;
+	bool_update_handlayer = false;
+
 	Hand_Collision[0] = false;
 
-	gef::PNGLoader PngLoader;
-	gef::ImageData crossData;
-	CrossSprite = new gef::Sprite();
-	PngLoader.Load( "cross-button.png", *platform_, crossData );
-	if( crossData.image() == NULL )
-	{
-		exit( -1 );
-	}
-
 	
-
-
-	CrossTexture = gef::Texture::Create( *platform_, crossData );
-	CrossSprite->set_height( 50 );
-	CrossSprite->set_width( 50 );
-	CrossSprite->set_position( gef::Vector4( -25, -25, -10.f ) );
-	CrossSprite->set_texture( CrossTexture );
-	CrossSprite->set_uv_width( 1.0f );
-	CrossSprite->set_uv_height( 1.0f );
 
 	if( !AlreadyInit )
 	{
@@ -106,15 +91,85 @@ void CALIBRATIONstate::init( gef::Platform * platform, ARSCalibrationData * ARSC
 		//
 		//ARSCalibration_->Image_LeftRightTopBottom = gef::Vector4( 0, KinectSensor_->cDepthWidth, KinectSensor_->cDepthHeight, 0 );
 
+		float vert = (ARSCalibration_->LeftRightTopBottom.z() - ARSCalibration_->LeftRightTopBottom.w());
+		float hor = (ARSCalibration_->LeftRightTopBottom.y() - ARSCalibration_->LeftRightTopBottom.x());
+		ARSCalibration_->ratio = vert / hor;
+
 		AlreadyInit = !AlreadyInit;
 
 	}
 
+	gef::PNGLoader PngLoader;
+	gef::ImageData crossData;
+	CrossSprite = new gef::Sprite();
+	PngLoader.Load( "cross-button.png", *platform_, crossData );
+	if( crossData.image() == NULL )
+	{
+		exit( -1 );
+	}
+	CrossTexture = gef::Texture::Create( *platform_, crossData );
+	CrossSprite->set_height( 25.f );
+	CrossSprite->set_width( 25.f );
+	CrossSprite->set_position( gef::Vector4( -25, -25, -10.f ) );
+	CrossSprite->set_texture( CrossTexture );
+	CrossSprite->set_colour(0x7FFFFFFF );
+	CrossSprite->set_uv_width( 1.0f );
+	CrossSprite->set_uv_height( 1.0f );
+
+	gef::ImageData circleData;
+	CircleSprite = new gef::Sprite();
+	PngLoader.Load( "circle-button.png", *platform_, circleData );
+	if( circleData.image() == NULL )
+	{
+		exit( -1 );
+	}
+	CircleTexture = gef::Texture::Create( *platform_, circleData );
+	CircleSprite->set_height( 25.f );
+	CircleSprite->set_width( 25.f );
+	CircleSprite->set_position( gef::Vector4( -25, 25, -10.f ) );
+	CircleSprite->set_texture( CircleTexture );
+	CircleSprite->set_colour( 0x7FFFFFFF );
+	CircleSprite->set_uv_width( 1.0f );
+	CircleSprite->set_uv_height( 1.0f );
+
+	gef::ImageData triangleData;
+	TriangleSprite = new gef::Sprite();
+	PngLoader.Load( "triangle-button.png", *platform_, triangleData );
+	if( triangleData.image() == NULL )
+	{
+		exit( -1 );
+	}
+	TriangleTexture = gef::Texture::Create( *platform_, triangleData );
+	TriangleSprite->set_height( 25.f );
+	TriangleSprite->set_width( 25.f );
+	TriangleSprite->set_position( gef::Vector4( 25, -25, -10.f ) );
+	TriangleSprite->set_texture( TriangleTexture );
+	TriangleSprite->set_colour( 0x7FFFFFFF );
+	TriangleSprite->set_uv_width( 1.0f );
+	TriangleSprite->set_uv_height( 1.0f );
+
+
+	gef::ImageData squareData;
+	SquareSprite = new gef::Sprite();
+	PngLoader.Load( "square-button.png", *platform_, squareData );
+	if( squareData.image() == NULL )
+	{
+		exit( -1 );
+	}
+	SquareTexture = gef::Texture::Create( *platform_, squareData );
+	SquareSprite->set_height( 25.f );
+	SquareSprite->set_width( 25.f );
+	SquareSprite->set_position( gef::Vector4( 25, 25, -10.f ) );
+	SquareSprite->set_texture( SquareTexture );
+	SquareSprite->set_colour( 0x7FFFFFFF );
+	SquareSprite->set_uv_width( 1.0f );
+	SquareSprite->set_uv_height( 1.0f );
+
 	
-	HandCollisionBoxes.push_back( new HandCollision( gef::Vector4( -50, -50, 0, 0 ) ) );
-	HandCollisionBoxes.push_back( new HandCollision( gef::Vector4( -0, -50, 50, 0 ) ) );
-	HandCollisionBoxes.push_back( new HandCollision( gef::Vector4( -50, 0, 0, 50 ) ) );
-	HandCollisionBoxes.push_back( new HandCollision( gef::Vector4( 0, 0, 50, 50 ) ) );
+	HandCollisionBoxes.push_back( new HandCollision(1, -25, -25, 25,25  ) );
+	HandCollisionBoxes.push_back( new HandCollision(1, -25,  25, 25,25  ) );
+	HandCollisionBoxes.push_back( new HandCollision(1,  25, -25, 25,25  ) );
+	HandCollisionBoxes.push_back( new HandCollision(1,  25,  25, 25,25  ) );
 
 	calibration_mode = 0;
 }
@@ -143,7 +198,7 @@ void CALIBRATIONstate::Update( StateManager * state_manager, float delta_time, g
 
 
 
-	if( updateKinect )
+	if( bool_update_terrain || bool_update_handlayer )
 	{
 		if( timer_depth_update <= 0 )
 		{
@@ -186,13 +241,12 @@ void CALIBRATIONstate::Update( StateManager * state_manager, float delta_time, g
 	}
 
 
-
-	if( terrain_changed_ )
-	{
-		//UpdateTerrain();
+	if( bool_update_terrain )
 		UpdateTerrain();
+
+	if( bool_update_handlayer )
 		UpdateDepthLayer( forground_terrain, forground_mesh_, ARSCalibration_->ForgroundMinDepth, ARSCalibration_->ForgroundMaxDepth );
-	}
+	
 
 	HandCollisionUpdate( forground_terrain, forground_mesh_, ARSCalibration_->ForgroundMinDepth, ARSCalibration_->ForgroundMaxDepth );
 
@@ -287,6 +341,9 @@ void CALIBRATIONstate::Render( gef::Renderer3D * renderer_3d_, gef::SpriteRender
 	sprite_renderer_->Begin( false );
 
 	sprite_renderer_->DrawSprite( *CrossSprite );
+	sprite_renderer_->DrawSprite( *CircleSprite );
+	sprite_renderer_->DrawSprite( *TriangleSprite );
+	sprite_renderer_->DrawSprite( *SquareSprite );
 
 	sprite_renderer_->End();
 	proj_matrix2d = platform_->OrthographicFrustum( 0.0f, platform_->width(), 0.0f, platform_->height(), -1.0f, 1.0f );
@@ -407,6 +464,11 @@ void CALIBRATIONstate::initMeshes()
 
 	forground_mesh_ = CreateSquare();
 	forground_meshinstance_.set_mesh( forground_mesh_ );
+
+}
+
+void CALIBRATIONstate::initSprites()
+{
 
 }
 
@@ -627,6 +689,8 @@ void CALIBRATIONstate::HandleInput( gef::InputManager* input_manager_ )
 		if( keyboard->IsKeyPressed( gef::Keyboard::KC_X ) )
 		{
 
+			bool_update_terrain = !bool_update_terrain;
+			bool_update_handlayer = !bool_update_handlayer;
 			updateKinect = !updateKinect;
 
 
@@ -638,6 +702,12 @@ void CALIBRATIONstate::HandleInput( gef::InputManager* input_manager_ )
 
 
 		}
+
+		if( keyboard->IsKeyPressed( gef::Keyboard::KC_T ) )
+			bool_update_terrain = !bool_update_terrain;
+		if( keyboard->IsKeyPressed( gef::Keyboard::KC_U ) )
+			bool_update_handlayer = !bool_update_handlayer;
+
 		
 		if( keyboard->IsKeyPressed( gef::Keyboard::KC_C ) )
 		{
