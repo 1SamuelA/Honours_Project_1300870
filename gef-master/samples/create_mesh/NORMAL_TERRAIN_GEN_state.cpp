@@ -11,9 +11,15 @@
 #include "system\platform.h"
 
 #include "ARS_calibration_data.h"
+
 #include "graphics\renderer_3d.h"
 #include "graphics\sprite_renderer.h"
 #include "graphics\font.h"
+#include "graphics\texture.h"
+#include "graphics\sprite.h"
+#include "graphics\image_data.h"
+
+#include "hand_collision.h"
 
 #include "input\input_manager.h"
 #include "input\keyboard.h"
@@ -27,17 +33,17 @@ void NORMAL_TERRAIN_GENstate::init( gef::Platform * platform, ARSCalibrationData
 	{
 		AlreadyInit = !AlreadyInit;
 	}
+	KinectSensor_ = kinect_sensor_;
+	updateKinect = false;
 
+	ARSCalibration_ = ARSCalibration;
 
 	platform_ = platform;
 	
 
 	initMeshes();
 
-	KinectSensor_ = kinect_sensor_;
-	updateKinect = false;
-
-	ARSCalibration_ = ARSCalibration;
+	
 
 	if( ARSCalibration_ == NULL )
 	{
@@ -46,7 +52,7 @@ void NORMAL_TERRAIN_GENstate::init( gef::Platform * platform, ARSCalibrationData
 
 		ARSCalibration_->LeftRightTopBottom = gef::Vector4( -50, 50, 50, -50 );
 	}
-
+	initSprites();
 	initCamera();
 
 }
@@ -90,21 +96,33 @@ void NORMAL_TERRAIN_GENstate::Update( StateManager * state_manager, float delta_
 	}
 	}
 
-	camera_0->SetFrameTime( delta_time_ );
-	camera_0->update();
-
-	if( updateKinect )
+	if( bool_update_terrain || bool_update_handlayer )
 	{
-		bool Pass;
-		KinectSensor_->UpdateDEFeed( Pass, ARSCalibration_->MinDepth, ARSCalibration_->maxDepth );
-		terrain_changed_ = Pass;
+		if( timer_depth_update <= 0 )
+		{
+			bool Pass;
+			KinectSensor_->UpdateDEFeed( Pass, ARSCalibration_->MinDepth, ARSCalibration_->maxDepth );
+			terrain_changed_ = Pass;
 
+			timer_depth_update = 0.1f;
+
+		}
+		else
+		{
+			timer_depth_update -= delta_time;
+			if( terrain_changed_Calibration == true )
+			{
+				terrain_changed_ = true;
+			}
+		}
 	}
 
-	if( terrain_changed_ )
-	{
+	if( bool_update_terrain )
 		UpdateTerrain();
-	}
+
+	if( bool_update_handlayer )
+		UpdateDepthLayer( forground_terrain, forground_mesh_, ARSCalibration_->ForgroundMinDepth, ARSCalibration_->ForgroundMaxDepth );
+
 
 	gef::Matrix44 trasformation;
 	gef::Matrix44 rotationx;
@@ -128,6 +146,22 @@ void NORMAL_TERRAIN_GENstate::Update( StateManager * state_manager, float delta_
 	translation.SetTranslation( gef::Vector4( 0.0f, 0.0f, -0.0 ) );
 	trasformation = rotationx * rotationy * rotationz *scale *translation;
 	cube_player_.set_transform( trasformation );
+
+	trasformation.SetIdentity();
+	rotationx.SetIdentity();
+	rotationy.SetIdentity();
+	rotationz.SetIdentity();
+	scale.SetIdentity();
+	translation.SetIdentity();
+
+
+	rotationx.RotationX( 0.0f );
+	rotationy.RotationY( 0.0f );
+	rotationz.RotationZ( 0.0f );
+	scale.Scale( gef::Vector4( 1.f, 1.f, 1.f ) );
+	translation.SetTranslation( gef::Vector4( 0.0f, -49.0f, -0.0 ) );
+	trasformation = rotationx * rotationy * rotationz *scale *translation;
+	forground_meshinstance_.set_transform( trasformation );
 
 }
 
@@ -158,10 +192,40 @@ void NORMAL_TERRAIN_GENstate::Render( gef::Renderer3D * renderer_3d_, gef::Sprit
 
 	RenderTerrain( renderer_3d_ );
 
-	 //setup the sprite renderer, but don't clear the frame buffer
-	 //draw 2D sprites here
-	sprite_renderer_->Begin(false);
+	//setup the sprite renderer, but don't clear the frame buffer
+	//draw 2D sprites here
+
+	gef::Matrix44 proj_matrix2d;
+
+	//proj_matrix2d = platform_->OrthographicFrustum( 0.0f, platform_->width(), 0.0f, platform_->height(), -1.0f, 1.0f );
+
+	//proj_matrix2d = platform_->OrthographicFrustum( -50.0f, 50, -50.f, 50, -1.0f, 1.0f );
+
+	proj_matrix2d = platform_->OrthographicFrustum(
+		ARSCalibration_->LeftRightTopBottom.x(),
+		ARSCalibration_->LeftRightTopBottom.y(),
+		-ARSCalibration_->LeftRightTopBottom.z(),
+		-ARSCalibration_->LeftRightTopBottom.w(),
+		-1, 1.0f );
+
+
+	sprite_renderer_->set_projection_matrix( proj_matrix2d );
+
+	sprite_renderer_->Begin( false );
+
+	sprite_renderer_->DrawSprite( *CrossSprite );
+	sprite_renderer_->DrawSprite( *CircleSprite );
+	sprite_renderer_->DrawSprite( *TriangleSprite );
+	sprite_renderer_->DrawSprite( *SquareSprite );
+
+	sprite_renderer_->End();
+	proj_matrix2d = platform_->OrthographicFrustum( 0.0f, platform_->width(), 0.0f, platform_->height(), -1.0f, 1.0f );
+	sprite_renderer_->set_projection_matrix( proj_matrix2d );
+
+	sprite_renderer_->Begin( false );
 	DrawHUD( sprite_renderer_ );
+
+
 	sprite_renderer_->End();
 
 }
@@ -267,9 +331,95 @@ void NORMAL_TERRAIN_GENstate::initMeshes()
 
 	terrain_changed_ = false;
 
-	mesh_ = CreateSquare(); 
+	mesh_ = CreateSquare();
 	cube_player_.set_mesh( mesh_ );
 
+	//  Forground
+	forground_terrain = new TerrainMesh();
+
+	forground_terrain->GenerateVertices();
+	forground_terrain->GenerateIndex();
+
+	terrain_changed_ = false;
+
+	forground_mesh_ = CreateSquare();
+	forground_meshinstance_.set_mesh( forground_mesh_ );
+
+}
+
+void NORMAL_TERRAIN_GENstate::initSprites()
+{
+	gef::PNGLoader PngLoader;
+	gef::ImageData crossData;
+	CrossSprite = new gef::Sprite();
+	PngLoader.Load( "cross-button.png", *platform_, crossData );
+	if( crossData.image() == NULL )
+	{
+		exit( -1 );
+	}
+	CrossTexture = gef::Texture::Create( *platform_, crossData );
+	CrossSprite->set_height( 25.f );
+	CrossSprite->set_width( 25.f );
+	CrossSprite->set_position( gef::Vector4( -25, -25, -10.f ) );
+	CrossSprite->set_texture( CrossTexture );
+	CrossSprite->set_colour( 0x7FFFFFFF );
+	CrossSprite->set_uv_width( 1.0f );
+	CrossSprite->set_uv_height( 1.0f );
+
+	gef::ImageData circleData;
+	CircleSprite = new gef::Sprite();
+	PngLoader.Load( "circle-button.png", *platform_, circleData );
+	if( circleData.image() == NULL )
+	{
+		exit( -1 );
+	}
+	CircleTexture = gef::Texture::Create( *platform_, circleData );
+	CircleSprite->set_height( 25.f );
+	CircleSprite->set_width( 25.f );
+	CircleSprite->set_position( gef::Vector4( -25, 25, -10.f ) );
+	CircleSprite->set_texture( CircleTexture );
+	CircleSprite->set_colour( 0x7FFFFFFF );
+	CircleSprite->set_uv_width( 1.0f );
+	CircleSprite->set_uv_height( 1.0f );
+
+	gef::ImageData triangleData;
+	TriangleSprite = new gef::Sprite();
+	PngLoader.Load( "triangle-button.png", *platform_, triangleData );
+	if( triangleData.image() == NULL )
+	{
+		exit( -1 );
+	}
+	TriangleTexture = gef::Texture::Create( *platform_, triangleData );
+	TriangleSprite->set_height( 25.f );
+	TriangleSprite->set_width( 25.f );
+	TriangleSprite->set_position( gef::Vector4( 25, -25, -10.f ) );
+	TriangleSprite->set_texture( TriangleTexture );
+	TriangleSprite->set_colour( 0x7FFFFFFF );
+	TriangleSprite->set_uv_width( 1.0f );
+	TriangleSprite->set_uv_height( 1.0f );
+
+
+	gef::ImageData squareData;
+	SquareSprite = new gef::Sprite();
+	PngLoader.Load( "square-button.png", *platform_, squareData );
+	if( squareData.image() == NULL )
+	{
+		exit( -1 );
+	}
+	SquareTexture = gef::Texture::Create( *platform_, squareData );
+	SquareSprite->set_height( 25.f );
+	SquareSprite->set_width( 25.f );
+	SquareSprite->set_position( gef::Vector4( 25, 25, -10.f ) );
+	SquareSprite->set_texture( SquareTexture );
+	SquareSprite->set_colour( 0x7FFFFFFF );
+	SquareSprite->set_uv_width( 1.0f );
+	SquareSprite->set_uv_height( 1.0f );
+
+
+	HandCollisionBoxes.push_back( new HandCollision( 1, -25, -25, 25, 25 ) );
+	HandCollisionBoxes.push_back( new HandCollision( 1, -25, 25, 25, 25 ) );
+	HandCollisionBoxes.push_back( new HandCollision( 1, 25, -25, 25, 25 ) );
+	HandCollisionBoxes.push_back( new HandCollision( 1, 25, 25, 25, 25 ) );
 }
 
 void NORMAL_TERRAIN_GENstate::HandleInput( gef::InputManager* input_manager_ )
@@ -312,10 +462,26 @@ void NORMAL_TERRAIN_GENstate::HandleInput( gef::InputManager* input_manager_ )
 
 		if( keyboard->IsKeyPressed( gef::Keyboard::KC_X ) )
 		{
-			
+
+			bool_update_terrain = !bool_update_terrain;
+			bool_update_handlayer = !bool_update_handlayer;
 			updateKinect = !updateKinect;
-			
+
+
 		}
+		if( keyboard->IsKeyPressed( gef::Keyboard::KC_Z ) )
+		{
+
+			terrain_changed_Calibration = !terrain_changed_Calibration;
+
+
+		}
+
+		if( keyboard->IsKeyPressed( gef::Keyboard::KC_T ) )
+			bool_update_terrain = !bool_update_terrain;
+		if( keyboard->IsKeyPressed( gef::Keyboard::KC_U ) )
+			bool_update_handlayer = !bool_update_handlayer;
+
 
 		if( keyboard->IsKeyPressed( gef::Keyboard::KC_R ) )
 		{
@@ -409,6 +575,7 @@ void NORMAL_TERRAIN_GENstate::UpdateTerrain()
 		{
 
 			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
+			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
 			int a = (ARSCalibration_->Image_LeftRightTopBottom.w() + (increment_y * y));
 			int b = (ARSCalibration_->Image_LeftRightTopBottom.x() + (increment_x * x));
 
@@ -418,16 +585,10 @@ void NORMAL_TERRAIN_GENstate::UpdateTerrain()
 			float DepthValueInRange = depth - ARSCalibration_->MinDepth;
 
 			DepthValueInRange = (Range - DepthValueInRange);
-			
-			float  depthval = (DepthValueInRange / Range)*100;
-
-			//if( (depthval != 0) || (depthval <= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py - 0.5)
-			//	&& (depthval >= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py + 0.5) )
-			//	vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = depthval;
+			float  depthval = (DepthValueInRange / Range) * 25;
 
 			if( (depth > ARSCalibration_->MinDepth) )
 				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = depthval;
-			
 
 		}
 	}
@@ -473,12 +634,13 @@ void NORMAL_TERRAIN_GENstate::UpdateDepthLayer( TerrainMesh* DepthLayerMesh,
 			float DepthValueInRange = depth - minDepth;
 
 			DepthValueInRange = (Range - DepthValueInRange);
-			float  depthval = (DepthValueInRange / Range);
+			float  depthval = (DepthValueInRange / Range) * 25;
 
 
-			if( (depthval != 0) || (depthval <= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py - 0.5)
-				&& (depthval >= vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py + 0.5) )
+			if( (depth > minDepth) )
 				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = depthval;
+			else
+				vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py = 0;
 
 		}
 	}

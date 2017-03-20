@@ -34,6 +34,7 @@ namespace gef
 
 class TerrainMesh;
 class TerrainShader;
+class HandCollision;
 
 class NORMAL_TERRAIN_GENstate : public State
 {
@@ -59,6 +60,7 @@ private:
 	//Init Functions
 	void initCamera();
 	void initMeshes();
+	void initSprites();
 	void InitFont();
 	
 	gef::Font* font_;
@@ -83,24 +85,45 @@ private:
 	//Objects
 	gef::Scene* model_scene_;
 	gef::Mesh* mesh_;
+	gef::Mesh* forground_mesh_;
 	gef::MeshInstance cube_player_;
+	gef::MeshInstance forground_meshinstance_;
 
 	TerrainMesh* terrain_mesh_;
+	TerrainMesh* forground_terrain;
+
 	std::vector<gef::Mesh::Vertex> terrain_verticies;
 	std::vector<int> terrain_index;
+
+	std::vector<HandCollision*> HandCollisionBoxes;
+	bool Hand_Collision[4];
 
 	//Update Functions
 	void HandleInput( gef::InputManager* input_manager_ );;
 	void InputCameraControls( CameraObject* ActiveCamera, const gef::Keyboard* keyboard );;
 	void UpdateTerrain();
 	void UpdateDepthLayer( TerrainMesh* DepthLayerMesh, gef::Mesh* depthLayerMesh, float minDepth, float maxDepth );
+	
+	//Collsion
+
+	void HandCollisionUpdate( TerrainMesh* DepthLayerMesh, gef::Mesh* depthLayerMesh, float minDepth, float maxDepth );
+
+	
 	void CleanUpFont();
 
 	//Update varibles
 	bool updateKinect;
 	bool terrain_changed_;
+	bool terrain_changed_Calibration;
 	bool terrain_shader_active_;
 	float fps_;
+
+
+	bool bool_update_terrain;
+	bool bool_update_handlayer;
+
+	int calibration_mode;
+	float timer_depth_update;
 
 
 	//RenderFunctions
@@ -110,6 +133,19 @@ private:
 	//Render Varibles
 	bool RenderProspective;
 	int activeCamera;
+
+	//Sprites
+	gef::Sprite* CrossSprite;
+	gef::Texture* CrossTexture;
+
+	gef::Sprite* CircleSprite;
+	gef::Texture* CircleTexture;
+
+	gef::Sprite* TriangleSprite;
+	gef::Texture* TriangleTexture;
+
+	gef::Sprite* SquareSprite;
+	gef::Texture* SquareTexture;
 
 };
 
