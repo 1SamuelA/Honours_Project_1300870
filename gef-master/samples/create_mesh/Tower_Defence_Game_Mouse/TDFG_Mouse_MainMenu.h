@@ -31,30 +31,30 @@ class TDFG_M_MAINMENUstate : public State
 
 
 public:
-	MAINMENUstate()
+	TDFG_M_MAINMENUstate()
 	{
 		AlreadyInit = false;
 	};
 
-	~MAINMENUstate() {};
+	~TDFG_M_MAINMENUstate() {};
 
-	void init(gef::Platform* platform, ARSCalibrationData* ARS_calibration_data, Kinect_v2* kinect_sensor_);
+	void init( gef::Platform* platform, ARSCalibrationData* ARS_calibration_data, Kinect_v2* kinect_sensor_ );
 	void cleanup();
-	void Update(StateManager* state_manager_, float delta_time, gef::InputManager* inputmanager);
-	void Render(class gef::Renderer3D* renderer_3d_, class gef::SpriteRenderer* sprite_renderer_, gef::Font* font);
-	void DrawSprite(class gef::SpriteRenderer* sprite_renderer_, gef::Font* font);
-	void DrawMesh(class gef::Renderer3D* renderer_3d_);
+	void Update( StateManager* state_manager_, float delta_time, gef::InputManager* inputmanager );
+	void Render( class gef::Renderer3D* renderer_3d_, class gef::SpriteRenderer* sprite_renderer_, gef::Font* font );
+	void DrawSprite( class gef::SpriteRenderer* sprite_renderer_, gef::Font* font );
+	void DrawMesh( class gef::Renderer3D* renderer_3d_ );
 	gef::Mesh* CreateSquare();
-
 private:
 
 	void InitFont();
 	void CleanUpFont();
-	void DrawHUD(gef::SpriteRenderer * sprite_renderer_);
+	void DrawHUD( gef::SpriteRenderer * sprite_renderer_ );
 
 	bool AlreadyInit;
 
-	void HandleInput(gef::InputManager* input_manager_);
+	void HandleInput( gef::InputManager* input_manager_ );
+	void HandleMouseInput( gef::InputManager* input_manager_ );
 
 	ARSCalibrationData* ARS_calibration_data_;
 
@@ -64,8 +64,6 @@ private:
 	bool RenderMarkerFound;
 
 	StateManager* state_manager_;
-
-
 
 	gef::PNGLoader* PngLoader;
 
@@ -94,9 +92,14 @@ private:
 	gef::Scene* model_scene_exit;
 	gef::Mesh* mesh_exit;
 
-
 	gef::Scene* model_scene_;
 	gef::Mesh* mesh_;
+
+	std::vector<MouseCollisionObject*> mouse_collision_lists;
+
+	bool mouse_updated;
+
+	gef::Vector2 mouse_position_, mouse_position_2;
 
 	// Selection /////////////
 
@@ -110,10 +113,7 @@ private:
 
 	gef::Texture* selectionTexture;
 
-	void Render3DScene(gef::Renderer3D * renderer_3d_);
-
-
-
+	void Render3DScene( gef::Renderer3D * renderer_3d_ );
 
 
 }

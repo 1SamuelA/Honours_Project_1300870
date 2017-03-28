@@ -733,6 +733,64 @@ void NORMAL_TERRAIN_GENstate::InitFont()
 	font_->Load( "comic_sans" );
 }
 
+void NORMAL_TERRAIN_GENstate::HandCollisionUpdate( TerrainMesh * DepthLayerMesh, gef::Mesh * depthLayerMesh, float minDepth, float maxDepth )
+{
+
+	Hand_Collision[0] = false;
+	Hand_Collision[1] = false;
+	Hand_Collision[2] = false;
+	Hand_Collision[3] = false;
+
+
+	gef::Mesh::Vertex* vertices_ = (gef::Mesh::Vertex*) depthLayerMesh->vertex_buffer()->vertex_data();
+	std::vector<gef::Mesh::Vertex> temp_terrain = DepthLayerMesh->GetTerrainVerticies();
+
+
+	float depth = 50;
+
+
+	float increment_x, increment_y;
+	increment_x = (ARSCalibration_->Image_LeftRightTopBottom.y() - ARSCalibration_->Image_LeftRightTopBottom.x())
+		/ DepthLayerMesh->GetWidth();
+	increment_y = (ARSCalibration_->Image_LeftRightTopBottom.z() - ARSCalibration_->Image_LeftRightTopBottom.w())
+		/ DepthLayerMesh->GetHeight();
+
+
+
+	for( int y = 0; y < DepthLayerMesh->GetHeight(); y++ )
+	{
+		for( int x = 0; x < DepthLayerMesh->GetWidth(); x++ )
+		{
+
+			//ir_data_2darray[x][y] = irData[(y*ir_streams_width) + x];
+			for( int NumCollisions = 0; NumCollisions < HandCollisionBoxes.size(); NumCollisions++ )
+			{
+				float depth = vertices_[(y* (int)terrain_mesh_->GetHeight()) + x].py;
+				if( depth > 15 )
+				{
+					if( HandCollisionBoxes[NumCollisions]->Collision( gef::Vector2( x - 50, y - 50 ) ) )
+					{
+						Hand_Collision[NumCollisions] = true;
+						break;
+					}
+					else
+					{
+						false;
+					}
+				}
+			}
+
+		}
+	}
+
+	//vertices_[0].py = sin(time_)/2;
+
+
+	depthLayerMesh->vertex_buffer()->Update( *platform_ );
+
+	terrain_changed_ = false;
+}
+
 void NORMAL_TERRAIN_GENstate::CleanUpFont()
 {
 	delete font_;
@@ -743,7 +801,28 @@ void NORMAL_TERRAIN_GENstate::DrawHUD( gef::SpriteRenderer * sprite_renderer_ )
 {
 	if( font_ )
 	{
-		// display frame rate
+		
+
+		if( Hand_Collision[0] )
+		{
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, 20 + platform_->height() / 2, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "Collsion 1" );
+
+		}
+		if( Hand_Collision[1] )
+		{
+			font_->RenderText( sprite_renderer_, gef::Vector4( (platform_->width() / 2), 20 + platform_->height() / 2, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "Collsion 2" );
+
+		}
+		if( Hand_Collision[2] )
+		{
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, 20 + platform_->height() / 2, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "Collsion 3" );
+
+		}
+		if( Hand_Collision[3] )
+		{
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, 20 + platform_->height() / 2, -1.1f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "Collsion 4" );
+
+		}
 
 		font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() - 150.f, platform_->height() - 80.f, -0.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT, "FPS: %.1f", fps_ );
 

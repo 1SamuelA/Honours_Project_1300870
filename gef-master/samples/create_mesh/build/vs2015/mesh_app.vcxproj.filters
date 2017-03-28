@@ -87,9 +87,6 @@
     <ClCompile Include="..\..\NORMAL_TERRAIN_GEN_state.cpp">
       <Filter>Source Files\States\Base</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\Tower_Defence_Game_Mouse\TDFG_Mouse_MainMenu.cpp">
-      <Filter>Source Files\States\Tower_Defence_Game_Mouse</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\CALIBRATION_statecpp.cpp">
       <Filter>Source Files\States\Base</Filter>
     </ClCompile>
@@ -107,6 +104,9 @@
     </ClCompile>
     <ClCompile Include="..\..\hand_collision.cpp">
       <Filter>Source Files\Kinect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Tower_Defence_Game_Mouse\TDFG_Mouse_MainMenu.cpp">
+      <Filter>Source Files\States\Tower_Defence_Game_Mouse</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -133,9 +133,6 @@
     </ClInclude>
     <ClInclude Include="..\..\StateManager.h">
       <Filter>Header Files\States\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\..\..\Sam%27s\Desktop\honhours\Honours_Project_1300870\gef-master\samples\create_mesh\Tower_Defence_Game_Mouse\TDFG_Mouse_MainMenu.h">
-      <Filter>Header Files\States\Tower_Defence_Game_Mouse</Filter>
     </ClInclude>
     <ClInclude Include="..\..\CALIBRATION_state.h">
       <Filter>Header Files\States\Base</Filter>
@@ -166,6 +163,9 @@
     </ClInclude>
     <ClInclude Include="..\..\hand_collision.h">
       <Filter>Header Files\Kinect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Tower_Defence_Game_Mouse\TDFG_Mouse_MainMenu.h">
+      <Filter>Header Files\States\Tower_Defence_Game_Mouse</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

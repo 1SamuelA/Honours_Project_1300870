@@ -33,7 +33,7 @@
 
 
 
-#define CALIBRATIONSTAGES 6
+#define CALIBRATIONSTAGES 7
 
 void CALIBRATIONstate::init( gef::Platform * platform, ARSCalibrationData * ARSCalibration, Kinect_v2* kinect_sensor_ )
 {
@@ -202,38 +202,39 @@ void CALIBRATIONstate::Update( StateManager * state_manager, float delta_time, g
 	trasformation = rotationx * rotationy * rotationz *scale *translation;
 	forground_meshinstance_.set_transform( trasformation );
 
+
+	switch( calibration_mode )
+	{
+	case 7:
+	{
+		
+		break;
+	}
+	default:
+	{
+
+		break;
+	}
+	}
+
 }
 
 void CALIBRATIONstate::Render( gef::Renderer3D * renderer_3d_, gef::SpriteRenderer * sprite_renderer_, gef::Font * font )
 {
 	font_ = font;
 
-
-	//gef::Matrix44 projection_matrix;
-	//gef::Matrix44 view_matrix;
-
-	//projection_matrix = platform_->PerspectiveProjectionFov(camera_0->GetFov(), (float)platform_->width() / (float)platform_->height(), camera_0->GetNear(), camera_0->GetFar());
-	////projection_matrix = platform_.OrthographicFrustum( 0.0, platform_.width(), 0.0, platform_.height(), camera_0->GetNear(), camera_0->GetFar() );
-	//view_matrix.LookAt(camera_0->GetPos(), camera_0->GetLook(), camera_0->GetUp());
-	////view_matrix.LookAt(camera_eye, camera_lookat, camera_up);
-
-	//renderer_3d_->set_projection_matrix(projection_matrix);
-	//renderer_3d_->set_view_matrix(view_matrix);
-
-	//
-	//// draw meshes here
-	//renderer_3d_->Begin();
-	//renderer_3d_->DrawMesh(cube_player_);
-
-	////renderer_3d_->SetFillMode(gef::Renderer3D::FillMode::kSolid);
-
-	//renderer_3d_->End();
-
+	//Renders the terrain;
 	RenderTerrain( renderer_3d_ );
 
 	//setup the sprite renderer, but don't clear the frame buffer
 	//draw 2D sprites here
 
+	DrawSprite( sprite_renderer_, font );
+
+}
+
+void CALIBRATIONstate::DrawSprite( gef::SpriteRenderer * sprite_renderer_, gef::Font * font )
+{
 	gef::Matrix44 proj_matrix2d;
 
 	//proj_matrix2d = platform_->OrthographicFrustum( 0.0f, platform_->width(), 0.0f, platform_->height(), -1.0f, 1.0f );
@@ -245,8 +246,8 @@ void CALIBRATIONstate::Render( gef::Renderer3D * renderer_3d_, gef::SpriteRender
 		ARSCalibration_->LeftRightTopBottom.y(),
 		-ARSCalibration_->LeftRightTopBottom.z(),
 		-ARSCalibration_->LeftRightTopBottom.w(),
-		-1, 1.0f);
-		
+		-1, 1.0f );
+
 
 	sprite_renderer_->set_projection_matrix( proj_matrix2d );
 
@@ -258,7 +259,15 @@ void CALIBRATIONstate::Render( gef::Renderer3D * renderer_3d_, gef::SpriteRender
 	sprite_renderer_->DrawSprite( *SquareSprite );
 
 	sprite_renderer_->End();
+
 	proj_matrix2d = platform_->OrthographicFrustum( 0.0f, platform_->width(), 0.0f, platform_->height(), -1.0f, 1.0f );
+
+	gef::Matrix44 a;
+	a.SetIdentity();
+	a.SetRow( 0, gef::Vector4( -1, 0, 0.f, 0.f ) );
+	//a.SetRow( 3, gef::Vector4( 1, 0, 0.f, 0.f ) );
+	//proj_matrix2d = a*proj_matrix2d;
+
 	sprite_renderer_->set_projection_matrix( proj_matrix2d );
 
 	sprite_renderer_->Begin( false );
@@ -267,10 +276,10 @@ void CALIBRATIONstate::Render( gef::Renderer3D * renderer_3d_, gef::SpriteRender
 
 	sprite_renderer_->End();
 
-}
 
-void CALIBRATIONstate::DrawSprite( gef::SpriteRenderer * sprite_renderer_, gef::Font * font )
-{
+
+	
+
 }
 
 void CALIBRATIONstate::DrawMesh( gef::Renderer3D * renderer_3d_ )
@@ -1061,6 +1070,14 @@ void CALIBRATIONstate::DrawHUD( gef::SpriteRenderer * sprite_renderer_ )
 				, "Forground Depth" );
 
 			font_->RenderText( sprite_renderer_, gef::Vector4( 000.0f, 120.0f, -1.1f ), 1.0f, 0xffff00ff, gef::TJ_LEFT, "Min, Max Depth: %i %i", ARSCalibration_->ForgroundMinDepth, ARSCalibration_->ForgroundMaxDepth );
+			break;
+		}
+		case 7:
+		{
+			// Forground Depth
+			font_->RenderText( sprite_renderer_, gef::Vector4( platform_->width() / 2, platform_->height() / 2, -1.9f ), 1.0f, 0xffffffff, gef::TJ_LEFT
+				, "Path" );
+
 			break;
 		}
 
