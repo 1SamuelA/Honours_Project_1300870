@@ -1,11 +1,11 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2008
-
-Project("{CA90F092-970B-0B09-6407-CA76951BEA26}") = "Unity ProtoType", "Assembly-CSharp-firstpass.csproj", "{CABA8B09-B8EF-7EB3-701D-0295F21990B4}"
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unity ProtoType", "Assembly-CSharp-firstpass.csproj", "{CABA8B09-B8EF-7EB3-701D-0295F21990B4}"
 EndProject
-Project("{CA90F092-970B-0B09-6407-CA76951BEA26}") = "Unity ProtoType", "Assembly-CSharp.csproj", "{0488BC01-C89C-D1C4-8DF5-CC3A7652C0E6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unity ProtoType", "Assembly-CSharp.csproj", "{0488BC01-C89C-D1C4-8DF5-CC3A7652C0E6}"
 EndProject
-Project("{CA90F092-970B-0B09-6407-CA76951BEA26}") = "Unity ProtoType", "Assembly-CSharp-Editor-firstpass.csproj", "{7F50ACD2-C5A7-D2BA-E42A-D540F523C5FC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unity ProtoType", "Assembly-CSharp-Editor-firstpass.csproj", "{7F50ACD2-C5A7-D2BA-E42A-D540F523C5FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
