@@ -345,6 +345,7 @@ public class DepthSourceView : MonoBehaviour
             // Downsample to lower resolution
 			CreateMesh(MeshWidth, MeshHeight);
 
+
 			this.transform.position = new Vector3 (-MeshWidth/2, 0, MeshHeight/2);
 
             if (!_Sensor.IsOpen)
@@ -357,6 +358,7 @@ public class DepthSourceView : MonoBehaviour
     void CreateMesh(int width, int height)
     {
         _Mesh = new Mesh();
+		_Mesh.name = "Terrain";
         GetComponent<MeshFilter>().mesh = _Mesh;
 
         _Vertices = new Vector3[width * height];
@@ -411,26 +413,26 @@ public class DepthSourceView : MonoBehaviour
             return;
         }
         
-        if (Input.GetButtonDown("Fire1"))
-        {
-
-			if (updateTerrain == true) {
-				updateTerrain = false;
-			} else {
-				updateTerrain = true;
-			}
-
-
-
-            if(ViewMode == DepthViewMode.MultiSourceReader)
-            {
-                ViewMode = DepthViewMode.SeparateSourceReaders;
-            }
-            else
-            {
-                ViewMode = DepthViewMode.MultiSourceReader;
-            }
-        }
+//        if (Input.GetButtonDown("Fire1"))
+//        {
+//
+//			if (updateTerrain == true) {
+//				updateTerrain = false;
+//			} else {
+//				updateTerrain = true;
+//			}
+//
+//
+//
+//            if(ViewMode == DepthViewMode.MultiSourceReader)
+//            {
+//                ViewMode = DepthViewMode.SeparateSourceReaders;
+//            }
+//            else
+//            {
+//                ViewMode = DepthViewMode.MultiSourceReader;
+//            }
+//        }
         
         float yVal = Input.GetAxis("Horizontal");
         float xVal = -Input.GetAxis("Vertical");
@@ -532,12 +534,17 @@ public class DepthSourceView : MonoBehaviour
             }
         }
         
-		Debug.Log (_Vertices [0].z);
 
-        _Mesh.vertices = _Vertices;
-        _Mesh.uv = _UV;
-        _Mesh.triangles = _Triangles;
-        _Mesh.RecalculateNormals();
+        
+
+		MeshCollider myMC = GetComponent<MeshCollider>();
+		_Mesh.vertices = _Vertices;
+		_Mesh.uv = _UV;
+		_Mesh.triangles = _Triangles;
+		_Mesh.RecalculateNormals();
+		_Mesh.RecalculateBounds();
+		myMC.sharedMesh = _Mesh;
+
     }
 
     void OnApplicationQuit()
@@ -557,5 +564,10 @@ public class DepthSourceView : MonoBehaviour
             _Sensor = null;
         }
     }
+
+	void OnMouseClick()
+	{
+		Debug.Log ("Clicked");
+	}
 }
 
